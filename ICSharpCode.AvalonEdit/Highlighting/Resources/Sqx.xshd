@@ -1,0 +1,215 @@
+<?xml version="1.0"?>
+<SyntaxDefinition name="Sqx" extensions=".sqx" xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
+  <!-- The named colors 'Comment' and 'String' are used in SharpDevelop to detect if a line is inside a multiline string/comment -->
+  <Color name="Comment" foreground="Green" exampleText="// comment" />
+  <Color name="String" foreground="#646464" exampleText="string text = &quot;Hello, World!&quot;"/>
+  <Color name="Char" foreground="Magenta" exampleText="char linefeed = '\n';"/>
+  <Color name="Preprocessor" foreground="Blue" exampleText="#region Title" />
+  <Color name="Punctuation" exampleText="a(b.c);" />
+  <Color name="ValueTypes" fontWeight="bold" foreground="Red" exampleText="bool b = true;" />
+  <Color name="ReferenceTypes" foreground="Red" exampleText="object o;" />
+  <Color name="MethodCall" foreground="MidnightBlue" fontWeight="bold" exampleText="o.ToString();"/>
+  <Color name="ClassDefinition" foreground="MidnightBlue" fontWeight="bold" exampleText="public class Vehicle = {};"/>
+  <Color name="NumberLiteral" foreground="#FF0080" exampleText="3.1415f"/>
+  <Color name="PrivateVariable" foreground="#0058B0" exampleText="_privateVariable"/>
+  <Color name="ThisOrBaseReference" fontWeight="bold" exampleText="this.Do(); base.Do();"/>
+  <Color name="NullOrValueKeywords" fontWeight="bold" exampleText="if (value == null)"/>
+  <Color name="Keywords" fontWeight="bold" foreground="#FF0000" exampleText="if (a) then {} else {}"/>
+  <Color name="GotoKeywords" foreground="Navy" exampleText="continue; return null;"/>
+  <Color name="ContextKeywords" foreground="Navy" exampleText="var a = from x in y select z;"/>
+  <Color name="ExceptionKeywords" fontWeight="bold" foreground="Teal" exampleText="try {} catch {} finally {}"/>
+  <Color name="CheckedKeyword" fontWeight="bold" foreground="DarkGray" exampleText="checked {}"/>
+  <Color name="UnsafeKeywords" foreground="Olive" exampleText="unsafe { fixed (..) {} }"/>
+  <Color name="OperatorKeywords" fontWeight="bold" foreground="Pink" exampleText="public static implicit operator..."/>
+  <Color name="ParameterModifiers" fontWeight="bold" foreground="DeepPink" exampleText="(ref int a, params int[] b)"/>
+  <Color name="Modifiers" foreground="Brown" exampleText="static readonly int a;"/>
+  <Color name="Visibility" fontWeight="bold" foreground="Blue" exampleText="public override void ToString();"/>
+  <Color name="NamespaceKeywords" fontWeight="bold" foreground="Green" exampleText="namespace A.B { using System; }"/>
+  <Color name="GetSetAddRemove" foreground="SaddleBrown" exampleText="int Prop { get; set; }"/>
+  <Color name="TrueFalse" fontWeight="bold" foreground="DarkCyan" exampleText="b = false; a = true;" />
+  <Color name="Brackets" fontWeight="bold" foreground="#0000FF" exampleText="([{}])" />
+  <Color name="Operators" fontWeight="bold" foreground="#0000FF" exampleText="== !=" />
+  <Color name="TypeKeywords" fontWeight="bold" foreground="DarkCyan" exampleText="if (x is int) { a = x as int; type = typeof(int); size = sizeof(int); c = new object(); }"/>
+
+  <Property name="DocCommentMarker" value="///" />
+
+  <RuleSet name="CommentMarkerSet">
+    <Keywords fontWeight="bold" foreground="Red">
+      <Word>TODO</Word>
+      <Word>FIXME</Word>
+    </Keywords>
+    <Keywords fontWeight="bold" foreground="#E0E000">
+      <Word>HACK</Word>
+      <Word>UNDONE</Word>
+    </Keywords>
+  </RuleSet>
+
+  <!-- This is the main ruleset. -->
+  <RuleSet ignoreCase="true">
+    
+    <!--<Span color="Preprocessor">
+      <Begin>\#</Begin>
+      <RuleSet name="PreprocessorSet">
+        <Span>
+          --><!-- preprocessor directives that allows comments --><!--
+          <Begin fontWeight="bold">
+            (undef|if|elif|else|endif|line)\b
+          </Begin>
+          <RuleSet>
+            <Span color="Comment" ruleSet="CommentMarkerSet">
+              <Begin>//</Begin>
+            </Span>
+          </RuleSet>
+        </Span>
+        <Span>
+          --><!-- preprocessor directives that don't allow comments --><!--
+          <Begin fontWeight="bold">
+            (region|endregion|error|warning|pragma)\b
+          </Begin>
+        </Span>
+      </RuleSet>
+    </Span>-->
+
+    <!--<Span color="Comment">
+      <Begin color="XmlDoc/DocComment">///</Begin>
+      <RuleSet>
+        <Import ruleSet="XmlDoc/DocCommentSet"/>
+        <Import ruleSet="CommentMarkerSet"/>
+      </RuleSet>
+    </Span>-->
+
+    <Span color="Comment" ruleSet="CommentMarkerSet">
+      <Begin>//</Begin>
+    </Span>
+
+    <Span color="Comment" ruleSet="CommentMarkerSet" multiline="true">
+      <Begin>/\*</Begin>
+      <End>\*/</End>
+    </Span>
+
+    <Span color="String">
+      <Begin>"</Begin>
+      <End>"</End>
+      <RuleSet>
+        <!-- span for escape sequences -->
+        <Span begin="\\" end="."/>
+      </RuleSet>
+    </Span>
+
+    <!--<Keywords color="ThisOrBaseReference">
+      <Word>this</Word>
+      <Word>base</Word>
+    </Keywords>-->
+
+    <!--<Keywords color="TypeKeywords">
+      <Word>as</Word>
+      <Word>is</Word>
+      <Word>new</Word>
+      <Word>sizeof</Word>
+      <Word>typeof</Word>
+      <Word>stackalloc</Word>
+    </Keywords>-->
+
+    <Keywords color="TrueFalse">
+      <Word>true</Word>
+      <Word>false</Word>
+      <Word>east</Word>
+      <Word>west</Word>
+      <Word>blufor</Word>
+      <Word>opfor</Word>
+      <Word>civilian</Word>
+      <Word>resistance</Word>
+      <Word>independent</Word>
+      <Word>sideEmpty</Word>
+      <Word>sideAmbientLife</Word>
+      <Word>sideLogic</Word>
+      <Word>objNull</Word>
+      <Word>controlNull</Word>
+      <Word>displayNull</Word>
+      <Word>grpNull</Word>
+      <Word>locationNull</Word>
+      <Word>taskNull</Word>
+      <Word>scriptNull</Word>
+      <Word>configNull</Word>
+      <Word>nil</Word>
+    </Keywords>
+
+    <Keywords color="Keywords">
+      <Word>public</Word>
+      <Word>protected</Word>
+      <Word>class</Word>
+      <Word>constructor</Word>
+      <Word>private</Word>
+      <Word>if</Word>
+      <Word>then</Word>
+      <Word>exitWith</Word>
+      <Word>else</Word>
+      <Word>switch</Word>
+      <Word>do</Word>
+      <Word>case</Word>
+      <Word>default</Word>
+      <Word>for</Word>
+      <Word>forEach</Word>
+      <Word>in</Word>
+      <Word>while</Word>
+    </Keywords>
+
+    <Keywords color="GotoKeywords">
+      <Word>scopeName</Word>
+      <Word>breakTo</Word>
+      <Word>breakOut</Word>
+    </Keywords>
+
+    <Rule color="PrivateVariable">
+      (?&lt;![\d\w])_[_a-zA-Z0-9]+ # private variable
+    </Rule>
+    
+    <Rule color="Brackets">
+      [\{\[\(\)\]\}] # brackets
+    </Rule>
+
+    <Rule color="Operators">
+      (==|!=|&lt;=?|&gt;=?|\!|&amp;&amp;|\|\|) # operators
+    </Rule>
+
+    <!-- Mark previous rule-->
+    <Rule color="MethodCall">
+      \b
+      [\d\w_]+  # an identifier
+      (?=\s*\=\s*\{) # followed by "= {"
+    </Rule>
+
+    <!-- Mark previous rule-->
+    <Rule color="ClassDefinition">
+      \b
+      public class [\d\w_]+  # an identifier
+      (?=\s*\=\s*\{) # followed by "= {"
+    </Rule>
+
+    <!-- #define -->
+    <Rule color="Preprocessor">
+      \#define            #starting with "#define"
+      (\s+[a-zA-Z][a-zA-Z0-9_]*)?  #a macro identifyer
+    </Rule>
+    
+    <!-- #include -->
+    <Rule color="Preprocessor">
+      \#include
+    </Rule>
+    
+    <Rule color="Preprocessor">
+      \\$
+    </Rule>
+      
+    <!-- Digits -->
+    <Rule color="NumberLiteral">
+      -+                   #starting with a minus
+      [0-9]                #integer
+      |
+      (	\b\d+(\.[0-9]+)?   #number with optional floating point
+      |	\.[0-9]+           #or just starting with floating point
+      )
+    </Rule>
+
+  </RuleSet>
+</SyntaxDefinition>

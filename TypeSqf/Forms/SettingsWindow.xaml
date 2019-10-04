@@ -1,0 +1,104 @@
+﻿<Window x:Class="TypeSqf.Edit.Forms.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:TypeSqf.Edit.Forms"
+        Title="TypeSqf Options" Width="800" ResizeMode="NoResize" ShowInTaskbar="False"
+        WindowStartupLocation="CenterOwner" Height="590" Loaded="Window_Loaded" Icon="../Images/Settings.png">
+    <Window.DataContext>
+        <local:SettingsWindowViewModel />
+    </Window.DataContext>
+    <Grid HorizontalAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Column="0" VerticalAlignment="Top" Height="521" Grid.RowSpan="2">
+            <GroupBox Margin="10,10,10,0" x:Name="AutoCompletionGroupBox" Header="Auto Completion" Height="60">
+                <CheckBox x:Name="EnableAutoCompletionCheckBox" Content="Enable auto completion" IsChecked="{Binding EnableAutoCompletion}" TabIndex="0" Margin="10,10,10,10" />
+            </GroupBox>
+            <GroupBox Margin="10,10,10,0" x:Name="FoldingGroupBox" Header="Folding" Height="60">
+                <CheckBox x:Name="EnableFoldingCheckBox" Content="Enable folding (may have negative impact on performance)" IsChecked="{Binding EnableFolding}" TabIndex="0" Margin="10,10,10,10" />
+            </GroupBox>
+            <GroupBox Margin="10,10,10,0" x:Name="TabSettingsGroupBox" Header="Tabs">
+                <StackPanel Orientation="Vertical">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Margin="10,10,15,0">Indentation with</TextBlock>
+                        <TextBox Width="40" Height="26" Margin="0,5,0,0" Padding="4" Text="{Binding IndentationSizeString}" TabIndex="0"></TextBox>
+                    </StackPanel>
+                    <CheckBox x:Name="ConvertTabsToSpacesCheckBox" Content="Convert tabs to spaces" IsChecked="{Binding ConvertTabsToSpaces}" TabIndex="0" Margin="10,10,10,10" />
+                </StackPanel>
+            </GroupBox>
+            <GroupBox Margin="10,10,10,0" x:Name="FoldingGroupBox_Copy" Header="Compiler">
+                <CheckBox x:Name="EnableFoldingCheckBox1" Content="Add method call logging to the RPT log file." ToolTip="Adds a log entry to the RPT file for each called method. Good for tracing, but has a negative impact on performance." IsChecked="{Binding AddMethodCallLogging}" TabIndex="0" Margin="10,10,10,10" />
+            </GroupBox>
+            <GroupBox Margin="10,10,10,0" Padding="0,0,0,10" x:Name="DeployGroupBox" Header="PBO Export">
+                <StackPanel Orientation="Vertical">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Margin="10,10,5,0">Menu caption:</TextBlock>
+                        <TextBlock Margin="10,10,5,0">Export to</TextBlock>
+                        <TextBox Height="26" Width="198" TabIndex="0" Margin="0,5,0,0" Padding="4" Text="{Binding Deployment1Name}"></TextBox>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Margin="10,10,15,0">Path</TextBlock>
+                        <TextBox Height="26" Width="304" TabIndex="0" Margin="0,5,0,0" Padding="4" Text="{Binding Deployment1Directory}"/>
+                    </StackPanel>
+                    <Separator Height="10" Margin="0,10,0,10" Foreground="#FFDADADA" Background="#FFDADADA"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Margin="10,10,5,0">Menu caption:</TextBlock>
+                        <TextBlock Margin="10,10,5,0">Export to</TextBlock>
+                        <TextBox Height="26" Width="198" TabIndex="0" Margin="0,5,0,0" Padding="4" Text="{Binding Deployment2Name}"></TextBox>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Margin="10,10,15,0">Path</TextBlock>
+                        <TextBox Height="26" Width="304" TabIndex="0" Margin="0,5,0,0" Padding="4" Text="{Binding Deployment2Directory}"/>
+                    </StackPanel>
+                </StackPanel>
+            </GroupBox>
+        </StackPanel>
+        <StackPanel Grid.Column="1" VerticalAlignment="Top" Margin="0,0,0,0" Grid.RowSpan="1">
+            <GroupBox Margin="10,10,10,0" x:Name="ThemeGroupBox" Header="Theme">
+                <StackPanel>
+                    <TextBlock Padding="10,5,10,0" TextWrapping="Wrap">The theme defines the font and colors of the TypeSqf Editor's code window. You can edit them and create new ones.</TextBlock>
+                    <ComboBox x:Name="ThemeComboBox" Padding="10,7,0,0" ItemsSource="{Binding ThemeNames}" SelectedIndex="{Binding SelectedThemeIndex}" TabIndex="0" Height="30" Margin="10,10,10,0" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal">
+                            <Button Name="ResetThemesButton" Width="120" Height="30" Margin="10" ToolTip="Recreates the files 'Default Light.xml' and 'Default Dark.xml' on disk." Click="ResetThemesButton_Click">Reset to defaults</Button>
+                            <Button Name="EditThemeButton" Width="60" Height="30" Margin="10" ToolTip="Opens the file explorer so you can create new theme XML files or edit the existing ones." Click="EditThemeButton_Click">Edit...</Button>
+                        </StackPanel>
+                        <Button x:Name="VideoThemeButton" Grid.Row="0" Grid.Column="0" Width="30" Height="30" Margin="10" HorizontalAlignment="Right" Click="VideoThemes_Click" Content="?">
+                            <Button.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Name="VideoTypeSqfFeatures2MenuItem" Header="TypeSqf Features Part 2 - General Features" ToolTip="A YouTube video on how to create new and customize existing themes." Click="VideoTypeSqfFeatures2MenuItem_Click" />
+                                </ContextMenu>
+                            </Button.ContextMenu>
+                        </Button>
+                    </Grid>
+                </StackPanel>
+            </GroupBox>
+            <GroupBox Margin="10,10,10,0" x:Name="TemplatesGroupBox" Header="File Templates">
+                <StackPanel>
+                    <StackPanel Orientation="Vertical">
+                        <TextBlock Padding="10,5,10,0" TextWrapping="Wrap">The file templates can be used when you create a new file. You can edited them and create new ones. Available predefined variables are DATE, TIME, FILENAME and FILENAMEFULL. You can also add custom variables and name them yourself.</TextBlock>
+                        <StackPanel Orientation="Horizontal">
+                            <Button Name="ResetTemplatesButton" Width="120" Height="30" Margin="10" ToolTip="Removes and recreates all predefined template files into TypeSqf default templates." Click="ResetTemplatesButton_Click">Reset to defaults</Button>
+                            <Button Name="EditTemplatesButton" Width="60" Height="30" Margin="10" ToolTip="Opens the file explorer so you can create new template XML files or edit the existing ones." Click="EditTemplatesButton_Click">Edit...</Button>
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+            </GroupBox>
+        </StackPanel>
+        <DockPanel Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Right" LastChildFill="True">
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom" VerticalAlignment="Stretch">
+                <Button Margin="10,10,10,10" Canvas.Left="294" Canvas.Top="322" Width="50" IsDefault="True" Click="OkButton_Click">OK</Button>
+                <Button Margin="0,10,10,10" Name="CancelButton" Canvas.Left="350" Canvas.Top="322" Width="50" Click="CancelButton_Click">Cancel</Button>
+            </StackPanel>
+        </DockPanel>
+    </Grid>
+</Window>

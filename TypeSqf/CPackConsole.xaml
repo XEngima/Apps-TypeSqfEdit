@@ -1,0 +1,26 @@
+﻿<Window x:Class="TypeSqf.Edit.CPackConsole"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:TypeSqf.Edit"
+        Title="CPack Console" Height="363.67" Width="953" ShowInTaskbar="False" WindowStartupLocation="CenterOwner" ResizeMode="NoResize" Icon="Images/Console.png">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="30" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="30"/>
+        </Grid.ColumnDefinitions>
+        <ListBox Grid.ColumnSpan="2" Name="CommandListBox" Grid.Row="0" Grid.Column="0" ItemsSource="{Binding Path=ConsoleMessages}"/>
+        <TextBox Grid.Row="1" Grid.Column="0" Name="CommandTextBox" Padding="5" PreviewKeyDown="CommandTextBox_OnKeyDown" IsEnabled="{Binding TextBoxEnabled}"/>
+        <Button Name="VideoButton" Grid.Row="1" Grid.Column="1" Content="?" Click="VideoButton_Click">
+            <Button.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Name="VideoTypeSqfFeatures3MenuItem" Header="TypeSqf Features Part 3 - The Power Of CPacks" ToolTip="A YouTube video answering the question 'What is a CPack?' and how to find, download an install them." Click="VideoTypeSqfFeatures3MenuItem_Click" />
+                    <MenuItem Name="VideoTypeSqfFeatures4MenuItem" Header="TypeSqf Features Part 4 - The CPack Console" ToolTip="A YouTube video showing how to handle CPacks (installing, updating, removing and listing) using the CPack Console." Click="VideoTypeSqfFeatures4MenuItem_Click" />
+                </ContextMenu>
+            </Button.ContextMenu>
+        </Button>
+    </Grid>
+</Window>

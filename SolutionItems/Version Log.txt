@@ -1,0 +1,297 @@
+Future
+-Added all special scope variables (_this, _forEachIndex, etc).
+-Added function "goto definition" for types, methods and variables.
+-SQX: Script command "spawn" can now be used without arguments.
+
+Version [NEXT]
+Updated to .NET to 4.6.2.
+
+Version 0.68
+-Separated the analyzer window and the SQX build result window into two tabs in the editor (big thanks to Josef!).
+-Fixed: protected methods were not possible to collapse and expand.
+-Minor improvements and fixes.
+-SQX: Fixed serious issue when referencing properties in class inheritance with more than two levels.
+-SQX: Minor improvements and fixes.
+
+Version 0.67
+-Added feature to create and deploy a PBO file directly from the TypeSqf editor to Arma's Missions or MPMissions (or a custom) folder.
+-Added support for all script commands up until Arma 3 version 1.94 (into ScriptCommands.xml).
+-Updated the file templates so that all methods now include parameters in the method header.
+-Minor fixes and improvements.
+-SQX: Added true inheritance.
+-SQX: Class properties can now be protected (and not only public like earlier), and have a protected setter.
+-SQX: Class methods can now be protected (and not only public or private like earlier).
+-SQX: Added the "return" statement.
+-SQX: Extended the method log tool to include return values (and not only calls like earlier).
+-SQX: Updated color themes - Go to Tools and reset the color themes for the changes to take effect.
+-SQX: Minor fixes and improvements.
+
+Version 0.66
+-Minor GUI fixes.
+-SQX: Added settings option to enable logging of all method calls in the RPT log file.
+-SQX: Made it possible to reference private setters on private static properties from within class.
+
+Version 0.65
+-Minor GUI fixes.
+-SQX: Fixed: Unwanted semicolons sometimes appeared during compilation.
+-SQX: Fixed: Sometimes the dot (.) had not highest precedence during compile.
+-SQX: Various fixes and improvements.
+
+Version 0.64
+-Fixed: Parameters declared with "params" no longer generate a warning of not being used.
+-Minor fixes and improvements.
+-SQX: Made it possible to compile the current open file instead of the whole project.
+-SQX: Interface method declarations now require complete parameter list, e.g. "method String GetName("_unit" as Object);"
+-SQX: Class method declarations now allow alternative syntax for explicitly specified parameters, e.g. "public method Scalar GetAge("_unit" as Object) { ... };"
+-SQX: Added parameter check in calls to interface methods.
+
+Verson 0.63
+-SQX: Fixed: Interfaces returning custom types not recognized as implemented in interfaced classes.
+
+Version 0.62
+-SQX: Fixed: Type names no longer case sensitive.
+-SQX: Fixed: Parameters (params) with default value got wrong type.
+-Added all script commands for Arma 3 version 1.84 to ScriptCommands.xml.
+
+Version 0.61
+-SQX: Added parameter check in calls to constructors (if first command in constructor is "params").
+
+Version 0.60
+-Added parameter check in calls to functions (if first command in function is "params").
+-SQX: Added parameter check in calls to methods (if first command in method is "params").
+-SQX: Added support for static fields in classes.
+-SQX: Added support for static properties in classes.
+-SQX: Fixed: Some Operators compiled incorrectly (e.g. the lookup operators >> and /).
+-SQX: Fixed: Compiler adds faulty semicolons at end of array elements.
+
+Version 0.59
+-Added all script commands in Arma 3 version 1.72.
+-It is now possible for CPack authors to add a line to the top of description.ext.
+-Fixed: Crasch if the CPack installer tries to write to a file that is open by another process.
+-Fixed: Stability issues.
+-SQX: Analyzer improvements.
+
+Version 0.58
+-Project file is now saved automatically when starting a new project or opening an existing mission.
+-Added video "TypeSqf Features Part 4 - The CPack Console".
+-Fixed: No code completion on lines with the alternative variable declaration syntax.
+-SQX: Fixed: Compiled files (.sqx.sqf) is not removed when a CPack is removed.
+-SQX: Analyzer improvements.
+-SQX: Fixed: Compiler sometimes not starting.
+
+Version 0.57
+-Added menu item "Videos" with links to tutorial videos.
+-Analyzer improvements.
+-SQX: Analyzer improvements.
+
+Version 0.56
+-Enabled support for alternative variable declaration syntax. Like { private _myVar = 10; }.
+-Analyzer improvements.
+-SQX: Syntax Highlighting improvements.
+-SQX: Analyzer improvements.
+
+Version 0.55
+-New and better installer (uninstall the old version before installing this).
+-Variables declared in mission.sqm now included in editor (mission.sqm must not be binarized).
+-Items in the file explorer now gets selected on right click.
+-SQX: Minor analyzer improvements.
+
+Version 0.54
+-Added all script commands in Arma 3 version 1.72.
+-Revealed SQX content (it was previously "beta content").
+-SQX: Added enums.
+-SQX: Added code completion for static methods.
+-SQX: Added code completion for custom types (classes and interfaces).
+-SQX: Minor fixes in the analyzer.
+
+Version 0.53
+-Fixed: Error when updating CPacks and files need to be overwritten.
+-Fixed: Improved checks for declared, non declared, used and not used variables.
+-SQX: Added static methods.
+-SQX: Made it possible to specify type on iteration variable in a forEach statement. Like "{ hint _x } forEach as String;".
+-SQX: Made it possible to specify type on iteration variable in a count statement. Like "_count = { _x.IsActive } count as MyClass;".
+-SQX: Fixed: Analyzer do not recognize interface types for method return values.
+-SQX: Fixed: Minor issues in analyzer.
+
+Version 0.52
+-Logical operators 'and' and 'or' now supports alternative syntax with signature "Boolean and Code".
+-Fixed: Files installed by CPack dependencies are not added to project file explorer.
+-Fixed: Error when installing CPacks with dependencies to same package but different version.
+-Fixed: Minor issues and improvements in analyzer.
+-SQX: Added interfaces.
+-SQX: Changed name of data type Number to Scalar (the same name as in SQF).
+-SQX: Added interface templates (you will need to reset templates for them to regenerate).
+
+Version 0.51
+-Added all script commands in Arma 3 version 1.70.
+-Analyzer can now handle commands following a preprocessor #include on the first line.
+-SQX: Fixed: Minor bugs in the SQX analyzer.
+
+Version 0.50
+-Added all script commands in Arma 3 version 1.68.
+-Significant CPU and memory performance optimizations.
+-Change the default value for setting "Enable foldigs" to false (it may cause lags - use it if it is worth it).
+-Added syntax highlighting for .sqm files.
+-Analyzer improvements and bugfixes.
+-SQX: Fixed: Analyzer reporting all kinds of errors if compiled file (.sqx.sqf) is added to the project.
+
+Version 0.49
+-Added syntax highlighting for .ext and .cpp files.
+-Separated syntax highlighting for .sqx and .sqf files.
+-Fixed: Missing Warnings about unsaved files when closing separate tabs.
+-Fixed: Stability issues.
+-SQX: Fixed: Keyword 'classNull' compiled incorrectly.
+
+Version 0.48
+-Added possibility to change tab settings (community wish-list).
+-Added warning about unsaved files on application exit.
+-Settings, Templates and Themes are now located in the Application Data folder ({user}\AppData\Roaming).
+-Fixed: The file template "Working Tank Class" did not work.
+-Fixed: Stability issues.
+-SQX: Fixed: Some bugs in the SQX compiler.
+
+Version 0.47
+-Added color theme "Default Dark" (community wish-list).
+-Added possibility to customize color themes (community with-list).
+-Added possibility to add predefined and customized variables to file templates (community wish-list).
+-Added template for Description.ext.
+-Fixed: When closing a tab, the previously opened tab should be activated.
+-Fixed: Stability issues.
+-SQX: Compiler fixes and improvements.
+
+Version 0.46
+-Files associated with TypeSqf can now be opened in TypeSqf when double clicked in the File Explorer (community wish-list).
+-Checked all script commands and corrected erroneous signatures for a lot of them.
+-Added description, syntax, parameters names and parameter types in auto completion for all script commands (thanks to Josef).
+-All script commands with signatures and description are now in an XML file (ScriptCommands.xml) and read when editor starts.
+-Approved use of preprocessor commands #else and #endif.
+-Fixed: Files created by TypeSqf sometimes end up in erroneous locations.
+-Fixed: Stability issues.
+-SQX: Compile errors and warnings are now being displayed during compile.
+-SQX: Fixed: A lot of bugs in the compiler.
+-SQX: Fixed: Not allowed to "spawn" methods.
+-SQX: Fixed: Compiler removes preprocessor commands.
+
+Version 0.45
+-Any type of text formatted file may now be opened in the TypeSqf Editor (but only .sqf and .sqx files are being syntax checked).
+-Added automatic foldings for functions.
+-Added manual foldings. Write "// #region [SomeName]" on start line and "// #endregion" on end line (like in SQX but in line comment).
+-Added possibility to enable or disable folding.
+-Added context menu options "Expand Sub nodes" and "Collapse Sub Nodes" in project view (community wish-list).
+-Added menu option File->Close project (community wish-list).
+-Fixed: Menu item File->Exit always disabled.
+-Fixed: Functions and classes declared in other files not recognized on project startup (broke in 0.44).
+-SQX: Added automatic foldings for namespaces, classes, constructors and methods.
+-SQX: Added manual foldings. Write "#region [RegionName]" on start line and "#endregion" on end line.
+
+Version 0.44
+-Added customizable code template files (community wish-list).
+-Added possibility to open files using drag and drop from file explorer (community wish-list).
+-Minor improvements in code analyzer.
+-Minor GUI fixes.
+-Fixed: Stability issues.
+-Fixed: File tab sometimes not opening when double clicking a node in the project tree.
+-Fixed: Files that do not belong to project are analyzed as belonging to project.
+-SQX: Fixed: Syntax Highlighting failed if identifiers contains underscores.
+-SQX: Fixed: Types for null literals (objNull, grpNull, ...) were not handled correctly by the analyzer.
+
+Version 0.43
+-Added possibility to mark a CPack as "Beta version", which allows a way for testing CPacks before publishing.
+-Added parameter -beta in CPack Console so that users can install unpublished CPacks if they want to.
+-Added parameter -version in CPack Console for command "update" (only existed for command Install).
+-Added command "Exit" to CPack Console.
+-Fixed: Stability issues.
+-Fixed: CPack dependencies are no longer updated to latest version by default.
+-Fixed: TypeSqf hangs when CPack Console is open and switching programs in Windows.
+-SQX: Added code completion to variable _self.
+-SQX: Improved Code Analyzer's error reporting.
+
+Version 0.42
+-Project file structure is now updated when installing, updating and removing CPacks.
+-Fixed: Stability issues - crasches when handling project items in the file sturcture.
+
+Version 0.41
+-Stability improvements.
+-Added more information about script commands in auto completion.
+-Functions starting with "BIS_fnc_" no longer generates any warnings.
+-SQX: Fixed: Compiler output line numbers sometimes did not match original user input.
+-SQX: Added menu alternative Build->Clean.
+-SQX: Improved syntax highlighting for class members.
+
+Version 0.40
+-Code analyzer for current open file now reacts properly to changes in the project tree.
+-Fixed: Stability issues.
+-SQX: Added support for namespaces.
+-SQX: Improved color scheme for syntax highlighting.
+-SQX: Improved auto completion.
+
+Version 0.39
+-Fixed: Stability issues.
+-Improved 'Find in all files'.
+-Fixed: Command 'params' could not have default values.
+-SQX: Methods can now be private.
+-SQX: Properties can now have private setters.
+-SQX: Methods and properties can now have explicit return types.
+-SQX: Added link to the SQX API Reference.
+-SQX: Made it possible to add classNull as default value to variables of custom types declared with command 'params'.
+
+Version 0.38
+-Added Options dialog (Tools->Options...).
+-Added possibility to enable or disable auto completion.
+-Added possibility to enable or disable Beta content (type handling and classes for object oriented scripting).
+-Project view is now initially empty - preventing crasch when adding a file to a non project.
+-Added extended syntax (.sqx-files) that allow for object oriented scripting.
+-Added all script commands until Arma 3 version 1.66.
+-Added missing script command 'append'.
+
+Version 0.37
+-Fixed: File explorer sometimes mixing up files.
+-Fixed: Auto completion do not recognize private variables declared in script command params.
+-Fixed: Auto completion active in comments.
+
+Version 0.36
+-Added auto completion.
+-Fixed: Script command params did not declare variables.
+
+Version 0.35
+-Added search tool "Find in all files...".
+
+Version 0.34
+-Added all script commands until Arma 3 version 1.64.
+
+Version 0.33
+-Fixed: Start parenthesis in comment requires end parenthesis.
+-Approved use of preprocessor commands "undef, ifdef, ifndef".
+
+Version 0.32
+-Fixed: Editor sometimes crashed when user changed tab.
+
+Version 0.31
+-Added support for script commands "splitString" and "joinString".
+-Fixed: Tabs sometimes did not remember vertical scroll position.
+-Fixed: Crash when using context menu item "Close all but this".
+-Fixed: Wrong signature definition for script commands "assignedItems" and "currentWeapon".
+-Fixed: forEach scope did not recognize variable "_forEachIndex".
+
+Version 0.30
+-Added menu item Save Project File.
+-Added context menu item Show in File Explorer for files in the file tree view.
+-Added menu item Tools/Browse the CPack library...
+-Open tabs are now closed when user opens a new project or mission.
+-Fixed: Crashed when user created a new project and then tried to add a file to root node.
+-Fixed: Text files scrolled to top every time user changed tabs.
+-Fixed: Wrong signature for script commands: "commandChat".
+-Fixed: The file tree was sometimes out of sync with the actual file structure on disk, and caused unexpected behavior when handling files.
+-Fixed: _from and _to in event handler onTeamSwitch had wrong types.
+-Fixed: Script error Logic operator has no argument was not handled.
+
+Version 0.26.20
+-User is now required to save mission in root of Arma mission folder when creating a new project.
+-File explorer no always order folders before files.
+
+Version 0.26
+-Folders can now be created in file explorer view.
+-Fixed: Files created in file explorer were sometimes created at the wrong destination.
+
+Version 0.25
+-Added support for preprocessor #define.

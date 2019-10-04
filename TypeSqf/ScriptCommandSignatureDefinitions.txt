@@ -1,0 +1,20 @@
+<ScriptCommandSignatureDefinitions>
+
+  <ScriptCommand Name="hint" ReturnType="void" PreArgType="nothing" PostArgType="string" />
+
+  <ScriptCommand Name="getMagazineCargo" ReturnType="array" PreArgType="nothing" PostArgType="object" />
+
+  <ScriptCommand Name="addWaypoint" ReturnType="array" PreArgType="object" PostArgType="array">
+    <PostArgArray MinLength="1" MaxLength="4">
+      <PostArg Position="0" Type="array" MinLength="3" MaxLength="3">
+        <Array Position="0" Type="number">
+        <Array Position="1" Type="number">
+        <Array Position="2" Type="number">
+      </PostArg>
+      <PostArg Position="1" Type="number" />
+      <PostArg Position="2" Type="number" />
+      <PostArg Position="3" Type="string" />
+    </PostArgArray>
+  </ScriptCommand>
+
+</ScriptCommandSignatureDefinitions>

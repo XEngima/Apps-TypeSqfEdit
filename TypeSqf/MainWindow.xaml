@@ -1,0 +1,351 @@
+﻿<Window x:Class="TypeSqf.Edit.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit"
+        xmlns:local="clr-namespace:TypeSqf.Edit"
+        Title="TypeSqf Editor" Height="415" Width="612" WindowState="Maximized" Icon="Images/app_icon.png"
+        x:Name="TheMainWindow">
+    <Window.Resources>
+        <ResourceDictionary Source="MainWindowResources.xaml" />
+    </Window.Resources>
+    <Window.DataContext>
+        <local:MainWindowViewModel></local:MainWindowViewModel>
+    </Window.DataContext>
+    <Window.CommandBindings>
+        <CommandBinding Command="Find" Executed="FindExecuted"/>
+        <CommandBinding Command="local:CustomCommands.FindInAllFiles" Executed="FindInAllFilesExecuted"/>
+    </Window.CommandBindings>
+    <Window.InputBindings>
+        <KeyBinding Key="N" Modifiers="Control+Shift" Command="{Binding NewProjectCommand}" />
+        <KeyBinding Key="N" Modifiers="Control" Command="{Binding NewFileCommand}" />
+        <KeyBinding Key="O" Modifiers="Control+Shift" Command="{Binding OpenProjectCommand}" />
+        <KeyBinding Key="O" Modifiers="Control" Command="{Binding OpenFileCommand}" />
+        <KeyBinding Key="L" Modifiers="Control+Shift" Command="{Binding CloseProjectCommand}" />
+        <KeyBinding Key="S" Modifiers="Control" Command="{Binding SaveFileCommand}" />
+        <KeyBinding Key="S" Modifiers="Control+Shift" Command="{Binding SaveAllFilesCommand}" />
+        <KeyBinding Key="F" Modifiers="Control" Command="Find"/>
+        <KeyBinding Key="B" Modifiers="Control+Shift" Command="{Binding CompileCommand}"/>
+        <KeyBinding Key="B" Modifiers="Control" Command="{Binding CompileCurrentFileCommand}"/>
+    </Window.InputBindings>
+    <DockPanel Name="MainDockPanel">
+        <Menu DockPanel.Dock="Top" IsMainMenu="True">
+            <Menu.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <DockPanel HorizontalAlignment="Stretch" />
+                </ItemsPanelTemplate>
+            </Menu.ItemsPanel>
+            <MenuItem Header="_File">
+                <MenuItem Header="New _project" Command="{Binding NewProjectCommand}" InputGestureText="Ctrl-Shift-N" />
+                <MenuItem Header="New _file" Command="{Binding NewFileCommand}" InputGestureText="Ctrl-N" />
+                <Separator />
+                <MenuItem Header="Open pro_ject..." Command="{Binding OpenProjectCommand}" InputGestureText="Ctrl-Shift-O">
+                    <MenuItem.ToolTip>
+                        <ToolTip>
+                            <StackPanel>
+                                <TextBlock FontWeight="Bold">Open project</TextBlock>
+                                <TextBlock>Open a TypeSqf project file (.tproj).</TextBlock>
+                            </StackPanel>
+                        </ToolTip>
+                    </MenuItem.ToolTip>
+                </MenuItem>
+                <MenuItem Header="Open _mission..." Command="{Binding OpenMissionCommand}" InputGestureText="Ctrl-Shift-M">
+                    <MenuItem.ToolTip>
+                        <ToolTip>
+                            <StackPanel>
+                                <TextBlock FontWeight="Bold">Open mission</TextBlock>
+                                <TextBlock>Open an Arma mission by its 'mission.sqm' file. A project file (.tproj) will be automatically created in the mission root directory.</TextBlock>
+                            </StackPanel>
+                        </ToolTip>
+                    </MenuItem.ToolTip>
+                </MenuItem>
+                <MenuItem Header="C_lose project" Command="{Binding CloseProjectCommand}" InputGestureText="Ctrl-Shift-L" />
+                <MenuItem Header="_Open file..." Command="{Binding OpenFileCommand}" InputGestureText="Ctrl-O" />
+                <Separator />
+                <MenuItem Header="Save _project file" Command="{Binding SaveProjectFileCommand}" />
+                <MenuItem Header="_Save current file" Command="{Binding SaveFileCommand}" InputGestureText="Ctrl-S" />
+                <MenuItem Header="S_ave current file as..." IsEnabled="False" />
+                <MenuItem Header="Sa_ve all files" Command="{Binding SaveAllFilesCommand}" InputGestureText="Ctrl-Shift-S" />
+                <Separator/>
+                <MenuItem Header="E_xit" Click="ExitMenuItem_Click"/>
+            </MenuItem>
+            <MenuItem Header="_Edit">
+                <MenuItem Header ="_Find..." Command="Find">
+                    <MenuItem.Icon>
+                        <Image Source="Images/search.png"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header ="Find in _all files..." Command="local:CustomCommands.FindInAllFiles">
+                    <MenuItem.Icon>
+                        <Image Source="Images/folder-search.png"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
+            <MenuItem Header="_Project" Visibility="Collapsed">
+                <MenuItem Header="_Project Properties" Name="ProjectPropertiesMenuItem" Click="ProjectPropertiesMenuItem_Click">
+                </MenuItem>
+            </MenuItem>
+            <MenuItem x:Name="BuildAllMenuItem" Header="_Build">
+                <MenuItem Header="Compile _file" ToolTip="Compile the currently open .sqx file." Command="{Binding CompileCurrentFileCommand}" InputGestureText="Ctrl-B"/>
+                <MenuItem Header="Compile _project" ToolTip="Compile all .sqx files in the project." Command="{Binding CompileCommand}" InputGestureText="Ctrl-Shift-B"/>
+                <Separator />
+                <MenuItem Header="C_lean project" ToolTip="Remove all compiled files (.sqx.sqf files) from the project folder." Command="{Binding CleanCommand}"/>
+                <Separator/>
+                <MenuItem Visibility="Collapsed" Header="Compile and deploy (Test)" ToolTip="Compiles and deploys the project to the test mission folder"/>
+                <MenuItem Header="{Binding Deployment1MenuCaption}" IsEnabled="{Binding Deployment1MenuEnabled}" ToolTip="Deploys the project without compiling it to the test mission folder" Command="{Binding Deploy1Command}"/>
+                <MenuItem Visibility="Collapsed" Header="Compile and deploy (Release)" ToolTip="Compiles and deploys the project to the release mission folder"/>
+                <MenuItem Header="{Binding Deployment2MenuCaption}" IsEnabled="{Binding Deployment2MenuEnabled}" ToolTip="Deploys the project without compiling it to the release mission folder" Command="{Binding Deploy2Command}"/>
+            </MenuItem>
+            <MenuItem Header="_Tools">
+                <MenuItem Header="_CPack Console..." Name="CPackConsoleMenuItem" Click="CPackConsoleMenuItem_OnClick">
+                    <MenuItem.Icon>
+                        <Image Source="Images/console.png"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="_Browse the CPack library..." Name="CPackLibraryMenuItem" Click="CPackLibraryMenuItem_OnClick">
+                    <MenuItem.Icon>
+                        <Image Source="Images/Browse.png"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <Separator />
+                <MenuItem Header="Options..." Name="SettingsMenuItem" Click="SettingsMenuItem_Click">
+                    <MenuItem.Icon>
+                        <Image Source="Images/Settings.png"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
+            <MenuItem Header="_Help">
+                <MenuItem Header="_Browse the SQX API Reference..." Name="SqxReferenceMenuItem" Click="SqxReferenceMenuItem_Click">
+                    <MenuItem.Icon>
+                        <Image Source="Images/Browse.png"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <Separator/>
+                <MenuItem Header="_Videos">
+                    <MenuItem Header="TypeSqf Features Part 1 - Getting Started With TypeSqf" Name="TypeSqfFeatures1MenuItem" Click="TypeSqfFeatures1MenuItem_Click" />
+                    <MenuItem Header="TypeSqf Features Part 2 - Main Features" Name="TypeSqfFeatures2MenuItem" Click="TypeSqfFeatures2MenuItem_Click"/>
+                    <MenuItem Header="TypeSqf Features Part 3 - The Power Of CPacks" Name="TypeSqfFeatures3MenuItem" Click="TypeSqfFeatures3MenuItem_Click"/>
+                    <MenuItem Header="TypeSqf Features Part 4 - The CPack Console" Name="TypeSqfFeatures4MenuItem" Click="TypeSqfFeatures4MenuItem_Click"/>
+                    <Separator />
+                    <MenuItem Header="Creating A Crowd Class In SQX" Name="VideoCrowdClassMenuItem" Click="VideoCrowdClassMenuItem_Click"/>
+                    <MenuItem Header="Installing and using CPack Engima.Civilians" Name="VideoEngimaCivilians" Click="VideoEngimaCivilians_Click"/>
+                </MenuItem>
+                <Separator/>
+                <MenuItem Header="_About TypeSqf..." Name="AboutMenuItem" Click="AboutMenuItem_OnClick"/>
+            </MenuItem>
+            <MenuItem Name="NewVersionMenuItem" Header="{Binding NewVersionMessage}" Foreground="{DynamicResource RedBrush}" Visibility="{Binding NewVersionMessageVisible}" HorizontalAlignment="Right" Command="{Binding GetNewVersionCommand}" />
+        </Menu>
+        <ToolBar DockPanel.Dock="Top" HorizontalAlignment="Left" Width="{Binding ElementName=MainDockPanel, Path=ActualWidth}">
+            <Button Command="{Binding NewProjectCommand}">
+                <Image Height="24" Width="24" Source="Images\project_new.png"></Image>
+                <Button.ToolTip>
+                    <ToolTip>
+                        <StackPanel>
+                            <TextBlock FontWeight="Bold">New project</TextBlock>
+                            <TextBlock>Asks you to locate the Arma mission file and creates a new project file in the mission folder.</TextBlock>
+                        </StackPanel>
+                    </ToolTip>
+                </Button.ToolTip>
+            </Button>
+            <Button Command="{Binding OpenProjectCommand}">
+                <Image Height="24" Width="24" Source="Images\file_open.png"></Image>
+                <Button.ToolTip>
+                    <ToolTip>
+                        <StackPanel>
+                            <TextBlock FontWeight="Bold">Open existing project</TextBlock>
+                            <TextBlock>Closes the current project and opens a new existing project.</TextBlock>
+                        </StackPanel>
+                    </ToolTip>
+                </Button.ToolTip>
+            </Button>
+            <Separator></Separator>
+            <Button Command="{Binding NewFileCommand}">
+                <Image Height="24" Width="24" Source="Images\file_new.png"></Image>
+                <Button.ToolTip>
+                    <ToolTip>
+                        <StackPanel>
+                            <TextBlock FontWeight="Bold">New file</TextBlock>
+                            <TextBlock>Creates a new file.</TextBlock>
+                        </StackPanel>
+                    </ToolTip>
+                </Button.ToolTip>
+            </Button>
+            <Button Command="{Binding OpenFileCommand}">
+                <Image Width="24" Height="24" Source="Images\file_open.png"></Image>
+                <Button.ToolTip>
+                    <ToolTip>
+                        <StackPanel>
+                            <TextBlock FontWeight="Bold">Open file</TextBlock>
+                            <TextBlock>Opens an existing file.</TextBlock>
+                        </StackPanel>
+                    </ToolTip>
+                </Button.ToolTip>
+            </Button>
+            <Separator></Separator>
+            <Button Command="{Binding SaveFileCommand}">
+                <Image Width="24" Height="24" Source="Images\file_save.png"></Image>
+                <Button.ToolTip>
+                    <ToolTip>
+                        <StackPanel>
+                            <TextBlock FontWeight="Bold">Save file</TextBlock>
+                            <TextBlock>Saves the file in the currently visible tab.</TextBlock>
+                        </StackPanel>
+                    </ToolTip>
+                </Button.ToolTip>
+            </Button>
+            <Button Command="{Binding SaveAllFilesCommand}">
+                <Image Width="24" Height="24" Source="Images\file_saveall.png"></Image>
+                <Button.ToolTip>
+                    <ToolTip>
+                        <StackPanel>
+                            <TextBlock FontWeight="Bold">Save all files</TextBlock>
+                            <TextBlock>Saves all files in the project.</TextBlock>
+                        </StackPanel>
+                    </ToolTip>
+                </Button.ToolTip>
+            </Button>
+        </ToolBar>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="120"/>
+                <ColumnDefinition Width="140"/>
+                <ColumnDefinition Width="5" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <TreeView x:Name="ProjectTreeView" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" 
+                      ItemsSource="{Binding Project.ProjectRootNodes}" AllowDrop="True" Drop="ProjectTreeView_Drop"
+                      Background="{Binding ThemeBackgroundColor}"
+                      Foreground="{Binding ThemeForegroundColor}" PreviewMouseRightButtonDown="ProjectTreeView_PreviewMouseRightButtonDown">
+                <TreeView.ItemContainerStyle>
+                    <Style TargetType="TreeViewItem">
+                        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                        <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                        <EventSetter Event="TreeViewItem.PreviewMouseDoubleClick" Handler="TreeViewItem_PreviewMouseDoubleClick"/>
+                        <Setter Property="Foreground" Value="{Binding ElementName=ProjectTreeView, Path=Foreground}"/>
+                    </Style>
+                </TreeView.ItemContainerStyle>
+                <TreeView.Resources>
+                    <local:BindingProxy x:Key="TreeViewProxy" Data="{Binding}" />
+                    <HierarchicalDataTemplate DataType="{x:Type local:ProjectNodeViewModel}" ItemsSource="{Binding Children}">
+                        <StackPanel Orientation="Horizontal" Margin="2, 2, 2, 2">
+                            <StackPanel.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Add New File" Command="{Binding Source={StaticResource TreeViewProxy}, Path=Data.AddNewFileNodeCommand}"/>
+                                    <MenuItem Header="Add Existing File" Command="{Binding Source={StaticResource TreeViewProxy}, Path=Data.AddExistingFileNodeCommand}"/>
+                                    <MenuItem Header="Add New Folder" Command="{Binding Source={StaticResource TreeViewProxy}, Path=Data.AddNewFolderNodeCommand}"/>
+                                    <Separator />
+                                    <MenuItem Header="Collapse Sub Nodes" Command="{Binding Source={StaticResource TreeViewProxy}, Path=Data.CollapseAllSubNodesCommand}"/>
+                                    <MenuItem Header="Expand Sub Nodes" Command="{Binding Source={StaticResource TreeViewProxy}, Path=Data.ExpandAllSubNodesCommand}"/>
+                                    <Separator />
+                                    <MenuItem Header="Open in File Explorer" Command="{Binding Source={StaticResource TreeViewProxy}, Path=Data.OpenInFileExplorerCommand}"/>
+                                    <Separator />
+                                    <MenuItem Header="Remove From Project" Command="{Binding Source={StaticResource TreeViewProxy}, Path=Data.RemoveProjectNodeCommand}"/>
+                                    <MenuItem Header="Remove From Disc" Command="{Binding Source={StaticResource TreeViewProxy}, Path=Data.RemoveFromDiscCommand}"/>
+                                </ContextMenu>
+                            </StackPanel.ContextMenu>
+                            <StackPanel.InputBindings>
+                                <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.OpenProjectNodeCommand}"/>
+                            </StackPanel.InputBindings>
+                            <Image Width="16" Height="16" Margin="3,0" Source="{Binding ImageSource}" />
+                            <TextBlock Text="{Binding DisplayName}" />
+                        </StackPanel>
+                    </HierarchicalDataTemplate>
+                </TreeView.Resources>
+            </TreeView>
+            <GridSplitter Grid.Row="0" Grid.Column="2" HorizontalAlignment="Stretch" />
+            <Grid Grid.Row="0" Grid.Column="3">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="5" />
+                    <RowDefinition Height="150" />
+                </Grid.RowDefinitions>
+                <TabControl x:Name="TabControl" Tag="{Binding DataContext, ElementName=TheMainWindow}" Grid.Row="0" Grid.Column="0" ItemsSource="{Binding Path=Tabs}" 
+                            SelectedIndex="{Binding Path=ActiveTabIndex}" Margin="0,1,0,4" Grid.RowSpan="2" AllowDrop="True" Drop="TabControl_Drop"
+                            Background="{Binding ThemeBackgroundColor}">
+                    <TabControl.Resources>
+                        <local:BindingProxy x:Key="Proxy" Data="{Binding}" />
+                    </TabControl.Resources>
+                    <TabControl.ItemContainerStyle>
+                        <Style TargetType="{x:Type TabItem}">
+                            <EventSetter Event="TextBlock.PreviewMouseDown" Handler="TabHeader_MouseDown" />
+                        </Style>
+                    </TabControl.ItemContainerStyle>
+                    <TabControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <StackPanel.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Close" Command="{Binding Source={StaticResource Proxy}, Path=Data.CloseTabCommand}"/>
+                                        <MenuItem Header="Close all but this" Command="{Binding Source={StaticResource Proxy}, Path=Data.CloseAllButThisTabCommand}"/>
+                                    </ContextMenu>
+                                </StackPanel.ContextMenu>
+                                <TextBlock Text="{Binding Path=Header}" />
+                                <Button Command="{Binding ElementName=TheMainWindow, Path=DataContext.CloseTabCommand}" Margin="10,0,0,0" FontSize="8" Width="16" Height="16">X</Button>
+                            </StackPanel>
+                        </DataTemplate>
+                    </TabControl.ItemTemplate>
+                    <TabControl.ContentTemplate>
+                        <DataTemplate>
+                            <avalonedit:TextEditor
+                                x:Name="TheTextEditor"
+				                FontFamily="Courier New"
+				                FontSize="10pt"
+                                ShowLineNumbers="True"
+                                Text2="{Binding Text, Mode=TwoWay}"
+                                VerticalOffset2="{Binding CaretOffset, Mode=TwoWay}"
+                                Background="{Binding ElementName=TheTextEditor, Path=ThemeBackgroundColor}">
+                            </avalonedit:TextEditor>
+                        </DataTemplate>
+                    </TabControl.ContentTemplate>
+                </TabControl>
+                <GridSplitter Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch" />
+                <TabControl TabStripPlacement="Bottom" Grid.Row="2" Grid.Column="0"
+                            Name="ResultTab"
+                            SelectedIndex="{Binding Path=SelectedResultTabIndex, Mode=TwoWay}">
+                    <TabItem Header="Analyzer Result">
+                        <ListBox Name="AnalyzerResultListBox"
+                                 Height="{Binding ElementName=AnalyzerResultGrid, Path=ActualHeight}"
+                                 ItemsSource="{Binding Path=AnalyzerResultItems}"
+                                 MouseDoubleClick="AnalyzerResultListBox_OnMouseDoubleClick"
+                                 SelectedIndex ="{Binding Path=SelectedAnalyzerResultIndex}"
+                                 Background="{Binding ThemeBackgroundColor}"
+                                 Foreground="{Binding ThemeForegroundColor}"
+                                >
+                            <ListBox.Resources>
+                                <local:BindingProxy x:Key="AnalyzerResultProxy" Data="{Binding}" />
+                            </ListBox.Resources>
+                            <ListBox.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Filter out for current file" Visibility="Collapsed" Command="{Binding Source={StaticResource AnalyzerResultProxy}, Path=Data.FilterOutForCurrentFileCommand}"/>
+                                    <MenuItem Header="Filter out for current project" Command="{Binding Source={StaticResource AnalyzerResultProxy}, Path=Data.FilterOutForCurrentProjectCommand}"/>
+                                </ContextMenu>
+                            </ListBox.ContextMenu>
+                        </ListBox>
+                    </TabItem>
+                    <TabItem Header="Compiler Result">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="10px" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <ProgressBar Name="CompilerProgressBar" Grid.Row="0"
+                                         Minimum="0"
+                                         Maximum="{Binding Path=CompilerProgressBarMax}"
+                                         Value="{Binding Path=CompilerProgressBarValue}"
+                                         IsIndeterminate="{Binding Path=CompilerProgressBarIndeterminate}"
+                                         Height="10"
+                                        />
+                            <ListBox Name="CompilerResultListBox" Grid.Row="1"
+                                     ItemsSource="{Binding Path=CompilerResultItems}"
+                                     MouseDoubleClick="CompilerResultListBox_OnMouseDoubleClick"
+                                     SelectedIndex="{Binding Path=SelectedCompilerResultIndex}"
+                                     Background="{Binding ThemeBackgroundColor}"
+                                     Foreground="{Binding ThemeForegroundColor}"
+                                    >
+                            </ListBox>
+                        </Grid>
+                    </TabItem>
+                </TabControl>
+            </Grid>
+        </Grid>
+    </DockPanel>
+</Window>

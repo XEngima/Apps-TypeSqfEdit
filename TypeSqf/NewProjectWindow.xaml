@@ -1,0 +1,15 @@
+﻿<Window x:Class="TypeSqf.Edit.NewProjectWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:TypeSqf.Edit"
+        Title="Project Name" Height="149" Width="345" ResizeMode="NoResize" ShowInTaskbar="False" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded">
+    <Window.DataContext>
+        <local:NewProjectWindowViewModel />
+    </Window.DataContext>
+    <Canvas>
+        <Label Canvas.Left="20" Canvas.Top="15" Padding="0">New project name</Label>
+        <TextBox x:Name="ProjectNameTextBox" Canvas.Top="35" Canvas.Left="20" Width="300" Padding="5" Text="{Binding FolderName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TabIndex="0" />
+        <Button Canvas.Left="20" Canvas.Top="80" Width="50" Command="{Binding OkCommand}" IsDefault="True">OK</Button>
+        <Button Name="CancelButton" Canvas.Left="80" Canvas.Top="80" Width="50" Click="CancelButton_Click">Cancel</Button>
+    </Canvas>
+</Window>
