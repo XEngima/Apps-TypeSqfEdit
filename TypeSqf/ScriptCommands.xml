@@ -3,7 +3,7 @@
 		Parser for Arma 3 commands
 			created by Josef
 		   for TypeSQF editor
-	  XML created 2019-07-26 11:32:07
+	  XML created 2019-11-09 19:16:04
 -->
 <ScriptCommands xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Command Name="AGLToASL" ReturnType="Array" ReturnName="Position" ReturnDescr="PositionASL" Descr="Converts position from PositionAGL to PositionASL" Syntax="AGLToASL posAGL">
@@ -5890,6 +5890,14 @@
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Nothing"/>
   </Command>
+  <Command Name="currentPilot" ReturnType="Object" ReturnName="Unit" ReturnDescr="Object - piloting unit or objNull" Descr="Returns the person piloting the vehicle. If co-pilot is piloting, co-pilot is returned." Syntax="currentPilot vehicle">
+    <PreArg DataType="Nothing"/>
+    <PostArg DataType="Object">
+      <ParamInfos>
+        <ParamInfo Name="vehicle" DataType="Object"/>
+      </ParamInfos>
+    </PostArg>
+  </Command>
   <Command Name="currentTask" ReturnType="Task" ReturnName="result" ReturnDescr="Task" Descr="Return current task of given person." Syntax="currentTask person">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Object">
@@ -7368,7 +7376,7 @@
     <PostArg DataType="Array">
       <ParamInfos>
         <ParamInfo Name="c" DataType="Any"/>
-        <ParamInfo Name="a" DataType="Any"/>
+        <ParamInfo Name="a" DataType="Scalar"/>
         <ParamInfo Name="b" DataType="Scalar"/>
         <ParamInfo Name="angle" DataType="Scalar"/>
         <ParamInfo Name="color" DataType="Array"/>
@@ -7491,7 +7499,7 @@
     <PostArg DataType="Array">
       <ParamInfos>
         <ParamInfo Name="c" DataType="Any"/>
-        <ParamInfo Name="a" DataType="Any"/>
+        <ParamInfo Name="a" DataType="Scalar"/>
         <ParamInfo Name="b" DataType="Scalar"/>
         <ParamInfo Name="angle" DataType="Scalar"/>
         <ParamInfo Name="color" DataType="Array"/>
@@ -9726,6 +9734,14 @@
       </ParamInfos>
     </PostArg>
   </Command>
+  <Command Name="getDiverState" ReturnType="Boolean" ReturnName="result" ReturnDescr="Boolean - true when diving goggles are visible" Descr="Returns true when object is in diver state i.e. when unit would put diving goggles on." Syntax="getDiverState unit">
+    <PreArg DataType="Nothing"/>
+    <PostArg DataType="Object">
+      <ParamInfos>
+        <ParamInfo Name="unit" DataType="Object"/>
+      </ParamInfos>
+    </PostArg>
+  </Command>
   <Command Name="getEditorCamera" ReturnType="Object" ReturnName="result" ReturnDescr="Object" Descr="Fetches a reference to the mission editor camera." Syntax="getEditorCamera map">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Control">
@@ -10065,6 +10081,14 @@
       </ParamInfos>
     </PostArg>
   </Command>
+  <Command Name="getMissionPath" ReturnType="String" ReturnName="result" ReturnDescr="String - absolute path" Descr="Returns mission root plus the filename in a form of filepath to be used with commands requiring absolute path such as playSound3D, drawIcon3D, createS" Syntax="getMissionPath filename">
+    <PreArg DataType="Nothing"/>
+    <PostArg DataType="String">
+      <ParamInfos>
+        <ParamInfo Name="filename" DataType="String"/>
+      </ParamInfos>
+    </PostArg>
+  </Command>
   <Command Name="getModelInfo" ReturnType="Array" ReturnName="result" ReturnDescr="Array - [modelName, modelPath, hasSkeleton]" Descr="Returns object's model info in format [modelName, modelPath, hasSkeleton]. Model path is suitable for use with createSimpleObject command." Syntax="getModelInfo object">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Object">
@@ -10127,6 +10151,14 @@
     <PostArg DataType="Object">
       <ParamInfos>
         <ParamInfo Name="obj" DataType="Object"/>
+      </ParamInfos>
+    </PostArg>
+  </Command>
+  <Command Name="getObjectFOV" ReturnType="Scalar" ReturnName="result" ReturnDescr="Number - FOV in radians" Descr="Returns Field of View of the given object in radians. Static objects return default value, which is 1. FOV of objNull is 0." Syntax="getObjectFOV object">
+    <PreArg DataType="Nothing"/>
+    <PostArg DataType="Object">
+      <ParamInfos>
+        <ParamInfo Name="object" DataType="Object"/>
       </ParamInfos>
     </PostArg>
   </Command>
@@ -10348,6 +10380,14 @@
       </ParamInfos>
     </PostArg>
   </Command>
+  <Command Name="getPosWorldVisual" ReturnType="Array" ReturnName="Position" ReturnDescr="Array - format PositionWorld in render scope" Descr="Returns render version of PositionWorld, which is PositionASL of the model centre [0,0,0] of an object in render scope, rather than transformed boundi" Syntax="getPosWorldVisual object">
+    <PreArg DataType="Nothing"/>
+    <PostArg DataType="Object">
+      <ParamInfos>
+        <ParamInfo Name="object" DataType="Object"/>
+      </ParamInfos>
+    </PostArg>
+  </Command>
   <Command Name="getPylonMagazines" ReturnType="Array" ReturnName="result" ReturnDescr="Array of Strings (magazine classnames)" Descr="Return array of magazines on pylons" Syntax="getPylonMagazines vehicle">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Object">
@@ -10510,6 +10550,19 @@
     <PostArg DataType="Config">
       <ParamInfos>
         <ParamInfo Name="config" DataType="Config"/>
+      </ParamInfos>
+    </PostArg>
+  </Command>
+  <Command Name="getTextWidth" ReturnType="Scalar" ReturnName="result" ReturnDescr="Number" Descr="Returns estimated width of the text based on font type and size." Syntax="text getTextWidth [font, size]">
+    <PreArg DataType="String">
+      <ParamInfos>
+        <ParamInfo Name="text" DataType="String"/>
+      </ParamInfos>
+    </PreArg>
+    <PostArg DataType="Array">
+      <ParamInfos>
+        <ParamInfo Name="font" DataType="String"/>
+        <ParamInfo Name="size" DataType="Scalar"/>
       </ParamInfos>
     </PostArg>
   </Command>
@@ -11593,7 +11646,7 @@
     <PostArg DataType="Array">
       <ParamInfos>
         <ParamInfo Name="center" DataType="Any"/>
-        <ParamInfo Name="a" DataType="Any"/>
+        <ParamInfo Name="a" DataType="Scalar"/>
         <ParamInfo Name="b" DataType="Scalar"/>
         <ParamInfo Name="angle" DataType="Scalar"/>
         <ParamInfo Name="isRectangle" DataType="Boolean"/>
@@ -11610,7 +11663,7 @@
     <PostArg DataType="Array">
       <ParamInfos>
         <ParamInfo Name="center" DataType="Any"/>
-        <ParamInfo Name="a" DataType="Any"/>
+        <ParamInfo Name="a" DataType="Scalar"/>
         <ParamInfo Name="b" DataType="Scalar"/>
         <ParamInfo Name="angle" DataType="Scalar"/>
         <ParamInfo Name="isRectangle" DataType="Boolean"/>
@@ -11663,7 +11716,7 @@
     <PostArg DataType="Array">
       <ParamInfos>
         <ParamInfo Name="center" DataType="Array"/>
-        <ParamInfo Name="a" DataType="Array"/>
+        <ParamInfo Name="a" DataType="Scalar"/>
         <ParamInfo Name="b" DataType="Scalar"/>
         <ParamInfo Name="angle" DataType="Scalar" IsOptional="True"/>
         <ParamInfo Name="isRectangle" DataType="Boolean" IsOptional="True"/>
@@ -11874,6 +11927,10 @@
         <ParamInfo Name="unit" DataType="Object"/>
       </ParamInfos>
     </PostArg>
+  </Command>
+  <Command Name="isActionMenuVisible" ReturnType="Boolean" ReturnName="result" ReturnDescr="Boolean" Descr="Returns true if scroll menu is visible." Syntax="isActionMenuVisible">
+    <PreArg DataType="Nothing"/>
+    <PostArg DataType="Nothing"/>
   </Command>
   <Command Name="isAgent" ReturnType="Boolean" ReturnName="result" ReturnDescr="Boolean" Descr="Check if team member is an agent." Syntax="isAgent teamMember">
     <PreArg DataType="Nothing"/>
@@ -12108,6 +12165,14 @@
         <ParamInfo Name="unit" DataType="Object"/>
       </ParamInfos>
     </PostArg>
+  </Command>
+  <Command Name="isGameFocused" ReturnType="Boolean" ReturnName="result" ReturnDescr="Boolean" Descr="Returns false if the game window lost focus, due to user Alt+Tab-ing for example." Syntax="isGameFocused">
+    <PreArg DataType="Nothing"/>
+    <PostArg DataType="Nothing"/>
+  </Command>
+  <Command Name="isGamePaused" ReturnType="Boolean" ReturnName="result" ReturnDescr="Boolean" Descr="Returns true if the game simulation is paused due to some system event like a dialog or pause menu or when user has Alt+Tab-ed (except when -nopause s" Syntax="isGamePaused">
+    <PreArg DataType="Nothing"/>
+    <PostArg DataType="Nothing"/>
   </Command>
   <Command Name="isGroupDeletedWhenEmpty" ReturnType="Boolean" ReturnName="result" ReturnDescr="Boolean - true the group is marked for auto-deletion when empty" Descr="Checks if the given group marked for auto-deletion when empty. See deleteGroupWhenEmpty." Syntax="isGroupDeletedWhenEmpty group">
     <PreArg DataType="Nothing"/>
@@ -13964,7 +14029,7 @@
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Array">
       <ParamInfos>
-        <ParamInfo Name="IDC" DataType="String"/>
+        <ParamInfo Name="IDC" DataType="Scalar"/>
         <ParamInfo Name="[ String,String... ]" DataType="Array"/>
       </ParamInfos>
     </PostArg>
@@ -18895,19 +18960,11 @@
         <ParamInfo Name="array" DataType="Array"/>
       </ParamInfos>
     </PreArg>
-    <PostArg DataType="Boolean">
+    <PostArg DataType="Code">
       <ParamInfos>
-        <ParamInfo Name="expression" DataType="Boolean"/>
+        <ParamInfo Name="expression" DataType="Code"/>
       </ParamInfos>
     </PostArg>
-  </Command>
-  <Command Name="select" ReturnType="Array" ReturnName="result" ReturnDescr="Array - array of all elements from the original array that satisfied expression " Descr="Selects an element from an array, config entry from Config or substring from a string or a range from an array." Syntax="array select expression">
-    <PreArg DataType="Array">
-      <ParamInfos>
-        <ParamInfo Name="array" DataType="Array"/>
-      </ParamInfos>
-    </PreArg>
-    <PostArg DataType="Nothing"/>
   </Command>
   <Command Name="selectBestPlaces" ReturnType="Array" ReturnName="Position" ReturnDescr="Array - in Format [[position: Position2D, expressionResult: Number], ..." Descr="Find the places with the maximum value of expression in the given area. Places can be on water. Results are sorted by value." Syntax="selectBestPlaces [position, radius, expression, precision, sourcesCount]">
     <PreArg DataType="Nothing"/>
@@ -20179,6 +20236,18 @@
     <PostArg DataType="String">
       <ParamInfos>
         <ParamInfo Name="statement" DataType="String"/>
+      </ParamInfos>
+    </PostArg>
+  </Command>
+  <Command Name="setEffectiveCommander" ReturnType="Nothing" ReturnName="" ReturnDescr="Nothing" Descr="Sets effectiveCommander of the given vehicle. Effective commander is the person who commands the vehicle, i.e. gives commands to the driver." Syntax="vehicle setEffectiveCommander person">
+    <PreArg DataType="Object">
+      <ParamInfos>
+        <ParamInfo Name="vehicle" DataType="Object"/>
+      </ParamInfos>
+    </PreArg>
+    <PostArg DataType="Object">
+      <ParamInfos>
+        <ParamInfo Name="person" DataType="Object"/>
       </ParamInfos>
     </PostArg>
   </Command>
@@ -22179,6 +22248,18 @@
         <ParamInfo Name="angle" DataType="Scalar"/>
         <ParamInfo Name="isRectangle" DataType="Boolean"/>
         <ParamInfo Name="c" DataType="Scalar" IsOptional="True"/>
+      </ParamInfos>
+    </PostArg>
+  </Command>
+  <Command Name="setTriggerInterval" ReturnType="Nothing" ReturnName="" ReturnDescr="Nothing" Descr="Sets the interval in seconds for trigger condition check.ⓘ Triggers are configured to check condition approx. every 0.5 second by default." Syntax="trigger setTriggerInterval interval">
+    <PreArg DataType="Object">
+      <ParamInfos>
+        <ParamInfo Name="trigger" DataType="Object"/>
+      </ParamInfos>
+    </PreArg>
+    <PostArg DataType="Scalar">
+      <ParamInfos>
+        <ParamInfo Name="interval" DataType="Scalar"/>
       </ParamInfos>
     </PostArg>
   </Command>
@@ -24644,6 +24725,14 @@
       </ParamInfos>
     </PostArg>
   </Command>
+  <Command Name="triggerInterval" ReturnType="Scalar" ReturnName="result" ReturnDescr="Number - Trigger interval in seconds" Descr="Returns trigger condition check frequency in seconds." Syntax="triggerInterval trigger">
+    <PreArg DataType="Nothing"/>
+    <PostArg DataType="Object">
+      <ParamInfos>
+        <ParamInfo Name="trigger" DataType="Object"/>
+      </ParamInfos>
+    </PostArg>
+  </Command>
   <Command Name="triggerStatements" ReturnType="Array" ReturnName="result" ReturnDescr="Array" Descr="Returns trigger statements in the form [cond, activ, desactiv]." Syntax="triggerStatements trigger">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Object">
@@ -25922,6 +26011,14 @@
     <PostArg DataType="String">
       <ParamInfos>
         <ParamInfo Name="chatText" DataType="String"/>
+      </ParamInfos>
+    </PostArg>
+  </Command>
+  <Command Name="vehicleMoveInfo" ReturnType="Array" ReturnName="result" ReturnDescr="Array in format [moveInfo, turnInfo], where:moveInfo: String - state of vehicle" Descr="Returns current vehicle move/turn info (a getter for sendSimpleCommand) in format [moveInfo, turnInfo]." Syntax="vehicleMoveInfo vehicle">
+    <PreArg DataType="Nothing"/>
+    <PostArg DataType="Object">
+      <ParamInfos>
+        <ParamInfo Name="vehicle" DataType="Object"/>
       </ParamInfos>
     </PostArg>
   </Command>
