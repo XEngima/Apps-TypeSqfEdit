@@ -3,7 +3,7 @@
 		Parser for Arma 3 commands
 			created by Josef
 		   for TypeSQF editor
-	  XML created 2019-11-09 19:16:04
+	  XML created 2019-11-14 22:04:03
 -->
 <ScriptCommands xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Command Name="AGLToASL" ReturnType="Array" ReturnName="Position" ReturnDescr="PositionASL" Descr="Converts position from PositionAGL to PositionASL" Syntax="AGLToASL posAGL">
@@ -52,7 +52,7 @@
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Nothing"/>
   </Command>
-  <Command Name="UAVControl" ReturnType="Array" ReturnName="Position" ReturnDescr="Array - in format [unit, vehicleRole], where:unit: Object - UAV operatorvehicl" Descr="Get array with unit connected to vehicle and position in that vehicle." Syntax="UAVControl uav">
+  <Command Name="UAVControl" ReturnType="Array" ReturnName="Position" ReturnDescr="Array - in format [unit, vehicleRole] (or sometimes [unit1, vehicleRole, unit2, " Descr="Get array with unit connected to vehicle and position in that vehicle." Syntax="UAVControl uav">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Object">
       <ParamInfos>
@@ -804,10 +804,10 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="addOwnedMine" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Sets ownership over a remotely detonatable mine to the unit." Syntax="Unit addOwnedMine mine">
+  <Command Name="addOwnedMine" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Sets ownership over a remotely detonatable mine to the unit." Syntax="unit addOwnedMine mine">
     <PreArg DataType="Object">
       <ParamInfos>
-        <ParamInfo Name="Unit" DataType="Object"/>
+        <ParamInfo Name="unit" DataType="Object"/>
       </ParamInfos>
     </PreArg>
     <PostArg DataType="Object">
@@ -1231,6 +1231,10 @@
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Nothing"/>
   </Command>
+  <Command Name="allActiveTitleEffects" ReturnType="Array" ReturnName="result" ReturnDescr="Array of Numbers, where each number represents index of currently active effect " Descr="Returns a list of all layers that have currently active title effect." Syntax="allActiveTitleEffects">
+    <PreArg DataType="Nothing"/>
+    <PostArg DataType="Nothing"/>
+  </Command>
   <Command Name="allAirports" ReturnType="Array" ReturnName="result" ReturnDescr="Array - in format [staticAirports, dynamicAirports], where:staticAirports Array" Descr="Returns all map airports, both static and dynamic" Syntax="allAirports">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Nothing"/>
@@ -1287,13 +1291,11 @@
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Nothing"/>
   </Command>
-  <Command Name="allSimpleObjects" ReturnType="Array" ReturnName="result" ReturnDescr="Array - array of simple objects" Descr="Returns array of all simple objects that belong to the listed class names." Syntax="allSimpleObjects [className1, className2,...classNameN]">
+  <Command Name="allSimpleObjects" ReturnType="Array" ReturnName="result" ReturnDescr="Array - array of simple objects" Descr="Returns array of all simple objects that belong to the listed class names." Syntax="allSimpleObjects classes">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Array">
       <ParamInfos>
-        <ParamInfo Name="className1" DataType="String"/>
-        <ParamInfo Name="className2" DataType="String"/>
-        <ParamInfo Name="...classNameN" DataType="String"/>
+        <ParamInfo Name="classes" DataType="Array"/>
       </ParamInfos>
     </PostArg>
   </Command>
@@ -1309,12 +1311,12 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="allTurrets" ReturnType="Array" ReturnName="result" ReturnDescr="Array" Descr="Returns array of available turret paths." Syntax="allTurrets [vehicle, personTurrets]">
+  <Command Name="allTurrets" ReturnType="Array" ReturnName="result" ReturnDescr="Array" Descr="Returns array of available turret paths." Syntax="allTurrets [vehicle, includeFFV]">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Array">
       <ParamInfos>
         <ParamInfo Name="vehicle" DataType="Object"/>
-        <ParamInfo Name="personTurrets" DataType="Boolean"/>
+        <ParamInfo Name="includeFFV" DataType="Boolean"/>
       </ParamInfos>
     </PostArg>
   </Command>
@@ -2144,7 +2146,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="boundingBoxReal" ReturnType="Array" ReturnName="result" ReturnDescr="Array - An array with the extreme points of the model." Descr="Returns a bounding box of given object in model coordinates space. This command is similar to boundingBox but gives more precise measurements." Syntax="boundingBoxReal object">
+  <Command Name="boundingBoxReal" ReturnType="Array" ReturnName="result" ReturnDescr="Array - the extreme points of the model as well as bounding box sphere diameter," Descr="Returns a bounding box of given object in model coordinates space. This command is similar to boundingBox but gives more precise measurements." Syntax="boundingBoxReal object">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Object">
       <ParamInfos>
@@ -2152,7 +2154,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="boundingBoxReal" ReturnType="Array" ReturnName="result" ReturnDescr="Array - An array with the extreme points of the model bounding box as well as bo" Descr="Returns a bounding box of given object in model coordinates space. This command is similar to boundingBox but gives more precise measurements." Syntax="clippingType boundingBoxReal object">
+  <Command Name="boundingBoxReal" ReturnType="Array" ReturnName="result" ReturnDescr="Array - the extreme points of the model as well as bounding box sphere diameter," Descr="Returns a bounding box of given object in model coordinates space. This command is similar to boundingBox but gives more precise measurements." Syntax="clippingType boundingBoxReal object">
     <PreArg DataType="Scalar">
       <ParamInfos>
         <ParamInfo Name="clippingType" DataType="Scalar"/>
@@ -2280,9 +2282,13 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="calculatePlayerVisibilityByFriendly" ReturnType="Nothing" ReturnName="" ReturnDescr="Nothing" Descr="Friendly units will / will not calculate visibility of player. Default false." Syntax="calculatePlayerVisibilityByFriendly">
+  <Command Name="calculatePlayerVisibilityByFriendly" ReturnType="Nothing" ReturnName="" ReturnDescr="Nothing" Descr="Friendly units will / will not calculate visibility of player. Default false." Syntax="calculatePlayerVisibilityByFriendly calculate">
     <PreArg DataType="Nothing"/>
-    <PostArg DataType="Nothing"/>
+    <PostArg DataType="Boolean">
+      <ParamInfos>
+        <ParamInfo Name="calculate" DataType="Boolean"/>
+      </ParamInfos>
+    </PostArg>
   </Command>
   <Command Name="call" ReturnType="Any" ReturnName="result" ReturnDescr="Anything - The last value given in the function is returned." Descr="Executes given set of compiled instructions with an option to pass arguments to the executed Code." Syntax="call code">
     <PreArg DataType="Nothing"/>
@@ -2407,7 +2413,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="camPreload" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Preload the scene for the prepared camera. Time gives timeout, zero means no (infinite) timeout." Syntax="camera camPreload time">
+  <Command Name="camPreload" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Preload the scene for the prepared camera. Time gives timeout, zero means no (infinite) timeout." Syntax="camera camPreload timeout">
     <PreArg DataType="Object">
       <ParamInfos>
         <ParamInfo Name="camera" DataType="Object"/>
@@ -2415,7 +2421,7 @@
     </PreArg>
     <PostArg DataType="Scalar">
       <ParamInfos>
-        <ParamInfo Name="time" DataType="Scalar"/>
+        <ParamInfo Name="timeout" DataType="Scalar"/>
       </ParamInfos>
     </PostArg>
   </Command>
@@ -2713,7 +2719,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="cameraOn" ReturnType="Object" ReturnName="result" ReturnDescr="Object" Descr="Returns the vehicle to which the camera is attached." Syntax=" cameraOn">
+  <Command Name="cameraOn" ReturnType="Object" ReturnName="result" ReturnDescr="Object" Descr="Returns the vehicle to which the camera is attached." Syntax="cameraOn">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Nothing"/>
   </Command>
@@ -2841,10 +2847,10 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="canSlingLoad" ReturnType="Boolean" ReturnName="result" ReturnDescr="Boolean" Descr="Returns true if it is possible to sling load cargo" Syntax="vehicle canSlingLoad cargo">
+  <Command Name="canSlingLoad" ReturnType="Boolean" ReturnName="result" ReturnDescr="Boolean - true if setSlingLoad is possible" Descr="Returns true if it is possible to sling load cargo" Syntax="heli canSlingLoad cargo">
     <PreArg DataType="Object">
       <ParamInfos>
-        <ParamInfo Name="vehicle" DataType="Object"/>
+        <ParamInfo Name="heli" DataType="Object"/>
       </ParamInfos>
     </PreArg>
     <PostArg DataType="Object">
@@ -2957,7 +2963,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="channelEnabled" ReturnType="Array" ReturnName="result" ReturnDescr="Array - in format [chat, VoN], wherechat: Boolean - true if text chat is enable" Descr="Returns true or false depending on whether the given channel is enabled or disabled." Syntax="channelEnabled channel">
+  <Command Name="channelEnabled" ReturnType="Array" ReturnName="result" ReturnDescr="Array - in format [isTextChatEnabled, isVoiceEnabled]" Descr="Returns true or false depending on whether the given channel is enabled or disabled." Syntax="channelEnabled channel">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Scalar">
       <ParamInfos>
@@ -3196,7 +3202,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="closeDisplay" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Close given display with exit code." Syntax="display closeDisplay exitcode">
+  <Command Name="closeDisplay" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Close given display with exit code." Syntax="display closeDisplay exitCode">
     <PreArg DataType="Display">
       <ParamInfos>
         <ParamInfo Name="display" DataType="Display"/>
@@ -3204,7 +3210,7 @@
     </PreArg>
     <PostArg DataType="Scalar">
       <ParamInfos>
-        <ParamInfo Name="exitcode" DataType="Scalar"/>
+        <ParamInfo Name="exitCode" DataType="Scalar"/>
       </ParamInfos>
     </PostArg>
   </Command>
@@ -4163,15 +4169,16 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="createMissionDisplay" ReturnType="Display" ReturnName="result" ReturnDescr="Display" Descr="Create single missions display as a child of given display. The mission dialog will be set to the directory given as an argument &quot;root&quot;." Syntax="display createMissionDisplay string">
+  <Command Name="createMissionDisplay" ReturnType="Any" ReturnName="result" ReturnDescr="For Type" Descr="Create single missions display as a child of given display. The mission dialog will be set to the directory given as an argument &quot;root&quot;." Syntax="display createMissionDisplay [missionRootDirectoryString,cfgMissionsClass]">
     <PreArg DataType="Display">
       <ParamInfos>
         <ParamInfo Name="display" DataType="Display"/>
       </ParamInfos>
     </PreArg>
-    <PostArg DataType="String">
+    <PostArg DataType="Array">
       <ParamInfos>
-        <ParamInfo Name="string" DataType="String"/>
+        <ParamInfo Name="missionRootDirectoryString" DataType="String"/>
+        <ParamInfo Name="cfgMissionsClass" DataType="String"/>
       </ParamInfos>
     </PostArg>
   </Command>
@@ -4231,7 +4238,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="createTask" ReturnType="Task" ReturnName="result" ReturnDescr="Task" Descr="Create a new AI task (subtask of parentTask). Type is name of registered task type." Syntax="teamMember createTask  [[type, parentTask], priority, name1, value1...nameN, valueN]">
+  <Command Name="createTask" ReturnType="Task" ReturnName="result" ReturnDescr="Task" Descr="Create a new AI task (subtask of parentTask). Type is name of registered task type." Syntax="teamMember createTask [[type, parentTask], priority, name1, value1, (...), nameN, valueN]">
     <PreArg DataType="Object">
       <ParamInfos>
         <ParamInfo Name="teamMember" DataType="Object"/>
@@ -4242,7 +4249,9 @@
         <ParamInfo Name="[type, parentTask]" DataType="Array"/>
         <ParamInfo Name="priority" DataType="Scalar"/>
         <ParamInfo Name="name1" DataType="String"/>
-        <ParamInfo Name="value1...nameN" DataType="String"/>
+        <ParamInfo Name="value1" DataType="String"/>
+        <ParamInfo Name="..." DataType="Any"/>
+        <ParamInfo Name="nameN" DataType="String"/>
         <ParamInfo Name="valueN" DataType="Any"/>
       </ParamInfos>
     </PostArg>
@@ -4282,7 +4291,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="createUnit" ReturnType="Object" ReturnName="Unit" ReturnDescr="⚠Nothing - This syntax does NOT return a unit reference! In order to reference " Descr="Create unit of a class that's defined in CfgVehicles.The Group parameter MUST be an existing group or the unit won't be created." Syntax="type createUnit [position, group, init, skill, rank]">
+  <Command Name="createUnit" ReturnType="Object" ReturnName="Unit" ReturnDescr="⚠Nothing - This syntax does NOT return a unit reference! In order to reference t" Descr="Create unit of a class that's defined in CfgVehicles.The Group parameter MUST be an existing group or the unit won't be created." Syntax="type createUnit [position, group, init, skill, rank]">
     <PreArg DataType="String">
       <ParamInfos>
         <ParamInfo Name="type" DataType="String"/>
@@ -4853,6 +4862,18 @@
       </ParamInfos>
     </PostArg>
   </Command>
+  <Command Name="ctrlMapWorldToScreen" ReturnType="Array" ReturnName="result" ReturnDescr="Array - screen coordinates in format [x, y]" Descr="Converts world coordinates into map screen coordinates. This command is identical to posWorldToScreen." Syntax="control ctrlMapWorldToScreen position">
+    <PreArg DataType="Control">
+      <ParamInfos>
+        <ParamInfo Name="control" DataType="Control"/>
+      </ParamInfos>
+    </PreArg>
+    <PostArg DataType="Array">
+      <ParamInfos>
+        <ParamInfo Name="position" DataType="Array"/>
+      </ParamInfos>
+    </PostArg>
+  </Command>
   <Command Name="ctrlModel" ReturnType="String" ReturnName="result" ReturnDescr="String - model path" Descr="Returns model used in 3D Dialog Control." Syntax="ctrlModel control">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Control">
@@ -4877,11 +4898,11 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="ctrlParent" ReturnType="Display" ReturnName="result" ReturnDescr="Display" Descr="Returns container of the given control." Syntax=" ctrlParent controlName">
+  <Command Name="ctrlParent" ReturnType="Display" ReturnName="result" ReturnDescr="Display" Descr="Returns container of the given control." Syntax="ctrlParent control">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Control">
       <ParamInfos>
-        <ParamInfo Name="controlName" DataType="Control"/>
+        <ParamInfo Name="control" DataType="Control"/>
       </ParamInfos>
     </PostArg>
   </Command>
@@ -5577,10 +5598,10 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="ctrlSetText" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Set the text of a control of the currently active user dialog or display." Syntax="controlName ctrlSetText text">
+  <Command Name="ctrlSetText" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Set the text of a control of the currently active user dialog or display." Syntax="control ctrlSetText text">
     <PreArg DataType="Control">
       <ParamInfos>
-        <ParamInfo Name="controlName" DataType="Control"/>
+        <ParamInfo Name="control" DataType="Control"/>
       </ParamInfos>
     </PreArg>
     <PostArg DataType="String">
@@ -5589,10 +5610,10 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="ctrlSetTextColor" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Sets text color of given control. Color is in format Color. As of Arma 3 v1." Syntax="display ctrlSetTextColor color">
+  <Command Name="ctrlSetTextColor" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Sets text color of given control. Color is in format Color. As of Arma 3 v1." Syntax="control ctrlSetTextColor color">
     <PreArg DataType="Control">
       <ParamInfos>
-        <ParamInfo Name="display" DataType="Control"/>
+        <ParamInfo Name="control" DataType="Control"/>
       </ParamInfos>
     </PreArg>
     <PostArg DataType="Array">
@@ -5906,15 +5927,15 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="currentTasks" ReturnType="Array" ReturnName="result" ReturnDescr="Array" Descr="List all uncompleted tasks." Syntax="currentTasks member">
+  <Command Name="currentTasks" ReturnType="Array" ReturnName="result" ReturnDescr="Array - array of Tasks" Descr="List all uncompleted tasks." Syntax="currentTasks teamMember">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Object">
       <ParamInfos>
-        <ParamInfo Name="member" DataType="Object"/>
+        <ParamInfo Name="teamMember" DataType="Object"/>
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="currentThrowable" ReturnType="Array" ReturnName="result" ReturnDescr="Array in format [&lt;magazineClassName&gt;, &lt;muzzleClassName&gt;, [&lt;magazineId&gt;, &lt;creator" Descr="Returns currently selected throwable, which will be launched if user presses &quot;G&quot;. Please note: The weapon/magazine id system is W.I.P." Syntax="currentThrowable player">
+  <Command Name="currentThrowable" ReturnType="Array" ReturnName="result" ReturnDescr="Array in format [magazineClassName, muzzleClassName, [magazineId, creatorId]]" Descr="Returns currently selected throwable, which will be launched if user presses &quot;G&quot;. Please note: The weapon/magazine id system is W.I.P." Syntax="currentThrowable player">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Object">
       <ParamInfos>
@@ -6008,7 +6029,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="customWaypointPosition" ReturnType="Array" ReturnName="Position" ReturnDescr="Position" Descr="Returns player's custom waypoint position." Syntax="customWaypointPosition">
+  <Command Name="customWaypointPosition" ReturnType="Array" ReturnName="Position" ReturnDescr="Position in format [x,y,0] or []" Descr="Returns player's custom waypoint position." Syntax="customWaypointPosition">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Nothing"/>
   </Command>
@@ -6182,7 +6203,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="daytime" ReturnType="Scalar" ReturnName="result" ReturnDescr="Number -  Time using a 24 hour clock." Descr="Returns the current ingame time in hours." Syntax=" daytime">
+  <Command Name="daytime" ReturnType="Scalar" ReturnName="result" ReturnDescr="Number - day time using a 24 hour clock, using fractions of hours." Descr="Returns the current ingame time in hours." Syntax="daytime">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Nothing"/>
   </Command>
@@ -6696,15 +6717,15 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="disableCollisionWith" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Disable collision between vehicles. This commmand doesn't disable collision between PhysX objects." Syntax="vehicle disableCollisionWith vehicle">
+  <Command Name="disableCollisionWith" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Disable collision between vehicles. This commmand doesn't disable collision between PhysX objects." Syntax="object disableCollisionWith object">
     <PreArg DataType="Object">
       <ParamInfos>
-        <ParamInfo Name="vehicle" DataType="Object"/>
+        <ParamInfo Name="object" DataType="Object"/>
       </ParamInfos>
     </PreArg>
     <PostArg DataType="Object">
       <ParamInfos>
-        <ParamInfo Name="vehicle" DataType="Object"/>
+        <ParamInfo Name="object" DataType="Object"/>
       </ParamInfos>
     </PostArg>
   </Command>
@@ -7406,18 +7427,18 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="drawIcon3D" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Draws an ingame icon at a given position. Command has to be executed each frame." Syntax="drawIcon3D [texture, color, pos, width, height, angle, text, shadow, textSize, font, textAlign, drawSideArrows]">
+  <Command Name="drawIcon3D" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Draws an ingame icon at a given position. Command has to be executed each frame." Syntax="drawIcon3D [texture, color, position, width, height, angle, text, shadow, textSize, font, textAlign, drawSideArrows]">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Array">
       <ParamInfos>
         <ParamInfo Name="texture" DataType="String"/>
-        <ParamInfo Name="color" DataType="Any"/>
-        <ParamInfo Name="pos" DataType="Array"/>
+        <ParamInfo Name="color" DataType="Array"/>
+        <ParamInfo Name="position" DataType="Array"/>
         <ParamInfo Name="width" DataType="Scalar"/>
         <ParamInfo Name="height" DataType="Scalar"/>
         <ParamInfo Name="angle" DataType="Scalar"/>
         <ParamInfo Name="text" DataType="String" IsOptional="True"/>
-        <ParamInfo Name="shadow" DataType="Scalar" IsOptional="True"/>
+        <ParamInfo Name="shadow" DataType="Any" IsOptional="True"/>
         <ParamInfo Name="textSize" DataType="Scalar" IsOptional="True"/>
         <ParamInfo Name="font" DataType="String" IsOptional="True"/>
         <ParamInfo Name="textAlign" DataType="String" IsOptional="True"/>
@@ -7897,58 +7918,34 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="enableGunLights" ReturnType="Nothing" ReturnName="result" ReturnDescr="" Descr="Force the AI to use gun lights" Syntax="thing enableGunLights value">
-    <PreArg DataType="Object">
+  <Command Name="enableGunLights" ReturnType="Nothing" ReturnName="" ReturnDescr="Nothing" Descr="Sets AI group option how to use gun lights." Syntax="group enableGunLights mode">
+    <PreArg DataType="Group">
       <ParamInfos>
-        <ParamInfo Name="thing" DataType="Object"/>
-      </ParamInfos>
-    </PreArg>
-    <PostArg DataType="Boolean">
-      <ParamInfos>
-        <ParamInfo Name="value" DataType="Boolean"/>
-      </ParamInfos>
-    </PostArg>
-  </Command>
-  <Command Name="enableGunLights" ReturnType="Nothing" ReturnName="result" ReturnDescr="" Descr="Force the AI to use gun lights" Syntax="thing enableGunLights value">
-    <PreArg DataType="Object">
-      <ParamInfos>
-        <ParamInfo Name="thing" DataType="Object"/>
+        <ParamInfo Name="group" DataType="Group"/>
       </ParamInfos>
     </PreArg>
     <PostArg DataType="String">
       <ParamInfos>
-        <ParamInfo Name="value" DataType="String"/>
+        <ParamInfo Name="mode" DataType="String"/>
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="enableGunLights" ReturnType="Nothing" ReturnName="result" ReturnDescr="" Descr="Force the AI to use gun lights" Syntax="thing enableGunLights value">
-    <PreArg DataType="Group">
+  <Command Name="enableGunLights" ReturnType="Nothing" ReturnName="" ReturnDescr="Nothing" Descr="Sets AI group option how to use gun lights." Syntax="group enableGunLights mode">
+    <PreArg DataType="Object">
       <ParamInfos>
-        <ParamInfo Name="thing" DataType="Group"/>
-      </ParamInfos>
-    </PreArg>
-    <PostArg DataType="Boolean">
-      <ParamInfos>
-        <ParamInfo Name="value" DataType="Boolean"/>
-      </ParamInfos>
-    </PostArg>
-  </Command>
-  <Command Name="enableGunLights" ReturnType="Nothing" ReturnName="result" ReturnDescr="" Descr="Force the AI to use gun lights" Syntax="thing enableGunLights value">
-    <PreArg DataType="Group">
-      <ParamInfos>
-        <ParamInfo Name="thing" DataType="Group"/>
+        <ParamInfo Name="group" DataType="Object"/>
       </ParamInfos>
     </PreArg>
     <PostArg DataType="String">
       <ParamInfos>
-        <ParamInfo Name="value" DataType="String"/>
+        <ParamInfo Name="mode" DataType="String"/>
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="enableIRLasers" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Allows the AI to use IR lasers" Syntax="thing enableIRLasers value">
+  <Command Name="enableIRLasers" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Allows the AI to use IR lasers" Syntax="unitOrGroup enableIRLasers value">
     <PreArg DataType="Object">
       <ParamInfos>
-        <ParamInfo Name="thing" DataType="Object"/>
+        <ParamInfo Name="unitOrGroup" DataType="Object"/>
       </ParamInfos>
     </PreArg>
     <PostArg DataType="Boolean">
@@ -7957,10 +7954,10 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="enableIRLasers" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Allows the AI to use IR lasers" Syntax="thing enableIRLasers value">
+  <Command Name="enableIRLasers" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Allows the AI to use IR lasers" Syntax="unitOrGroup enableIRLasers value">
     <PreArg DataType="Group">
       <ParamInfos>
-        <ParamInfo Name="thing" DataType="Group"/>
+        <ParamInfo Name="unitOrGroup" DataType="Group"/>
       </ParamInfos>
     </PreArg>
     <PostArg DataType="Boolean">
@@ -8043,10 +8040,10 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="enableRopeAttach" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Enable/disable ability to attach or be attached to ropes for given vehicle" Syntax="vehicle enableRopeAttach enable">
+  <Command Name="enableRopeAttach" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Enable/disable ability to attach or be attached to ropes for given vehicle" Syntax="entity enableRopeAttach enable">
     <PreArg DataType="Object">
       <ParamInfos>
-        <ParamInfo Name="vehicle" DataType="Object"/>
+        <ParamInfo Name="entity" DataType="Object"/>
       </ParamInfos>
     </PreArg>
     <PostArg DataType="Boolean">
@@ -8523,7 +8520,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="find" ReturnType="Scalar" ReturnName="result" ReturnDescr="Number - 0 based position of the first array element that matches x, -1 if not f" Descr="Searches for an array element within array or a string within a string. Returns the 0 based index on success or -1 if not found." Syntax="array find x">
+  <Command Name="find" ReturnType="Scalar" ReturnName="result" ReturnDescr="Number - 0 based position of the first array element that matches x, -1 if not f" Descr="Searches for an array element within array or a string within a string. Returns the 0 based index on success or -1 if not found." Syntax="array find element">
     <PreArg DataType="Array">
       <ParamInfos>
         <ParamInfo Name="array" DataType="Array"/>
@@ -8531,11 +8528,11 @@
     </PreArg>
     <PostArg DataType="Any">
       <ParamInfos>
-        <ParamInfo Name="x" DataType="Any"/>
+        <ParamInfo Name="element" DataType="Any"/>
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="find" ReturnType="Scalar" ReturnName="result" ReturnDescr="Number - 0 based position of the first sequence of characters that matches x, -1" Descr="Searches for an array element within array or a string within a string. Returns the 0 based index on success or -1 if not found." Syntax="string find x">
+  <Command Name="find" ReturnType="Scalar" ReturnName="result" ReturnDescr="Number - 0 based position of the first sequence of characters that matches subst" Descr="Searches for an array element within array or a string within a string. Returns the 0 based index on success or -1 if not found." Syntax="string find substring">
     <PreArg DataType="String">
       <ParamInfos>
         <ParamInfo Name="string" DataType="String"/>
@@ -8543,7 +8540,7 @@
     </PreArg>
     <PostArg DataType="String">
       <ParamInfos>
-        <ParamInfo Name="x" DataType="String"/>
+        <ParamInfo Name="substring" DataType="String"/>
       </ParamInfos>
     </PostArg>
   </Command>
@@ -8651,11 +8648,11 @@
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Nothing"/>
   </Command>
-  <Command Name="finite" ReturnType="Boolean" ReturnName="result" ReturnDescr="Boolean" Descr="True, if number is finite (not infinite and a valid number)" Syntax=" finite x">
+  <Command Name="finite" ReturnType="Boolean" ReturnName="result" ReturnDescr="Boolean" Descr="True, if number is finite (not infinite and a valid number)" Syntax="finite number">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Scalar">
       <ParamInfos>
-        <ParamInfo Name="x" DataType="Scalar"/>
+        <ParamInfo Name="number" DataType="Scalar"/>
       </ParamInfos>
     </PostArg>
   </Command>
@@ -9398,7 +9395,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="getAmmoCargo" ReturnType="Scalar" ReturnName="result" ReturnDescr="Number" Descr="Returns the amount of ammo resources in the cargo space of a rearm vehicle." Syntax="getAmmoCargo vehicle">
+  <Command Name="getAmmoCargo" ReturnType="Scalar" ReturnName="result" ReturnDescr="Number - ammo cargo value, -1 if ammo cargo is not supported, 0 if the vehicle i" Descr="Returns the amount of ammo resources in the cargo space of a rearm vehicle." Syntax="getAmmoCargo vehicle">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Object">
       <ParamInfos>
@@ -9839,7 +9836,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="getFuelCargo" ReturnType="Scalar" ReturnName="result" ReturnDescr="Number" Descr="Returns the fuel amount (between 0 and 1) in the cargo space of a refuelling vehicle." Syntax="getFuelCargo vehicle">
+  <Command Name="getFuelCargo" ReturnType="Scalar" ReturnName="result" ReturnDescr="Number - fuel cargo value, -1 if fuel cargo is not supported, 0 if the vehicle i" Descr="Returns the fuel amount (between 0 and 1) in the cargo space of a refuelling vehicle." Syntax="getFuelCargo vehicle">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Object">
       <ParamInfos>
@@ -9901,7 +9898,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="getHit" ReturnType="Scalar" ReturnName="Id" ReturnDescr="Number (or, prior to Arma 3 v1.93." Descr="Returns selection damage. Same as getHitPointDamage only argument is selection part instead of hit point." Syntax="vehicle getHit selection">
+  <Command Name="getHit" ReturnType="Scalar" ReturnName="Id" ReturnDescr="Number (prior to Arma 3 v1.93." Descr="Returns selection damage. Same as getHitPointDamage only argument is selection part instead of hit point." Syntax="vehicle getHit selection">
     <PreArg DataType="Object">
       <ParamInfos>
         <ParamInfo Name="vehicle" DataType="Object"/>
@@ -10437,7 +10434,7 @@
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Nothing"/>
   </Command>
-  <Command Name="getRepairCargo" ReturnType="Scalar" ReturnName="result" ReturnDescr="Number" Descr="Returns the amount of repair resources from empty (0) to full (1) in the cargo space of a repair vehicle." Syntax="getRepairCargo vehicle">
+  <Command Name="getRepairCargo" ReturnType="Scalar" ReturnName="result" ReturnDescr="Number - repair cargo value, -1 if repair cargo is not supported, 0 if the vehic" Descr="Returns the amount of repair resources from empty (0) to full (1) in the cargo space of a repair vehicle." Syntax="getRepairCargo vehicle">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Object">
       <ParamInfos>
@@ -10445,7 +10442,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="getResolution" ReturnType="Array" ReturnName="result" ReturnDescr="Array - to format [width, height, uiViewPortWidth, uiViewPortHeight, aspectRatio" Descr="Returns an array containing all information about resolution." Syntax="getResolution">
+  <Command Name="getResolution" ReturnType="Array" ReturnName="result" ReturnDescr="Array - see the description" Descr="Returns an array containing all information about resolution." Syntax="getResolution">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Nothing"/>
   </Command>
@@ -10533,7 +10530,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="getTerrainGrid" ReturnType="Scalar" ReturnName="result" ReturnDescr="Number" Descr="Returns the current terrain grid" Syntax="getTerrainGrid">
+  <Command Name="getTerrainGrid" ReturnType="Scalar" ReturnName="result" ReturnDescr="Number - terrain grid value" Descr="Returns the current terrain grid" Syntax="getTerrainGrid">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Nothing"/>
   </Command>
@@ -10659,7 +10656,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="getVariable" ReturnType="Any" ReturnName="result" ReturnDescr="Anything or Nothing  if the variable doesn't exist" Descr="Return the value of variable in the variable space assigned to various data types." Syntax="varspace getVariable name">
+  <Command Name="getVariable" ReturnType="Any" ReturnName="result" ReturnDescr="Anything or Nothing if the variable doesn't exist" Descr="Return the value of variable in the variable space assigned to various data types." Syntax="varspace getVariable name">
     <PreArg DataType="Namespace">
       <ParamInfos>
         <ParamInfo Name="varspace" DataType="Namespace"/>
@@ -10671,7 +10668,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="getVariable" ReturnType="Any" ReturnName="result" ReturnDescr="Anything or Nothing  if the variable doesn't exist" Descr="Return the value of variable in the variable space assigned to various data types." Syntax="varspace getVariable name">
+  <Command Name="getVariable" ReturnType="Any" ReturnName="result" ReturnDescr="Anything or Nothing if the variable doesn't exist" Descr="Return the value of variable in the variable space assigned to various data types." Syntax="varspace getVariable name">
     <PreArg DataType="Object">
       <ParamInfos>
         <ParamInfo Name="varspace" DataType="Object"/>
@@ -10683,7 +10680,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="getVariable" ReturnType="Any" ReturnName="result" ReturnDescr="Anything or Nothing  if the variable doesn't exist" Descr="Return the value of variable in the variable space assigned to various data types." Syntax="varspace getVariable name">
+  <Command Name="getVariable" ReturnType="Any" ReturnName="result" ReturnDescr="Anything or Nothing if the variable doesn't exist" Descr="Return the value of variable in the variable space assigned to various data types." Syntax="varspace getVariable name">
     <PreArg DataType="Display">
       <ParamInfos>
         <ParamInfo Name="varspace" DataType="Display"/>
@@ -10695,7 +10692,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="getVariable" ReturnType="Any" ReturnName="result" ReturnDescr="Anything or Nothing  if the variable doesn't exist" Descr="Return the value of variable in the variable space assigned to various data types." Syntax="varspace getVariable name">
+  <Command Name="getVariable" ReturnType="Any" ReturnName="result" ReturnDescr="Anything or Nothing if the variable doesn't exist" Descr="Return the value of variable in the variable space assigned to various data types." Syntax="varspace getVariable name">
     <PreArg DataType="Control">
       <ParamInfos>
         <ParamInfo Name="varspace" DataType="Control"/>
@@ -10707,7 +10704,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="getVariable" ReturnType="Any" ReturnName="result" ReturnDescr="Anything or Nothing  if the variable doesn't exist" Descr="Return the value of variable in the variable space assigned to various data types." Syntax="varspace getVariable name">
+  <Command Name="getVariable" ReturnType="Any" ReturnName="result" ReturnDescr="Anything or Nothing if the variable doesn't exist" Descr="Return the value of variable in the variable space assigned to various data types." Syntax="varspace getVariable name">
     <PreArg DataType="Group">
       <ParamInfos>
         <ParamInfo Name="varspace" DataType="Group"/>
@@ -10719,7 +10716,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="getVariable" ReturnType="Any" ReturnName="result" ReturnDescr="Anything or Nothing  if the variable doesn't exist" Descr="Return the value of variable in the variable space assigned to various data types." Syntax="varspace getVariable name">
+  <Command Name="getVariable" ReturnType="Any" ReturnName="result" ReturnDescr="Anything or Nothing if the variable doesn't exist" Descr="Return the value of variable in the variable space assigned to various data types." Syntax="varspace getVariable name">
     <PreArg DataType="Location">
       <ParamInfos>
         <ParamInfo Name="varspace" DataType="Location"/>
@@ -10731,7 +10728,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="getVariable" ReturnType="Any" ReturnName="result" ReturnDescr="Anything or Nothing  if the variable doesn't exist" Descr="Return the value of variable in the variable space assigned to various data types." Syntax="varspace getVariable name">
+  <Command Name="getVariable" ReturnType="Any" ReturnName="result" ReturnDescr="Anything or Nothing if the variable doesn't exist" Descr="Return the value of variable in the variable space assigned to various data types." Syntax="varspace getVariable name">
     <PreArg DataType="Task">
       <ParamInfos>
         <ParamInfo Name="varspace" DataType="Task"/>
@@ -10743,7 +10740,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="getVariable" ReturnType="Any" ReturnName="result" ReturnDescr="Anything or Nothing  if the variable doesn't exist" Descr="Return the value of variable in the variable space assigned to various data types." Syntax="varspace getVariable name">
+  <Command Name="getVariable" ReturnType="Any" ReturnName="result" ReturnDescr="Anything or Nothing if the variable doesn't exist" Descr="Return the value of variable in the variable space assigned to various data types." Syntax="varspace getVariable name">
     <PreArg DataType="Any">
       <ParamInfos>
         <ParamInfo Name="varspace" DataType="Any"/>
@@ -10755,7 +10752,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="getVariable" ReturnType="Nothing" ReturnName="result" ReturnDescr="Anything or Nothing  if the variable doesn't exist" Descr="Return the value of variable in the variable space assigned to various data types." Syntax="varspace getVariable name">
+  <Command Name="getVariable" ReturnType="Nothing" ReturnName="result" ReturnDescr="Anything or Nothing if the variable doesn't exist" Descr="Return the value of variable in the variable space assigned to various data types." Syntax="varspace getVariable name">
     <PreArg DataType="Namespace">
       <ParamInfos>
         <ParamInfo Name="varspace" DataType="Namespace"/>
@@ -10767,7 +10764,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="getVariable" ReturnType="Nothing" ReturnName="result" ReturnDescr="Anything or Nothing  if the variable doesn't exist" Descr="Return the value of variable in the variable space assigned to various data types." Syntax="varspace getVariable name">
+  <Command Name="getVariable" ReturnType="Nothing" ReturnName="result" ReturnDescr="Anything or Nothing if the variable doesn't exist" Descr="Return the value of variable in the variable space assigned to various data types." Syntax="varspace getVariable name">
     <PreArg DataType="Object">
       <ParamInfos>
         <ParamInfo Name="varspace" DataType="Object"/>
@@ -10779,7 +10776,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="getVariable" ReturnType="Nothing" ReturnName="result" ReturnDescr="Anything or Nothing  if the variable doesn't exist" Descr="Return the value of variable in the variable space assigned to various data types." Syntax="varspace getVariable name">
+  <Command Name="getVariable" ReturnType="Nothing" ReturnName="result" ReturnDescr="Anything or Nothing if the variable doesn't exist" Descr="Return the value of variable in the variable space assigned to various data types." Syntax="varspace getVariable name">
     <PreArg DataType="Display">
       <ParamInfos>
         <ParamInfo Name="varspace" DataType="Display"/>
@@ -10791,7 +10788,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="getVariable" ReturnType="Nothing" ReturnName="result" ReturnDescr="Anything or Nothing  if the variable doesn't exist" Descr="Return the value of variable in the variable space assigned to various data types." Syntax="varspace getVariable name">
+  <Command Name="getVariable" ReturnType="Nothing" ReturnName="result" ReturnDescr="Anything or Nothing if the variable doesn't exist" Descr="Return the value of variable in the variable space assigned to various data types." Syntax="varspace getVariable name">
     <PreArg DataType="Control">
       <ParamInfos>
         <ParamInfo Name="varspace" DataType="Control"/>
@@ -10803,7 +10800,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="getVariable" ReturnType="Nothing" ReturnName="result" ReturnDescr="Anything or Nothing  if the variable doesn't exist" Descr="Return the value of variable in the variable space assigned to various data types." Syntax="varspace getVariable name">
+  <Command Name="getVariable" ReturnType="Nothing" ReturnName="result" ReturnDescr="Anything or Nothing if the variable doesn't exist" Descr="Return the value of variable in the variable space assigned to various data types." Syntax="varspace getVariable name">
     <PreArg DataType="Group">
       <ParamInfos>
         <ParamInfo Name="varspace" DataType="Group"/>
@@ -10815,7 +10812,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="getVariable" ReturnType="Nothing" ReturnName="result" ReturnDescr="Anything or Nothing  if the variable doesn't exist" Descr="Return the value of variable in the variable space assigned to various data types." Syntax="varspace getVariable name">
+  <Command Name="getVariable" ReturnType="Nothing" ReturnName="result" ReturnDescr="Anything or Nothing if the variable doesn't exist" Descr="Return the value of variable in the variable space assigned to various data types." Syntax="varspace getVariable name">
     <PreArg DataType="Location">
       <ParamInfos>
         <ParamInfo Name="varspace" DataType="Location"/>
@@ -10827,7 +10824,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="getVariable" ReturnType="Nothing" ReturnName="result" ReturnDescr="Anything or Nothing  if the variable doesn't exist" Descr="Return the value of variable in the variable space assigned to various data types." Syntax="varspace getVariable name">
+  <Command Name="getVariable" ReturnType="Nothing" ReturnName="result" ReturnDescr="Anything or Nothing if the variable doesn't exist" Descr="Return the value of variable in the variable space assigned to various data types." Syntax="varspace getVariable name">
     <PreArg DataType="Task">
       <ParamInfos>
         <ParamInfo Name="varspace" DataType="Task"/>
@@ -10839,7 +10836,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="getVariable" ReturnType="Nothing" ReturnName="result" ReturnDescr="Anything or Nothing  if the variable doesn't exist" Descr="Return the value of variable in the variable space assigned to various data types." Syntax="varspace getVariable name">
+  <Command Name="getVariable" ReturnType="Nothing" ReturnName="result" ReturnDescr="Anything or Nothing if the variable doesn't exist" Descr="Return the value of variable in the variable space assigned to various data types." Syntax="varspace getVariable name">
     <PreArg DataType="Any">
       <ParamInfos>
         <ParamInfo Name="varspace" DataType="Any"/>
@@ -11402,11 +11399,11 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="hint" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Outputs a multi-line hint message in the left upper corner of the screen (in the right upper corner in Arma)." Syntax="hint text">
+  <Command Name="hint" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Outputs a multi-line hint message in the left upper corner of the screen (in the right upper corner in Arma)." Syntax="hint message">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="String">
       <ParamInfos>
-        <ParamInfo Name="text" DataType="String"/>
+        <ParamInfo Name="message" DataType="String"/>
       </ParamInfos>
     </PostArg>
   </Command>
@@ -11562,6 +11559,18 @@
     <PostArg DataType="Location">
       <ParamInfos>
         <ParamInfo Name="location" DataType="Location"/>
+      </ParamInfos>
+    </PostArg>
+  </Command>
+  <Command Name="in" ReturnType="Boolean" ReturnName="result" ReturnDescr="Boolean" Descr="Checks whether value is in array, unit in vehicle or position inside location." Syntax="needle in haystack">
+    <PreArg DataType="String">
+      <ParamInfos>
+        <ParamInfo Name="needle" DataType="String"/>
+      </ParamInfos>
+    </PreArg>
+    <PostArg DataType="String">
+      <ParamInfos>
+        <ParamInfo Name="haystack" DataType="String"/>
       </ParamInfos>
     </PostArg>
   </Command>
@@ -12255,7 +12264,7 @@
     <PostArg DataType="Array">
       <ParamInfos>
         <ParamInfo Name="typeName2" DataType="String"/>
-        <ParamInfo Name="targetConfig" DataType="Config"/>
+        <ParamInfo Name="targetConfig" DataType="Any"/>
       </ParamInfos>
     </PostArg>
   </Command>
@@ -12934,15 +12943,15 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="landAt" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Order an AI airplane to land at a given airport. ID is the number to identify which airport on the island you want. Since Arma 3 v1." Syntax="_plane1 landAt _dynamicAirport1">
+  <Command Name="landAt" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Order an AI airplane to land at a given airport. ID is the number to identify which airport on the island you want. Since Arma 3 v1." Syntax="plane landAt airportObject">
     <PreArg DataType="Object">
       <ParamInfos>
-        <ParamInfo Name="_plane1" DataType="Object"/>
+        <ParamInfo Name="plane" DataType="Object"/>
       </ParamInfos>
     </PreArg>
     <PostArg DataType="Object">
       <ParamInfos>
-        <ParamInfo Name="_dynamicAirport1" DataType="Object"/>
+        <ParamInfo Name="airportObject" DataType="Object"/>
       </ParamInfos>
     </PostArg>
   </Command>
@@ -12958,7 +12967,7 @@
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Nothing"/>
   </Command>
-  <Command Name="laserTarget" ReturnType="Object" ReturnName="result" ReturnDescr="Object" Descr="Returns laser target object created by given unit (gunner in vehicle or on foot) when using &quot;Laserdesignator&quot; or another laser targeting device." Syntax="laserTarget unitName">
+  <Command Name="laserTarget" ReturnType="Object" ReturnName="result" ReturnDescr="Object - laser target or objNull if no laser target exists" Descr="Returns laser target object created by given unit (gunner in vehicle or on foot) when using &quot;Laserdesignator&quot; or another laser targeting device." Syntax="laserTarget unitName">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Object">
       <ParamInfos>
@@ -13838,7 +13847,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="lightIsOn" ReturnType="String" ReturnName="result" ReturnDescr="String" Descr="Check if lampost is on (shining). For working with CfgNonAIVehicles class &quot;StreetLamp&quot; only." Syntax="lightIsOn lamppost">
+  <Command Name="lightIsOn" ReturnType="String" ReturnName="result" ReturnDescr="String - Can be one of:&quot;ON&quot; - light is on&quot;OFF&quot; - light is off&quot;AUTO&quot; - applica" Descr="Check if lampost is on (shining). For working with CfgNonAIVehicles class &quot;StreetLamp&quot; only." Syntax="lightIsOn lamppost">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Object">
       <ParamInfos>
@@ -15043,7 +15052,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="markerPos" ReturnType="Array" ReturnName="Position" ReturnDescr="Array - format [x,y,0]" Descr="Get marker Position. Note: This function is identical to getMarkerPos." Syntax="markerPos markerName">
+  <Command Name="markerPos" ReturnType="Array" ReturnName="Position" ReturnDescr="Array - format [x, y, 0]" Descr="Get marker Position. Note: This function is identical to getMarkerPos." Syntax="markerPos markerName">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="String">
       <ParamInfos>
@@ -15051,7 +15060,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="markerPos" ReturnType="Array" ReturnName="Position" ReturnDescr="Array - format PositionAGL if preserveElevation is true or [x,y,0] if preserveEl" Descr="Get marker Position. Note: This function is identical to getMarkerPos." Syntax="markerPos [markerName, preserveElevation]">
+  <Command Name="markerPos" ReturnType="Array" ReturnName="Position" ReturnDescr="Array - format PositionAGL if preserveElevation is true or [x, y, 0] if preserve" Descr="Get marker Position. Note: This function is identical to getMarkerPos." Syntax="markerPos [markerName, preserveElevation]">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Array">
       <ParamInfos>
@@ -15092,7 +15101,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="matrixMultiply" ReturnType="Array" ReturnName="result" ReturnDescr="Array" Descr="Resulting matrix of matrix multiplication.First matrix must be of size N✕K, while the second must be of size K✕M." Syntax="matrix1 matrixMultiply matrix2">
+  <Command Name="matrixMultiply" ReturnType="Array" ReturnName="result" ReturnDescr="Array - resulting matrix of the size n(rows) ✕ m(columns)" Descr="Resulting matrix of matrix multiplication.First matrix must be of size N✕K, while the second must be of size K✕M." Syntax="matrix1 matrixMultiply matrix2">
     <PreArg DataType="Array">
       <ParamInfos>
         <ParamInfo Name="matrix1" DataType="Array"/>
@@ -15104,7 +15113,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="matrixTranspose" ReturnType="Array" ReturnName="result" ReturnDescr="Array" Descr="Returns transposed input matrix" Syntax="matrixTranspose matrix">
+  <Command Name="matrixTranspose" ReturnType="Array" ReturnName="result" ReturnDescr="Array - transposed matrix" Descr="Returns transposed input matrix" Syntax="matrixTranspose matrix">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Array">
       <ParamInfos>
@@ -16016,7 +16025,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="nearestObject" ReturnType="Object" ReturnName="result" ReturnDescr="Object - Nearest object, objNull otherwise" Descr="Returns the nearest object of given type to given position within a sphere. Hardcoded radius is 50 meters." Syntax="position nearestObject type">
+  <Command Name="nearestObject" ReturnType="Object" ReturnName="result" ReturnDescr="Object - nearest object, objNull otherwise" Descr="Returns the nearest object of given type to given position within a sphere. Hardcoded radius is 50 meters." Syntax="position nearestObject type">
     <PreArg DataType="Array">
       <ParamInfos>
         <ParamInfo Name="position" DataType="Array"/>
@@ -16028,7 +16037,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="nearestObject" ReturnType="Object" ReturnName="result" ReturnDescr="Object - Nearest object, objNull otherwise" Descr="Returns the nearest object of given type to given position within a sphere. Hardcoded radius is 50 meters." Syntax="position nearestObject id">
+  <Command Name="nearestObject" ReturnType="Object" ReturnName="result" ReturnDescr="Object - nearest object, objNull otherwise" Descr="Returns the nearest object of given type to given position within a sphere. Hardcoded radius is 50 meters." Syntax="position nearestObject id">
     <PreArg DataType="Array">
       <ParamInfos>
         <ParamInfo Name="position" DataType="Array"/>
@@ -16713,19 +16722,19 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="playMusic" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Plays music defined in Description.ext#CfgMusic or config.cpp." Syntax="playMusic name">
+  <Command Name="playMusic" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Plays music defined in Description.ext#CfgMusic or config.cpp." Syntax="playMusic musicName">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="String">
       <ParamInfos>
-        <ParamInfo Name="name" DataType="String"/>
+        <ParamInfo Name="musicName" DataType="String"/>
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="playMusic" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Plays music defined in Description.ext#CfgMusic or config.cpp." Syntax="playMusic [name, start]">
+  <Command Name="playMusic" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Plays music defined in Description.ext#CfgMusic or config.cpp." Syntax="playMusic [musicName, start]">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Array">
       <ParamInfos>
-        <ParamInfo Name="name" DataType="String"/>
+        <ParamInfo Name="musicName" DataType="String"/>
         <ParamInfo Name="start" DataType="Scalar"/>
       </ParamInfos>
     </PostArg>
@@ -17066,15 +17075,6 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="preloadTitleObj" ReturnType="Boolean" ReturnName="result" ReturnDescr="Boolean" Descr="Object title -  Preload data the object can be defined in the Description.ext file." Syntax="preloadTitleObj [name, type]">
-    <PreArg DataType="Nothing"/>
-    <PostArg DataType="Array">
-      <ParamInfos>
-        <ParamInfo Name="name" DataType="String"/>
-        <ParamInfo Name="type" DataType="String"/>
-      </ParamInfos>
-    </PostArg>
-  </Command>
   <Command Name="preloadTitleObj" ReturnType="Boolean" ReturnName="result" ReturnDescr="Boolean" Descr="Object title -  Preload data the object can be defined in the Description.ext file." Syntax="preloadTitleObj [name, type, speed, showInMap]">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Array">
@@ -17082,7 +17082,7 @@
         <ParamInfo Name="name" DataType="String"/>
         <ParamInfo Name="type" DataType="String"/>
         <ParamInfo Name="speed" DataType="Scalar" IsOptional="True"/>
-        <ParamInfo Name="showInMap" DataType="Boolean"/>
+        <ParamInfo Name="showInMap" DataType="Boolean" IsOptional="True"/>
       </ParamInfos>
     </PostArg>
   </Command>
@@ -17392,7 +17392,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="random" ReturnType="Scalar" ReturnName="result" ReturnDescr="Number" Descr="Random real (floating point) value from 0 (inclusive) to x (not inclusive).Since Arma 3 v1.55." Syntax="seed random x">
+  <Command Name="random" ReturnType="Scalar" ReturnName="result" ReturnDescr="Number - value from 0 to x" Descr="Random real (floating point) value from 0 (inclusive) to x (not inclusive).Since Arma 3 v1.55." Syntax="seed random x">
     <PreArg DataType="Scalar">
       <ParamInfos>
         <ParamInfo Name="seed" DataType="Scalar"/>
@@ -17404,7 +17404,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="random" ReturnType="Scalar" ReturnName="result" ReturnDescr="Number" Descr="Random real (floating point) value from 0 (inclusive) to x (not inclusive).Since Arma 3 v1.55." Syntax="seed random [x, y]">
+  <Command Name="random" ReturnType="Scalar" ReturnName="result" ReturnDescr="Number - value from 0 to 1" Descr="Random real (floating point) value from 0 (inclusive) to x (not inclusive).Since Arma 3 v1.55." Syntax="seed random [x, y]">
     <PreArg DataType="Scalar">
       <ParamInfos>
         <ParamInfo Name="seed" DataType="Scalar"/>
@@ -17449,7 +17449,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="registerTask" ReturnType="Boolean" ReturnName="result" ReturnDescr="Boolean" Descr="Register a new task type. Parameters are defined in the given config class (subclass of CfgTasks)." Syntax="teamMember registerTask entryName">
+  <Command Name="registerTask" ReturnType="Boolean" ReturnName="result" ReturnDescr="Boolean - true on success" Descr="Register a new task type. Parameters are defined in the given config class (subclass of CfgTasks)." Syntax="teamMember registerTask entryName">
     <PreArg DataType="Object">
       <ParamInfos>
         <ParamInfo Name="teamMember" DataType="Object"/>
@@ -17461,11 +17461,11 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="registeredTasks" ReturnType="Array" ReturnName="result" ReturnDescr="Array of Strings" Descr="List all registered task types." Syntax="registeredTasks member">
+  <Command Name="registeredTasks" ReturnType="Array" ReturnName="result" ReturnDescr="Array of Strings - names of tasks" Descr="List all registered task types." Syntax="registeredTasks teamMember">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Object">
       <ParamInfos>
-        <ParamInfo Name="member" DataType="Object"/>
+        <ParamInfo Name="teamMember" DataType="Object"/>
       </ParamInfos>
     </PostArg>
   </Command>
@@ -17506,7 +17506,7 @@
     <PostArg DataType="Array">
       <ParamInfos>
         <ParamInfo Name="functionName" DataType="String"/>
-        <ParamInfo Name="targets" DataType="Any" IsOptional="True"/>
+        <ParamInfo Name="targets" DataType="Scalar" IsOptional="True"/>
         <ParamInfo Name="JIP" DataType="Any" IsOptional="True"/>
       </ParamInfos>
     </PostArg>
@@ -17516,7 +17516,7 @@
     <PostArg DataType="Array">
       <ParamInfos>
         <ParamInfo Name="functionName" DataType="String"/>
-        <ParamInfo Name="targets" DataType="Any" IsOptional="True"/>
+        <ParamInfo Name="targets" DataType="Scalar" IsOptional="True"/>
         <ParamInfo Name="JIP" DataType="Any" IsOptional="True"/>
       </ParamInfos>
     </PostArg>
@@ -17530,7 +17530,7 @@
     <PostArg DataType="Array">
       <ParamInfos>
         <ParamInfo Name="functionName" DataType="String"/>
-        <ParamInfo Name="targets" DataType="Any" IsOptional="True"/>
+        <ParamInfo Name="targets" DataType="Scalar" IsOptional="True"/>
         <ParamInfo Name="JIP" DataType="Any" IsOptional="True"/>
       </ParamInfos>
     </PostArg>
@@ -17540,7 +17540,7 @@
     <PostArg DataType="Array">
       <ParamInfos>
         <ParamInfo Name="functionName" DataType="String"/>
-        <ParamInfo Name="targets" DataType="Any" IsOptional="True"/>
+        <ParamInfo Name="targets" DataType="Scalar" IsOptional="True"/>
         <ParamInfo Name="JIP" DataType="Any" IsOptional="True"/>
       </ParamInfos>
     </PostArg>
@@ -17794,6 +17794,19 @@
     <PostArg DataType="Scalar">
       <ParamInfos>
         <ParamInfo Name="editAreaID" DataType="Scalar"/>
+      </ParamInfos>
+    </PostArg>
+  </Command>
+  <Command Name="removeDiaryRecord" ReturnType="Nothing" ReturnName="" ReturnDescr="Nothing" Descr="Remove a log record." Syntax="unit removeDiaryRecord [subject, diaryRecord]">
+    <PreArg DataType="Object">
+      <ParamInfos>
+        <ParamInfo Name="unit" DataType="Object"/>
+      </ParamInfos>
+    </PreArg>
+    <PostArg DataType="Array">
+      <ParamInfos>
+        <ParamInfo Name="subject" DataType="String"/>
+        <ParamInfo Name="diaryRecord" DataType="String"/>
       </ParamInfos>
     </PostArg>
   </Command>
@@ -18389,20 +18402,20 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="ropeAttachEnabled" ReturnType="Boolean" ReturnName="result" ReturnDescr="Boolean" Descr="Returns true if vehicle can be attached to ropes" Syntax="ropeAttachEnabled vehicle">
+  <Command Name="ropeAttachEnabled" ReturnType="Boolean" ReturnName="result" ReturnDescr="Boolean - true if allowed" Descr="Returns true if vehicle can be attached to ropes" Syntax="ropeAttachEnabled entity">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Object">
       <ParamInfos>
-        <ParamInfo Name="vehicle" DataType="Object"/>
+        <ParamInfo Name="entity" DataType="Object"/>
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="ropeAttachTo" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Attach vehicle to rope with optional offset" Syntax="[veh, toPoint, ropeEndDownDir] ropeAttachTo rope">
+  <Command Name="ropeAttachTo" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Attach vehicle to rope with optional offset" Syntax="[entity, toPoint, ropeEndDownVector] ropeAttachTo rope">
     <PreArg DataType="Array">
       <ParamInfos>
-        <ParamInfo Name="veh" DataType="Object"/>
-        <ParamInfo Name="toPoint" DataType="Array"/>
-        <ParamInfo Name="ropeEndDownDir" DataType="Array"/>
+        <ParamInfo Name="entity" DataType="Object"/>
+        <ParamInfo Name="toPoint" DataType="Any" IsOptional="True"/>
+        <ParamInfo Name="ropeEndDownVector" DataType="Any" IsOptional="True"/>
       </ParamInfos>
     </PreArg>
     <PostArg DataType="Object">
@@ -18411,7 +18424,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="ropeAttachedObjects" ReturnType="Array" ReturnName="result" ReturnDescr="Array - array of attached objects on ropes" Descr="Returns list of attached objects on ropes" Syntax="ropeAttachedObjects ropesOwner">
+  <Command Name="ropeAttachedObjects" ReturnType="Array" ReturnName="result" ReturnDescr="Array - array of attached entities on ropes" Descr="Returns list of attached objects on ropes" Syntax="ropeAttachedObjects ropesOwner">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Object">
       <ParamInfos>
@@ -18419,7 +18432,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="ropeAttachedTo" ReturnType="Object" ReturnName="result" ReturnDescr="Object - a vehicle from which the ropes originate, the ropes owner" Descr="Returns the object it is attached to by rope" Syntax="ropeAttachedTo cargo">
+  <Command Name="ropeAttachedTo" ReturnType="Object" ReturnName="result" ReturnDescr="Object - a transport from which the ropes originate, the ropes owner" Descr="Returns the object it is attached to by rope" Syntax="ropeAttachedTo cargo">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Object">
       <ParamInfos>
@@ -18427,7 +18440,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="ropeCreate" ReturnType="Object" ReturnName="result" ReturnDescr="Object" Descr="Create a rope (PhysX rope in Arma 3)." Syntax="ropeCreate [fromObject, fromPoint, toObject, toPoint, segments, length]">
+  <Command Name="ropeCreate" ReturnType="Object" ReturnName="result" ReturnDescr="Object - created rope or objNull on failure" Descr="Create a rope (PhysX rope in Arma 3)." Syntax="ropeCreate [fromObject, fromPoint, toObject, toPoint, length, ropeStart, ropeEnd]">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Array">
       <ParamInfos>
@@ -18435,29 +18448,30 @@
         <ParamInfo Name="fromPoint" DataType="Any"/>
         <ParamInfo Name="toObject" DataType="Object"/>
         <ParamInfo Name="toPoint" DataType="Any"/>
-        <ParamInfo Name="segments" DataType="Scalar"/>
         <ParamInfo Name="length" DataType="Scalar" IsOptional="True"/>
+        <ParamInfo Name="ropeStart" DataType="Array" IsOptional="True"/>
+        <ParamInfo Name="ropeEnd" DataType="Array" IsOptional="True"/>
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="ropeCreate" ReturnType="Object" ReturnName="result" ReturnDescr="Object" Descr="Create a rope (PhysX rope in Arma 3)." Syntax="ropeCreate [fromObject, fromPoint, length, segments, unroll]">
+  <Command Name="ropeCreate" ReturnType="Object" ReturnName="result" ReturnDescr="Object - created rope or objNull on failure" Descr="Create a rope (PhysX rope in Arma 3)." Syntax="ropeCreate [fromObject, fromPoint, length, ropeStart, ropeEnd]">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Array">
       <ParamInfos>
         <ParamInfo Name="fromObject" DataType="Object"/>
         <ParamInfo Name="fromPoint" DataType="Any"/>
-        <ParamInfo Name="length" DataType="Scalar" IsOptional="True"/>
-        <ParamInfo Name="segments" DataType="Scalar" IsOptional="True"/>
-        <ParamInfo Name="unroll" DataType="Boolean" IsOptional="True"/>
+        <ParamInfo Name="length" DataType="Scalar"/>
+        <ParamInfo Name="ropeStart" DataType="Array" IsOptional="True"/>
+        <ParamInfo Name="ropeEnd" DataType="Array" IsOptional="True"/>
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="ropeCut" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Cut rope and detach rope from vehicle" Syntax="ropeCut [rope, distance]">
+  <Command Name="ropeCut" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Cut rope and detach rope from vehicle" Syntax="ropeCut [rope, length]">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Array">
       <ParamInfos>
         <ParamInfo Name="rope" DataType="Object"/>
-        <ParamInfo Name="distance" DataType="Scalar"/>
+        <ParamInfo Name="length" DataType="Scalar"/>
       </ParamInfos>
     </PostArg>
   </Command>
@@ -18469,10 +18483,10 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="ropeDetach" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Detach a rope from an object." Syntax="vehicle ropeDetach rope">
+  <Command Name="ropeDetach" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Detach a rope from an object." Syntax="attachedObject ropeDetach rope">
     <PreArg DataType="Object">
       <ParamInfos>
-        <ParamInfo Name="vehicle" DataType="Object"/>
+        <ParamInfo Name="attachedObject" DataType="Object"/>
       </ParamInfos>
     </PreArg>
     <PostArg DataType="Object">
@@ -18481,7 +18495,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="ropeEndPosition" ReturnType="Array" ReturnName="result" ReturnDescr="Array - [endPos1,endPos2]" Descr="Return rope end positions in Position3D format" Syntax="ropeEndPosition rope">
+  <Command Name="ropeEndPosition" ReturnType="Array" ReturnName="result" ReturnDescr="Array - array in format [startPos, endPos], where:startPos: Array - rope start " Descr="Return rope end positions in Position3D format" Syntax="ropeEndPosition rope">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Object">
       <ParamInfos>
@@ -18497,18 +18511,18 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="ropeUnwind" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Unwind rope to target length." Syntax="ropeUnwind [rope, speed, targetLength, relative]">
+  <Command Name="ropeUnwind" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Unwind rope to target length." Syntax="ropeUnwind [rope, speed, length, relative]">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Array">
       <ParamInfos>
         <ParamInfo Name="rope" DataType="Object"/>
         <ParamInfo Name="speed" DataType="Scalar"/>
-        <ParamInfo Name="targetLength" DataType="Scalar"/>
+        <ParamInfo Name="length" DataType="Scalar"/>
         <ParamInfo Name="relative" DataType="Boolean" IsOptional="True"/>
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="ropeUnwound" ReturnType="Boolean" ReturnName="result" ReturnDescr="Boolean" Descr="False if unwinding in progress, otherwise true" Syntax="ropeUnwound rope">
+  <Command Name="ropeUnwound" ReturnType="Boolean" ReturnName="result" ReturnDescr="Boolean - true if unwinding is complete" Descr="False if unwinding in progress, otherwise true" Syntax="ropeUnwound rope">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Object">
       <ParamInfos>
@@ -19002,10 +19016,10 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="selectLeader" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Select a group's leader. In MP the group has to be local to the PC executing the command." Syntax="groupName selectLeader unitName">
+  <Command Name="selectLeader" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Select a group's leader. In MP the group has to be local to the PC executing the command." Syntax="group selectLeader unitName">
     <PreArg DataType="Group">
       <ParamInfos>
-        <ParamInfo Name="groupName" DataType="Group"/>
+        <ParamInfo Name="group" DataType="Group"/>
       </ParamInfos>
     </PreArg>
     <PostArg DataType="Object">
@@ -19762,7 +19776,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="setCaptive" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Mark a unit as captive. If unit is a vehicle, commander is marked." Syntax="unitName setCaptive status">
+  <Command Name="setCaptive" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Mark a unit as captive. If unit is a vehicle, commander is marked." Syntax="unitName setCaptive statusNumber">
     <PreArg DataType="Object">
       <ParamInfos>
         <ParamInfo Name="unitName" DataType="Object"/>
@@ -19770,11 +19784,11 @@
     </PreArg>
     <PostArg DataType="Scalar">
       <ParamInfos>
-        <ParamInfo Name="status" DataType="Scalar"/>
+        <ParamInfo Name="statusNumber" DataType="Scalar"/>
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="setCenterOfMass" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Changes the center of mass of an object smoothly during the given time (in seconds)." Syntax="myObject setCenterOfMass [com, time]">
+  <Command Name="setCenterOfMass" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Changes the center of mass of an object smoothly during the given time (in seconds)." Syntax="myObject setCenterOfMass [centerOfMass, time]">
     <PreArg DataType="Object">
       <ParamInfos>
         <ParamInfo Name="myObject" DataType="Object"/>
@@ -19782,12 +19796,12 @@
     </PreArg>
     <PostArg DataType="Array">
       <ParamInfos>
-        <ParamInfo Name="com" DataType="Array"/>
+        <ParamInfo Name="centerOfMass" DataType="Array"/>
         <ParamInfo Name="time" DataType="Scalar"/>
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="setCenterOfMass" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Changes the center of mass of an object smoothly during the given time (in seconds)." Syntax="myObject setCenterOfMass com">
+  <Command Name="setCenterOfMass" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Changes the center of mass of an object smoothly during the given time (in seconds)." Syntax="myObject setCenterOfMass centerOfMass">
     <PreArg DataType="Object">
       <ParamInfos>
         <ParamInfo Name="myObject" DataType="Object"/>
@@ -19795,7 +19809,7 @@
     </PreArg>
     <PostArg DataType="Array">
       <ParamInfos>
-        <ParamInfo Name="com" DataType="Array"/>
+        <ParamInfo Name="centerOfMass" DataType="Array"/>
       </ParamInfos>
     </PostArg>
   </Command>
@@ -20078,10 +20092,10 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="setDiaryRecordText" ReturnType="Nothing" ReturnName="" ReturnDescr="Nothing" Descr="Set text of a log record." Syntax="Unit setDiaryRecordText [[subject, diaryRecord], [title, text]]">
+  <Command Name="setDiaryRecordText" ReturnType="Nothing" ReturnName="" ReturnDescr="Nothing" Descr="Set text of a log record." Syntax="unit setDiaryRecordText [[subject, diaryRecord], [title, text]]">
     <PreArg DataType="Object">
       <ParamInfos>
-        <ParamInfo Name="Unit" DataType="Object"/>
+        <ParamInfo Name="unit" DataType="Object"/>
       </ParamInfos>
     </PreArg>
     <PostArg DataType="Array">
@@ -21989,10 +22003,10 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="setSlingLoad" ReturnType="Boolean" ReturnName="result" ReturnDescr="Boolean" Descr="Creates sling loading from first object to second object if possible. To unload cargo, pass objNull as second param." Syntax="vehicle setSlingLoad cargo">
+  <Command Name="setSlingLoad" ReturnType="Boolean" ReturnName="result" ReturnDescr="Boolean - true on success" Descr="Creates sling loading from first object to second object if possible. To unload cargo, pass objNull as second param." Syntax="heli setSlingLoad cargo">
     <PreArg DataType="Object">
       <ParamInfos>
-        <ParamInfo Name="vehicle" DataType="Object"/>
+        <ParamInfo Name="heli" DataType="Object"/>
       </ParamInfos>
     </PreArg>
     <PostArg DataType="Object">
@@ -22137,6 +22151,18 @@
     <PostArg DataType="String">
       <ParamInfos>
         <ParamInfo Name="age" DataType="String"/>
+      </ParamInfos>
+    </PostArg>
+  </Command>
+  <Command Name="setTaskMarkerOffset" ReturnType="Nothing" ReturnName="result" ReturnDescr="" Descr="Sets the task marker position in model space." Syntax="obj setTaskMarkerOffset">
+    <PreArg DataType="Object">
+      <ParamInfos>
+        <ParamInfo Name="obj" DataType="Object"/>
+      </ParamInfos>
+    </PreArg>
+    <PostArg DataType="Array">
+      <ParamInfos>
+        <ParamInfo Name="position" DataType="Array"/>
       </ParamInfos>
     </PostArg>
   </Command>
@@ -22530,101 +22556,107 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="setVariable" ReturnType="Nothing" ReturnName="result" ReturnDescr="" Descr="Set variable to given value in the variable space of given element.To remove a variable, set it to nil (e.g. player setVariable [&quot;varname&quot;, nil];)." Syntax="objectName setVariable [name, value, public]">
+  <Command Name="setVariable" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Set variable to given value in the variable space of given element.To remove a variable, set it to nil (e.g. player setVariable [&quot;varname&quot;, nil];)." Syntax="varspace setVariable [name, value]">
     <PreArg DataType="Namespace">
       <ParamInfos>
-        <ParamInfo Name="objectName" DataType="Namespace"/>
+        <ParamInfo Name="varspace" DataType="Namespace"/>
       </ParamInfos>
     </PreArg>
     <PostArg DataType="Array">
       <ParamInfos>
         <ParamInfo Name="name" DataType="String"/>
         <ParamInfo Name="value" DataType="Any"/>
-        <ParamInfo Name="public" DataType="Boolean" IsOptional="True"/>
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="setVariable" ReturnType="Nothing" ReturnName="result" ReturnDescr="" Descr="Set variable to given value in the variable space of given element.To remove a variable, set it to nil (e.g. player setVariable [&quot;varname&quot;, nil];)." Syntax="objectName setVariable [name, value, public]">
+  <Command Name="setVariable" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Set variable to given value in the variable space of given element.To remove a variable, set it to nil (e.g. player setVariable [&quot;varname&quot;, nil];)." Syntax="varspace setVariable [name, value]">
     <PreArg DataType="Object">
       <ParamInfos>
-        <ParamInfo Name="objectName" DataType="Object"/>
+        <ParamInfo Name="varspace" DataType="Object"/>
       </ParamInfos>
     </PreArg>
     <PostArg DataType="Array">
       <ParamInfos>
         <ParamInfo Name="name" DataType="String"/>
         <ParamInfo Name="value" DataType="Any"/>
-        <ParamInfo Name="public" DataType="Boolean"/>
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="setVariable" ReturnType="Nothing" ReturnName="result" ReturnDescr="" Descr="Set variable to given value in the variable space of given element.To remove a variable, set it to nil (e.g. player setVariable [&quot;varname&quot;, nil];)." Syntax="objectName setVariable [name, value, public]">
+  <Command Name="setVariable" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Set variable to given value in the variable space of given element.To remove a variable, set it to nil (e.g. player setVariable [&quot;varname&quot;, nil];)." Syntax="varspace setVariable [name, value]">
     <PreArg DataType="Group">
       <ParamInfos>
-        <ParamInfo Name="objectName" DataType="Group"/>
+        <ParamInfo Name="varspace" DataType="Group"/>
       </ParamInfos>
     </PreArg>
     <PostArg DataType="Array">
       <ParamInfos>
         <ParamInfo Name="name" DataType="String"/>
         <ParamInfo Name="value" DataType="Any"/>
-        <ParamInfo Name="public" DataType="Boolean"/>
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="setVariable" ReturnType="Nothing" ReturnName="result" ReturnDescr="" Descr="Set variable to given value in the variable space of given element.To remove a variable, set it to nil (e.g. player setVariable [&quot;varname&quot;, nil];)." Syntax="objectName setVariable [name, value, public]">
+  <Command Name="setVariable" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Set variable to given value in the variable space of given element.To remove a variable, set it to nil (e.g. player setVariable [&quot;varname&quot;, nil];)." Syntax="varspace setVariable [name, value]">
     <PreArg DataType="Task">
       <ParamInfos>
-        <ParamInfo Name="objectName" DataType="Task"/>
+        <ParamInfo Name="varspace" DataType="Task"/>
       </ParamInfos>
     </PreArg>
     <PostArg DataType="Array">
       <ParamInfos>
         <ParamInfo Name="name" DataType="String"/>
         <ParamInfo Name="value" DataType="Any"/>
-        <ParamInfo Name="public" DataType="Boolean"/>
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="setVariable" ReturnType="Nothing" ReturnName="result" ReturnDescr="" Descr="Set variable to given value in the variable space of given element.To remove a variable, set it to nil (e.g. player setVariable [&quot;varname&quot;, nil];)." Syntax="objectName setVariable [name, value, public]">
+  <Command Name="setVariable" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Set variable to given value in the variable space of given element.To remove a variable, set it to nil (e.g. player setVariable [&quot;varname&quot;, nil];)." Syntax="varspace setVariable [name, value]">
     <PreArg DataType="Location">
       <ParamInfos>
-        <ParamInfo Name="objectName" DataType="Location"/>
+        <ParamInfo Name="varspace" DataType="Location"/>
       </ParamInfos>
     </PreArg>
     <PostArg DataType="Array">
       <ParamInfos>
         <ParamInfo Name="name" DataType="String"/>
         <ParamInfo Name="value" DataType="Any"/>
-        <ParamInfo Name="public" DataType="Boolean"/>
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="setVariable" ReturnType="Nothing" ReturnName="result" ReturnDescr="" Descr="Set variable to given value in the variable space of given element.To remove a variable, set it to nil (e.g. player setVariable [&quot;varname&quot;, nil];)." Syntax="objectName setVariable [name, value, public]">
+  <Command Name="setVariable" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Set variable to given value in the variable space of given element.To remove a variable, set it to nil (e.g. player setVariable [&quot;varname&quot;, nil];)." Syntax="varspace setVariable [name, value]">
     <PreArg DataType="Control">
       <ParamInfos>
-        <ParamInfo Name="objectName" DataType="Control"/>
+        <ParamInfo Name="varspace" DataType="Control"/>
       </ParamInfos>
     </PreArg>
     <PostArg DataType="Array">
       <ParamInfos>
         <ParamInfo Name="name" DataType="String"/>
         <ParamInfo Name="value" DataType="Any"/>
-        <ParamInfo Name="public" DataType="Boolean"/>
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="setVariable" ReturnType="Nothing" ReturnName="result" ReturnDescr="" Descr="Set variable to given value in the variable space of given element.To remove a variable, set it to nil (e.g. player setVariable [&quot;varname&quot;, nil];)." Syntax="objectName setVariable [name, value, public]">
+  <Command Name="setVariable" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Set variable to given value in the variable space of given element.To remove a variable, set it to nil (e.g. player setVariable [&quot;varname&quot;, nil];)." Syntax="varspace setVariable [name, value]">
     <PreArg DataType="Display">
       <ParamInfos>
-        <ParamInfo Name="objectName" DataType="Display"/>
+        <ParamInfo Name="varspace" DataType="Display"/>
       </ParamInfos>
     </PreArg>
     <PostArg DataType="Array">
       <ParamInfos>
         <ParamInfo Name="name" DataType="String"/>
         <ParamInfo Name="value" DataType="Any"/>
-        <ParamInfo Name="public" DataType="Boolean"/>
+      </ParamInfos>
+    </PostArg>
+  </Command>
+  <Command Name="setVariable" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Set variable to given value in the variable space of given element.To remove a variable, set it to nil (e.g. player setVariable [&quot;varname&quot;, nil];)." Syntax="varspace setVariable [name, value]">
+    <PreArg DataType="Any">
+      <ParamInfos>
+        <ParamInfo Name="varspace" DataType="Any"/>
+      </ParamInfos>
+    </PreArg>
+    <PostArg DataType="Array">
+      <ParamInfos>
+        <ParamInfo Name="name" DataType="String"/>
+        <ParamInfo Name="value" DataType="Any"/>
       </ParamInfos>
     </PostArg>
   </Command>
@@ -23951,7 +23983,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="stopEngineRTD" ReturnType="Array" ReturnName="result" ReturnDescr="Array" Descr="Instant engines stop." Syntax="stopEngineRTD heli">
+  <Command Name="stopEngineRTD" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Instant engines stop." Syntax="stopEngineRTD heli">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Object">
       <ParamInfos>
@@ -24301,7 +24333,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="taskCompleted" ReturnType="Boolean" ReturnName="result" ReturnDescr="Boolean" Descr="Return if task is completed." Syntax="taskCompleted task">
+  <Command Name="taskCompleted" ReturnType="Boolean" ReturnName="result" ReturnDescr="Boolean - true if task has been Succeeded, Failed or Canceled" Descr="Return if task is completed." Syntax="taskCompleted task">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Task">
       <ParamInfos>
@@ -25331,7 +25363,7 @@
     <PostArg DataType="Array">
       <ParamInfos>
         <ParamInfo Name="path" DataType="Array"/>
-        <ParamInfo Name="reversed" DataType="Boolean"/>
+        <ParamInfo Name="reversed" DataType="Boolean" IsOptional="True"/>
       </ParamInfos>
     </PostArg>
   </Command>
@@ -25341,7 +25373,7 @@
       <ParamInfos>
         <ParamInfo Name="idc" DataType="Scalar"/>
         <ParamInfo Name="path" DataType="Array"/>
-        <ParamInfo Name="reversed" DataType="Boolean"/>
+        <ParamInfo Name="reversed" DataType="Boolean" IsOptional="True"/>
       </ParamInfos>
     </PostArg>
   </Command>
@@ -25511,7 +25543,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="underwater" ReturnType="Boolean" ReturnName="result" ReturnDescr="Boolean" Descr="Return whether object is fully underwater. From Arma 3 v1.66, this also works for units." Syntax="underwater object">
+  <Command Name="underwater" ReturnType="Boolean" ReturnName="result" ReturnDescr="Boolean - true if submerged" Descr="Return whether object is fully underwater. From Arma 3 v1.66, this also works for units." Syntax="underwater object">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Object">
       <ParamInfos>
@@ -25632,9 +25664,9 @@
     </PostArg>
   </Command>
   <Command Name="unitsBelowHeight" ReturnType="Array" ReturnName="result" ReturnDescr="Array of Objects" Descr="Returns units in group/array below given height Above The Land (ATL)." Syntax="units unitsBelowHeight height">
-    <PreArg DataType="Group">
+    <PreArg DataType="Array">
       <ParamInfos>
-        <ParamInfo Name="units" DataType="Group"/>
+        <ParamInfo Name="units" DataType="Array"/>
       </ParamInfos>
     </PreArg>
     <PostArg DataType="Scalar">
@@ -25643,10 +25675,10 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="unitsBelowHeight" ReturnType="Array" ReturnName="result" ReturnDescr="Array of Objects" Descr="Returns units in group/array below given height Above The Land (ATL)." Syntax="units unitsBelowHeight height">
-    <PreArg DataType="Array">
+  <Command Name="unitsBelowHeight" ReturnType="Array" ReturnName="result" ReturnDescr="Array of Objects" Descr="Returns units in group/array below given height Above The Land (ATL)." Syntax="group unitsBelowHeight height">
+    <PreArg DataType="Group">
       <ParamInfos>
-        <ParamInfo Name="units" DataType="Array"/>
+        <ParamInfo Name="group" DataType="Group"/>
       </ParamInfos>
     </PreArg>
     <PostArg DataType="Scalar">
@@ -25667,7 +25699,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="unlockAchievement" ReturnType="Boolean" ReturnName="result" ReturnDescr="Boolean" Descr="Unlock the given achievement." Syntax="unlockAchievement name">
+  <Command Name="unlockAchievement" ReturnType="Boolean" ReturnName="result" ReturnDescr="Boolean - true if achievement was unlocked" Descr="Unlock the given achievement." Syntax="unlockAchievement name">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="String">
       <ParamInfos>
@@ -25675,7 +25707,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="unregisterTask" ReturnType="Boolean" ReturnName="result" ReturnDescr="Boolean" Descr="Unregister a task type." Syntax="teamMember unregisterTask name">
+  <Command Name="unregisterTask" ReturnType="Boolean" ReturnName="result" ReturnDescr="Boolean - true on success" Descr="Unregister a task type." Syntax="teamMember unregisterTask name">
     <PreArg DataType="Object">
       <ParamInfos>
         <ParamInfo Name="teamMember" DataType="Object"/>
@@ -25873,15 +25905,15 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="vectorLinearConversion" ReturnType="Array" ReturnName="result" ReturnDescr="Array" Descr="Converts given vector from given &quot;from&quot; range to wanted &quot;to&quot; range." Syntax="vectorLinearConversion [minFrom, maxFrom, value, vector3Min, vector3Max, clip]">
+  <Command Name="vectorLinearConversion" ReturnType="Array" ReturnName="result" ReturnDescr="Array - interpolated vector" Descr="Converts given vector from given &quot;from&quot; range to wanted &quot;to&quot; range." Syntax="vectorLinearConversion [rangeFrom, rangeTo, rangeValue, vectorFrom, vectorTo, clip]">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Array">
       <ParamInfos>
-        <ParamInfo Name="minFrom" DataType="Scalar"/>
-        <ParamInfo Name="maxFrom" DataType="Scalar"/>
-        <ParamInfo Name="value" DataType="Scalar"/>
-        <ParamInfo Name="vector3Min" DataType="Array"/>
-        <ParamInfo Name="vector3Max" DataType="Array"/>
+        <ParamInfo Name="rangeFrom" DataType="Scalar"/>
+        <ParamInfo Name="rangeTo" DataType="Scalar"/>
+        <ParamInfo Name="rangeValue" DataType="Scalar"/>
+        <ParamInfo Name="vectorFrom" DataType="Array"/>
+        <ParamInfo Name="vectorTo" DataType="Array"/>
         <ParamInfo Name="clip" DataType="Boolean" IsOptional="True"/>
       </ParamInfos>
     </PostArg>
@@ -26158,7 +26190,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="visibleScoretable" ReturnType="Boolean" ReturnName="result" ReturnDescr="Bool" Descr="Checks whether the score table is visible." Syntax="visibleScoretable">
+  <Command Name="visibleScoretable" ReturnType="Boolean" ReturnName="result" ReturnDescr="Boolean" Descr="Checks whether the score table is visible." Syntax="visibleScoretable">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Nothing"/>
   </Command>
