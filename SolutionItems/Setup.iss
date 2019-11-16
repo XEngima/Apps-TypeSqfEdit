@@ -7,7 +7,7 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{15049EE7-B73C-4778-A0C8-358B3DDBB310}
 AppName=TypeSqf
-AppVersion=0.68.1
+AppVersion=0.69
 ;AppVerName=TypeSqf 0.55
 AppPublisher=Engima
 AppPublisherURL=http://www.typesqf.com/
@@ -28,13 +28,13 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "C:\Projekt\TypeSqf\TypeSqf\bin\Release\TypeSqf.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Projekt\TypeSqf\TypeSqf\bin\Release\ICSharpCode.AvalonEdit.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Projekt\TypeSqf\TypeSqf\bin\Release\ScriptCommands.xml"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Projekt\TypeSqf\TypeSqf\bin\Release\TypeSqf.Model.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Projekt\TypeSqf\TypeSqf\bin\Release\SwiftPbo.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Projekt\TypeSqf\TypeSqf\bin\Release\TypeSqf.WebService.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Projekt\TypeSqf\TypeSqf\bin\Release\TypeSqf.Analyzer.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Projekt\TypeSqfEdit\TypeSqf\bin\Release\TypeSqf.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Projekt\TypeSqfEdit\TypeSqf\bin\Release\ICSharpCode.AvalonEdit.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Projekt\TypeSqfEdit\TypeSqf\bin\Release\ScriptCommands.xml"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Projekt\TypeSqfEdit\TypeSqf\bin\Release\TypeSqf.Model.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Projekt\TypeSqfEdit\TypeSqf\bin\Release\SwiftPbo.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Projekt\TypeSqfEdit\TypeSqf\bin\Release\TypeSqf.WebService.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Projekt\TypeSqfEdit\TypeSqf\bin\Release\TypeSqf.Analyzer.dll"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

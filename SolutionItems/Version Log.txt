@@ -3,8 +3,9 @@ Future
 -Added function "goto definition" for types, methods and variables.
 -SQX: Script command "spawn" can now be used without arguments.
 
-Version [NEXT]
-Updated to .NET to 4.6.2.
+Version 0.69
+-Added support for all script commands up until Arma 3 version 1.96 (into ScriptCommands.xml).
+-Updated dependency to .NET to 4.6.2.
 
 Version 0.68
 -Separated the analyzer window and the SQX build result window into two tabs in the editor (big thanks to Josef!).
