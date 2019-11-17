@@ -24,6 +24,7 @@ using ICSharpCode.AvalonEdit.Highlighting;
 using TypeSqf.Edit.Highlighting;
 using TypeSqf.Edit.Forms;
 using TypeSqf.Analyzer;
+using TypeSqf.Edit.Replace;
 
 namespace TypeSqf.Edit
 {
@@ -185,6 +186,15 @@ namespace TypeSqf.Edit
                 sp.Attach(textEditor.TextArea);
                 sp.Open();
                 sp.Dispatcher.BeginInvoke(DispatcherPriority.Input, (Action)sp.Reactivate);
+            }
+        }
+
+        private void ReplaceExecuted(object sender, ExecutedRoutedEventArgs e)
+        {
+            var textEditor = FindVisualChildByName<TextEditor>(TabControl, "TheTextEditor");
+            if (textEditor != null)
+            {
+                FindReplaceDialog.ShowForReplace(textEditor, true);
             }
         }
 

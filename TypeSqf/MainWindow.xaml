@@ -13,6 +13,7 @@
     </Window.DataContext>
     <Window.CommandBindings>
         <CommandBinding Command="Find" Executed="FindExecuted"/>
+        <CommandBinding Command="Replace" Executed="ReplaceExecuted"/>
         <CommandBinding Command="local:CustomCommands.FindInAllFiles" Executed="FindInAllFilesExecuted"/>
     </Window.CommandBindings>
     <Window.InputBindings>
@@ -26,6 +27,7 @@
         <KeyBinding Key="F" Modifiers="Control" Command="Find"/>
         <KeyBinding Key="B" Modifiers="Control+Shift" Command="{Binding CompileCommand}"/>
         <KeyBinding Key="B" Modifiers="Control" Command="{Binding CompileCurrentFileCommand}"/>
+        <KeyBinding Key="H" Modifiers="Control" Command="Replace"/>
     </Window.InputBindings>
     <DockPanel Name="MainDockPanel">
         <Menu DockPanel.Dock="Top" IsMainMenu="True">
@@ -72,6 +74,11 @@
                 <MenuItem Header ="_Find..." Command="Find">
                     <MenuItem.Icon>
                         <Image Source="Images/search.png"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header ="Replace" Command="Replace">
+                    <MenuItem.Icon>
+                        <Image Source="Images/replace.png"/>
                     </MenuItem.Icon>
                 </MenuItem>
                 <MenuItem Header ="Find in _all files..." Command="local:CustomCommands.FindInAllFiles">
