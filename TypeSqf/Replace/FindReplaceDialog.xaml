@@ -7,6 +7,8 @@
         Title="Find and Replace" WindowStartupLocation="Manual"
 
         Width="300" SizeToContent="Height" ResizeMode="NoResize" 
+        
+        Name="FindReplaceWindow"
 
         WindowStyle="ToolWindow" ShowInTaskbar="False" Closed="Window_Closed">
 
@@ -76,7 +78,7 @@
                     <CheckBox Grid.Row="2" Grid.Column="0" Margin="2,2" 
                     Name="cbWholeWord" Content="Match whole word" IsChecked="true" Checked="Options_Changed" Unchecked="Options_Changed"/>
                     <CheckBox Grid.Row="3" Grid.Column="0" Margin="2,2" 
-                    Name="cbSelection" Content="Selection" IsChecked="{Binding Path=SelectionOnly, Mode=TwoWay}" Checked="Options_Changed" Unchecked="Options_Changed"/>
+                    Name="cbSelection" Content="Selection" IsChecked="{Binding ElementName=FindReplaceWindow, Path=SelectionOnly, Mode=TwoWay}" IsEnabled="{Binding ElementName=FindReplaceWindow, Path=SelectionCheckbox}" Checked="Option_Selection_Changed" Unchecked="Option_Selection_Changed"/>
                     <CheckBox Grid.Row="1" Grid.Column="1" Margin="10,2"
                     Name="cbRegex" Content="Regular Expression" Checked="Options_Changed" Unchecked="Options_Changed"/>
                     <CheckBox Grid.Row="2" Grid.Column="1" Margin="10,2"

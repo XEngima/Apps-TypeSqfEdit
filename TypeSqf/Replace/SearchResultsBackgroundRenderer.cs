@@ -9,7 +9,7 @@ using ICSharpCode.AvalonEdit.Search;
 
 namespace TypeSqf.Edit.Replace
 {
-    public class SearchResults : IBackgroundRenderer
+    public class SearchResultsBackgroundRenderer : IBackgroundRenderer
     {
         TextSegmentCollection<SearchResult> currentResults = new TextSegmentCollection<SearchResult>();
         private Brush markerBrush;
@@ -20,17 +20,22 @@ namespace TypeSqf.Edit.Replace
             get { return currentResults; }
         }
 
+        private KnownLayer _layer;
         public KnownLayer Layer
         {
             get
             {
-                // draw behind selection
-                return KnownLayer.Selection;
+                return _layer;
+            }
+            set
+            {
+                _layer = value;
             }
         }
 
-        public SearchResults()
+        public SearchResultsBackgroundRenderer()
         {
+            Layer = KnownLayer.Selection;
             markerBrush = new SolidColorBrush(Colors.Orange);
             markerBrush.Opacity = 0.5;
             markerPen = new Pen(markerBrush, 1);
@@ -85,6 +90,11 @@ namespace TypeSqf.Edit.Replace
             this.Data = match;
             this.StartOffset = match.Index;
             this.Length = match.Length;
+        }
+        public SearchResult(int startOffset, int length)
+        {
+            this.StartOffset = startOffset;
+            this.Length = length;
         }
 
         public Match Data { get; set; }

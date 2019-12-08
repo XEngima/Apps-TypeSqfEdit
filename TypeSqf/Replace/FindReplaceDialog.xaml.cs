@@ -23,18 +23,39 @@ namespace TypeSqf.Edit.Replace
 
         private TextEditor editor;
         TextDocument currentDocument;
+        private int documentLength;
         private static string textToFind = "";
         private static bool caseSensitive = true;
         private static bool wholeWord = true;
         private static bool useRegex = false;
         private static bool useWildcards = false;
         private static bool searchUp = false;
-        SearchResults searchResults;
+        SearchResultsBackgroundRenderer searchResultsBackgroundRenderer;
+        SearchResultsBackgroundRenderer selectionSearchBackgroundRenderer;
 
-        private bool SelectionOnly
+        public static readonly DependencyProperty SelectionOnlyProperty =
+            DependencyProperty.Register("SelectionOnly", typeof(bool), typeof(FindReplaceDialog));
+        public static readonly DependencyProperty SelectionCheckboxProperty =
+            DependencyProperty.Register("SelectionCheckbox", typeof(bool), typeof(FindReplaceDialog));
+
+        public bool SelectionOnly
         {
-            get; set;
+            get { return (bool)GetValue(SelectionOnlyProperty); }
+            set
+            {
+                SetValue(SelectionOnlyProperty, value);
+                if (value)
+                {
+                    SelectionCheckbox = true;
+                }
+            }
         }
+        private bool SelectionCheckbox
+        {
+            get { return (bool)GetValue(SelectionCheckboxProperty); }
+            set { SetValue(SelectionCheckboxProperty, value); }
+        }
+
         private TabItem ActiveTab
         {
             get { return tabMain.SelectedItem as TabItem; }
@@ -101,24 +122,56 @@ namespace TypeSqf.Edit.Replace
             cbWildcards.IsChecked = useWildcards;
             cbSearchUp.IsChecked = searchUp;
 
-            KeyDown += FindReplaceDialog_KeyDown;
+            // Create and register the marker pen used later to mark searched words
+            searchResultsBackgroundRenderer = new SearchResultsBackgroundRenderer();
+            editor.TextArea.TextView.BackgroundRenderers.Add(searchResultsBackgroundRenderer);
+            
+            // Create and register the marker pen that's used to mark text selection
+            selectionSearchBackgroundRenderer = new SearchResultsBackgroundRenderer();
+            Brush markerBrush = new SolidColorBrush(Colors.LightGray);
+            markerBrush.Opacity = 0.1;
+            selectionSearchBackgroundRenderer.MarkerBrush = markerBrush;
+            editor.TextArea.TextView.BackgroundRenderers.Add(selectionSearchBackgroundRenderer);
 
-            searchResults = new SearchResults();
+            KeyDown += FindReplaceDialog_KeyDown;
             txtFind.TextChanged += TxtFind_TextChanged;
             txtFind2.TextChanged += TxtFind_TextChanged;
-            editor.TextArea.TextView.BackgroundRenderers.Add(searchResults);
             currentDocument = editor.TextArea.Document;
             if (currentDocument != null)
+            {
                 currentDocument.TextChanged += textArea_Document_TextChanged;
+                documentLength = currentDocument.TextLength;
+            }
             editor.TextArea.DocumentChanged += textArea_DocumentChanged;
+
+            editor.TextArea.SelectionChanged += TextArea_SelectionChanged;
+            
+
+        }
+
+        private void TextArea_SelectionChanged(object sender, EventArgs e)
+        {
+            if (editor.SelectionLength > 0 && !SelectionCheckbox)
+            {
+                SelectionCheckbox = true;
+            }
+            else if (!SelectionOnly && SelectionCheckbox && editor.SelectionLength <= 0)
+            {
+                SelectionCheckbox = false;
+            }
         }
 
         private void TxtFind_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (cbSelection.IsChecked ?? true)
+            if (SelectionOnly)
             {
-                SelectionStart = editor.SelectionStart;
-                SelectionEnd = editor.SelectionStart + editor.SelectionLength;
+                SearchResult result = selectionSearchBackgroundRenderer.CurrentResults.FirstSegment;
+                if (result != null)
+                {
+                    SelectionStart = result.StartOffset;
+                    SelectionEnd = result.EndOffset;
+                }
+
             }
             else
             {
@@ -133,17 +186,22 @@ namespace TypeSqf.Edit.Replace
             try
             {
                 MarkAllWords(SearchText);
-                var x = sender as CheckBox;
-                if( x != null && x.Name == "cbSelection")
-                {
-                    TxtFind_TextChanged(null, null);
-                }
             }
             catch
             {
                 return;
             }
+        }
 
+        private void Option_Selection_Changed(object sender, RoutedEventArgs e)
+        {
+            ClearMarkerSelection();
+
+            if (SelectionOnly)
+            {
+                MarkSelection();
+            }
+            TxtFind_TextChanged(null, null);
         }
 
         void textArea_DocumentChanged(object sender, EventArgs e)
@@ -154,6 +212,7 @@ namespace TypeSqf.Edit.Replace
             if (currentDocument != null)
             {
                 currentDocument.TextChanged += textArea_Document_TextChanged;
+                documentLength = currentDocument.TextLength;
                 MarkAllWords(SearchText);
             }
         }
@@ -161,6 +220,14 @@ namespace TypeSqf.Edit.Replace
         void textArea_Document_TextChanged(object sender, EventArgs e)
         {
             MarkAllWords(SearchText);
+            TextDocument document = sender as TextDocument;
+            if (document != null && SelectionOnly)
+            {
+                int newLength = document.TextLength;
+                int step = newLength - documentLength;
+                documentLength = currentDocument.TextLength;
+                MoveMarkerSelection(editor.CaretOffset, step);
+            }
         }
 
         private void FindReplaceDialog_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
@@ -192,7 +259,8 @@ namespace TypeSqf.Edit.Replace
             useRegex = (cbRegex.IsChecked == true);
             useWildcards = (cbWildcards.IsChecked == true);
             searchUp = (cbSearchUp.IsChecked == true);
-            editor.TextArea.TextView.BackgroundRenderers.Remove(searchResults);
+            editor.TextArea.TextView.BackgroundRenderers.Remove(searchResultsBackgroundRenderer);
+            editor.TextArea.TextView.BackgroundRenderers.Remove(selectionSearchBackgroundRenderer);
             theDialog = null;
         }
 
@@ -298,14 +366,14 @@ namespace TypeSqf.Edit.Replace
         }
 
         /// <summary>
-        /// Collects all words/letters in text and
+        /// Collects all search results in text and
         /// tells the editor to mark them
         /// </summary>
         /// <param name="textToFind">Text to search for</param>
         private void MarkAllWords(string textToFind)
         {
-            searchResults.CurrentResults.Clear();
-
+            searchResultsBackgroundRenderer.CurrentResults.Clear();
+            
             if (!string.IsNullOrEmpty(textToFind))
             {
                 Regex regex = GetRegEx(textToFind);
@@ -314,12 +382,63 @@ namespace TypeSqf.Edit.Replace
                     if (match.Index + match.Length <= SelectionEnd)
                     {
                         SearchResult result = new SearchResult(match);
-                        searchResults.CurrentResults.Add(result);
+                        searchResultsBackgroundRenderer.CurrentResults.Add(result);
                     }
                     
                 }
             }
             editor.TextArea.TextView.InvalidateLayer(ICSharpCode.AvalonEdit.Rendering.KnownLayer.Selection);
+        }
+
+        private void MarkSelection()
+        {
+            ClearMarkerSelection();
+
+            int start = editor.SelectionStart;
+            int length = editor.SelectionLength;
+
+            SearchResult result = new SearchResult(start, length);
+            selectionSearchBackgroundRenderer.CurrentResults.Add(result);
+            editor.TextArea.TextView.InvalidateLayer(ICSharpCode.AvalonEdit.Rendering.KnownLayer.Selection);
+            editor.Select(editor.SelectionStart, 0);
+        }
+
+        private void ClearMarkerSelection()
+        {
+            selectionSearchBackgroundRenderer.CurrentResults.Clear();
+            editor.TextArea.TextView.InvalidateLayer(ICSharpCode.AvalonEdit.Rendering.KnownLayer.Selection);
+        }
+
+        private void MoveMarkerSelection(int offset, int steps)
+        {
+            SearchResult result = selectionSearchBackgroundRenderer.CurrentResults.FirstSegment;
+            if (result != null)
+            {
+                if (result.EndOffset <= offset)
+                {
+                    // Text changed after current selection. No changes required.
+                    return;
+                }
+
+                int start = result.StartOffset;
+                int length = result.Length;
+                if (result.StartOffset >= offset)
+                {
+                    // Text changed before current selection. Move selection start forward/backward.
+                    start = result.StartOffset + steps;
+                }
+                else if (offset > result.StartOffset)
+                {
+                    // Text changed in current selection. Change selection length to include new changes.
+                    length = result.Length + steps;
+                }
+
+
+                selectionSearchBackgroundRenderer.CurrentResults.Clear();
+                SearchResult newResult = new SearchResult(start, length);
+                selectionSearchBackgroundRenderer.CurrentResults.Add(newResult);
+                editor.TextArea.TextView.InvalidateLayer(ICSharpCode.AvalonEdit.Rendering.KnownLayer.Selection);
+            }
         }
 
         /// <summary>
@@ -401,6 +520,10 @@ namespace TypeSqf.Edit.Replace
                 {
                     theDialog.txtFind.Focus();
                 }
+            }
+            else
+            {
+                theDialog.SelectionOnly = true;
             }
         }
     }
