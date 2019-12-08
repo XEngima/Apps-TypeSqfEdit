@@ -31,6 +31,7 @@ namespace TypeSqf.Edit.Replace
         private static bool useWildcards = false;
         private static bool searchUp = false;
         SearchResultsBackgroundRenderer searchResultsBackgroundRenderer;
+        SearchResult currentResult = null;
         SearchResultsBackgroundRenderer selectionSearchBackgroundRenderer;
 
         public static readonly DependencyProperty SelectionOnlyProperty =
@@ -271,39 +272,33 @@ namespace TypeSqf.Edit.Replace
 
         private void FindNextClick(object sender, RoutedEventArgs e)
         {
-            if (!FindNext(SearchText))
+            if (!FindNext())
                 System.Media.SystemSounds.Beep.Play();
         }
         private void FindPrevClick(object sender, RoutedEventArgs e)
         {
-            cbSearchUp.IsChecked = !cbSearchUp.IsChecked;
-            if (!FindNext(SearchText))
+            if (!FindPrev())
                 System.Media.SystemSounds.Beep.Play();
-            cbSearchUp.IsChecked = !cbSearchUp.IsChecked;
-
-        }
-
-        private void FindNext2Click(object sender, RoutedEventArgs e)
-        {
-            FindNextClick(sender, e);
-            //if (!FindNext(txtFind2.Text))
-            //    System.Media.SystemSounds.Beep.Play();
         }
 
         private void ReplaceClick(object sender, RoutedEventArgs e)
         {
-            Regex regex = GetRegEx(txtFind2.Text);
-            string input = editor.Text.Substring(editor.SelectionStart, editor.SelectionLength);
-            Match match = regex.Match(input);
-            bool replaced = false;
-            if (match.Success && match.Index == 0 && match.Length == input.Length)
+            if (currentResult != null)
             {
-                editor.Document.Replace(editor.SelectionStart, editor.SelectionLength, txtReplace.Text);
-                replaced = true;
+                editor.Document.Replace(currentResult.StartOffset, currentResult.Length, txtReplace.Text);
             }
 
-            if (!FindNext(txtFind2.Text) && !replaced)
+            // currentResult is updated after editor text is changed, thats why we need to check it again.
+            if (currentResult != null)
+            {
+                editor.Select(currentResult.StartOffset, currentResult.Length);
+                TextLocation loc = editor.Document.GetLocation(currentResult.StartOffset);
+                editor.ScrollTo(loc.Line, loc.Column);
+            }
+            else
+            {
                 System.Media.SystemSounds.Beep.Play();
+            }
         }
 
         private void ReplaceAllClick(object sender, RoutedEventArgs e)
@@ -311,59 +306,79 @@ namespace TypeSqf.Edit.Replace
             Regex regex = GetRegEx(txtFind2.Text, true);
             int offset = 0;
             editor.BeginChange();
-            foreach (Match match in regex.Matches(editor.Text, SelectionStart))
+            /*foreach (Match match in regex.Matches(editor.Text, SelectionStart))
             {
                 if (match.Index + match.Length + offset <= SelectionEnd + offset)
                 {
                     editor.Document.Replace(offset + match.Index, match.Length, txtReplace.Text);
                     offset += txtReplace.Text.Length - match.Length;
                 }
+            }*/
+
+            foreach (SearchResult result in searchResultsBackgroundRenderer.CurrentResults)
+            {
+                if (result.Data.Value == editor.Text.Substring(result.StartOffset + offset, result.Length))
+                {
+                    editor.Document.Replace(offset + result.StartOffset, result.Length, txtReplace.Text);
+                    offset += txtReplace.Text.Length - result.Length;
+                }
             }
             editor.EndChange();
         }
 
-        private bool FindNext(string textToFind)
+        private bool FindNext()
         {
-            Regex regex = GetRegEx(textToFind);
-            int start = regex.Options.HasFlag(RegexOptions.RightToLeft) ?
-                SelectionEnd : SelectionStart;
-
-            if (SelectionStart != editor.SelectionStart && 
-                editor.SelectionStart > SelectionStart && 
-                editor.SelectionStart < SelectionEnd
-            )
+            if (currentResult != null)
             {
-                start = regex.Options.HasFlag(RegexOptions.RightToLeft) ?
-                editor.SelectionStart : editor.SelectionStart + editor.SelectionLength;
+                if (currentResult.StartOffset == editor.SelectionStart)
+                {
+                    currentResult = searchResultsBackgroundRenderer.CurrentResults.GetNextSegment(currentResult);
+                }
             }
-            
-
-            Match match = regex.Match(editor.Text, start);
-
-            if (match.Success && (match.Index + match.Length > SelectionEnd || match.Index < SelectionStart))
+            else
             {
-                //Outside given selection
+                currentResult = searchResultsBackgroundRenderer.CurrentResults.FirstSegment;
+            }
+
+            if (currentResult != null)
+            {
+                editor.Select(currentResult.StartOffset, currentResult.Length);
+                TextLocation loc = editor.Document.GetLocation(currentResult.StartOffset);
+                editor.ScrollTo(loc.Line, loc.Column);
+                return true;
+            }
+            else
+            {
                 return false;
             }
 
-            if (!match.Success)
-            {
-                // start again from beginning or end
-                if (regex.Options.HasFlag(RegexOptions.RightToLeft))
-                    match = regex.Match(editor.Text, SelectionEnd);
-                else
-                    match = regex.Match(editor.Text, SelectionStart);
-            }
-
-            if (match.Success)
-            {
-                editor.Select(match.Index, match.Length);
-                TextLocation loc = editor.Document.GetLocation(match.Index);
-                editor.ScrollTo(loc.Line, loc.Column);
-            }
-
-            return match.Success;
         }
+
+        private bool FindPrev()
+        {
+            if (currentResult != null)
+            {
+                currentResult = searchResultsBackgroundRenderer.CurrentResults.GetPreviousSegment(currentResult);
+            }
+            else
+            {
+                currentResult = searchResultsBackgroundRenderer.CurrentResults.LastSegment;
+            }
+
+            if (currentResult != null)
+            {
+                editor.Select(currentResult.StartOffset, currentResult.Length);
+                TextLocation loc = editor.Document.GetLocation(currentResult.StartOffset);
+                editor.ScrollTo(loc.Line, loc.Column);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
+        }
+
 
         /// <summary>
         /// Collects all search results in text and
@@ -387,6 +402,10 @@ namespace TypeSqf.Edit.Replace
                     
                 }
             }
+
+            // Update current result.
+            currentResult = searchResultsBackgroundRenderer.CurrentResults.FindFirstSegmentWithStartAfter(editor.CaretOffset);
+            
             editor.TextArea.TextView.InvalidateLayer(ICSharpCode.AvalonEdit.Rendering.KnownLayer.Selection);
         }
 

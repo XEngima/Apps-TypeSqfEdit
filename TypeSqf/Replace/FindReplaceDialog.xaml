@@ -43,7 +43,7 @@
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <Button Margin="5" HorizontalAlignment="Right" 
 
-                        Width="80" Content="Find Next" Click="FindNext2Click" />
+                        Width="80" Content="Find Next" Click="FindNextClick" />
                         <Button Margin="5" HorizontalAlignment="Right" 
 
                         Width="80" Content="Replace" Click="ReplaceClick" />
