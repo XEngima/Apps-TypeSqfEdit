@@ -25,8 +25,8 @@ namespace TypeSqf.Edit.Replace
         TextDocument currentDocument;
         private int documentLength;
         private static string textToFind = "";
-        private static bool caseSensitive = true;
-        private static bool wholeWord = true;
+        private static bool caseSensitive = false;
+        private static bool wholeWord = false;
         private static bool useRegex = false;
         private static bool useWildcards = false;
         private static bool searchUp = false;
@@ -164,21 +164,6 @@ namespace TypeSqf.Edit.Replace
 
         private void TxtFind_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (SelectionOnly)
-            {
-                SearchResult result = selectionSearchBackgroundRenderer.CurrentResults.FirstSegment;
-                if (result != null)
-                {
-                    SelectionStart = result.StartOffset;
-                    SelectionEnd = result.EndOffset;
-                }
-
-            }
-            else
-            {
-                SelectionStart = 0;
-                SelectionEnd = editor.Text.Length;
-            }
             MarkAllWords(SearchText);
         }
 
@@ -285,7 +270,9 @@ namespace TypeSqf.Edit.Replace
         {
             if (currentResult != null)
             {
-                editor.Document.Replace(currentResult.StartOffset, currentResult.Length, txtReplace.Text);
+                string replacedText = currentResult.Data.Result(txtReplace.Text);
+
+                editor.Document.Replace(currentResult.StartOffset, currentResult.Length, replacedText);
             }
 
             // currentResult is updated after editor text is changed, thats why we need to check it again.
@@ -295,7 +282,7 @@ namespace TypeSqf.Edit.Replace
                 TextLocation loc = editor.Document.GetLocation(currentResult.StartOffset);
                 editor.ScrollTo(loc.Line, loc.Column);
             }
-            else
+            else if (!FindNext())
             {
                 System.Media.SystemSounds.Beep.Play();
             }
@@ -303,24 +290,16 @@ namespace TypeSqf.Edit.Replace
 
         private void ReplaceAllClick(object sender, RoutedEventArgs e)
         {
-            Regex regex = GetRegEx(txtFind2.Text, true);
             int offset = 0;
             editor.BeginChange();
-            /*foreach (Match match in regex.Matches(editor.Text, SelectionStart))
-            {
-                if (match.Index + match.Length + offset <= SelectionEnd + offset)
-                {
-                    editor.Document.Replace(offset + match.Index, match.Length, txtReplace.Text);
-                    offset += txtReplace.Text.Length - match.Length;
-                }
-            }*/
 
             foreach (SearchResult result in searchResultsBackgroundRenderer.CurrentResults)
             {
                 if (result.Data.Value == editor.Text.Substring(result.StartOffset + offset, result.Length))
                 {
-                    editor.Document.Replace(offset + result.StartOffset, result.Length, txtReplace.Text);
-                    offset += txtReplace.Text.Length - result.Length;
+                    string replacedText = result.Data.Result(txtReplace.Text);
+                    editor.Document.Replace(result.StartOffset + offset, result.Length, replacedText);
+                    offset += replacedText.Length - result.Length;
                 }
             }
             editor.EndChange();
@@ -388,24 +367,40 @@ namespace TypeSqf.Edit.Replace
         private void MarkAllWords(string textToFind)
         {
             searchResultsBackgroundRenderer.CurrentResults.Clear();
-            
+
+            if (SelectionOnly)
+            {
+                SearchResult result = selectionSearchBackgroundRenderer.CurrentResults.FirstSegment;
+                if (result != null)
+                {
+                    SelectionStart = result.StartOffset;
+                    SelectionEnd = result.EndOffset;
+                }
+
+            }
+            else
+            {
+                SelectionStart = 0;
+                SelectionEnd = editor.Text.Length;
+            }
+
             if (!string.IsNullOrEmpty(textToFind))
             {
                 Regex regex = GetRegEx(textToFind);
-                foreach (Match match in regex.Matches(editor.Text, SelectionStart))
+                if (regex != null)
                 {
-                    if (match.Index + match.Length <= SelectionEnd)
+                    foreach (Match match in regex.Matches(editor.Text.Substring(SelectionStart, SelectionEnd)))
                     {
                         SearchResult result = new SearchResult(match);
                         searchResultsBackgroundRenderer.CurrentResults.Add(result);
                     }
-                    
                 }
             }
 
             // Update current result.
             currentResult = searchResultsBackgroundRenderer.CurrentResults.FindFirstSegmentWithStartAfter(editor.CaretOffset);
-            
+            editor.Select(editor.SelectionStart, 0);
+
             editor.TextArea.TextView.InvalidateLayer(ICSharpCode.AvalonEdit.Rendering.KnownLayer.Selection);
         }
 
@@ -473,10 +468,18 @@ namespace TypeSqf.Edit.Replace
                 options |= RegexOptions.RightToLeft;
             if (cbCaseSensitive.IsChecked == false)
                 options |= RegexOptions.IgnoreCase;
+            options |= RegexOptions.Multiline;
 
             if (cbRegex.IsChecked == true)
             {
-                return new Regex(textToFind, options);
+                try
+                {
+                    return new Regex(textToFind, options);
+                }
+                catch (System.ArgumentException ex)
+                {
+                    return null;
+                }
             }
             else
             {
