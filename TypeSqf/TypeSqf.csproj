@@ -131,6 +131,8 @@
     <Compile Include="HotKeyF12.cs" />
     <Compile Include="HotKeyHandler.cs" />
     <Compile Include="PropertyInfo.cs" />
+    <Compile Include="Replace\FindReplaceDialog.xaml.cs" />
+    <Compile Include="Replace\SearchResultsBackgroundRenderer.cs" />
     <Compile Include="SearchResultItem.cs" />
     <Compile Include="InputFileNameWindow.xaml.cs">
       <DependentUpon>InputFileNameWindow.xaml</DependentUpon>
@@ -220,6 +222,10 @@
     <Page Include="CPackConsole.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Replace\FindReplaceDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
   <ItemGroup>
