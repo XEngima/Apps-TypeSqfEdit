@@ -3,6 +3,9 @@ Future
 -Added function "goto definition" for types, methods and variables.
 -SQX: Script command "spawn" can now be used without arguments.
 
+Version 0.70
+-Added Search And Replace functionality (Big tanks to Josef!).
+
 Version 0.69
 -Added support for all script commands up until Arma 3 version 1.96 (into ScriptCommands.xml).
 -Updated dependency to .NET to 4.6.2.
