@@ -97,6 +97,11 @@ namespace TypeSqf.Edit.Replace
             this.Length = length;
         }
 
+        public void MoveForward(int offsetToAdd)
+        {
+            this.StartOffset = this.StartOffset + offsetToAdd;
+        }
+
         public Match Data { get; set; }
 
         public string ReplaceWith(string replacement)

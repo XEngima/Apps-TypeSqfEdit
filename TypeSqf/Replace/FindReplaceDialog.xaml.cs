@@ -150,7 +150,7 @@ namespace TypeSqf.Edit.Replace
 
         }
 
-        private void TextArea_SelectionChanged(object sender, EventArgs e)
+        private void TextArea_SelectionChanged(object sender = null, EventArgs e = null)
         {
             if (editor.SelectionLength > 0 && !SelectionCheckbox)
             {
@@ -162,7 +162,7 @@ namespace TypeSqf.Edit.Replace
             }
         }
 
-        private void TxtFind_TextChanged(object sender, TextChangedEventArgs e)
+        private void TxtFind_TextChanged(object sender = null, TextChangedEventArgs e = null)
         {
             MarkAllWords(SearchText);
         }
@@ -187,18 +187,26 @@ namespace TypeSqf.Edit.Replace
             {
                 MarkSelection();
             }
-            TxtFind_TextChanged(null, null);
+            TextArea_SelectionChanged();
+            TxtFind_TextChanged();
         }
 
         void textArea_DocumentChanged(object sender, EventArgs e)
         {
             if (currentDocument != null)
+            {
                 currentDocument.TextChanged -= textArea_Document_TextChanged;
+                editor.TextArea.SelectionChanged -= TextArea_SelectionChanged;
+            }
             currentDocument = editor.TextArea.Document;
             if (currentDocument != null)
             {
                 currentDocument.TextChanged += textArea_Document_TextChanged;
+                editor.TextArea.SelectionChanged += TextArea_SelectionChanged;
                 documentLength = currentDocument.TextLength;
+
+                ClearMarkerSelection();
+                TextArea_SelectionChanged();
                 MarkAllWords(SearchText);
             }
         }
@@ -367,6 +375,17 @@ namespace TypeSqf.Edit.Replace
         private void MarkAllWords(string textToFind)
         {
             searchResultsBackgroundRenderer.CurrentResults.Clear();
+            if (currentResult != null)
+            {
+                if (editor.SelectionStart == currentResult.StartOffset &&
+                    editor.SelectionLength == currentResult.Length)
+                {
+                    editor.Select(editor.SelectionStart, 0);
+                }
+            }
+
+                SelectionStart = 0;
+            SelectionEnd = editor.Text.Length;
 
             if (SelectionOnly)
             {
@@ -374,24 +393,20 @@ namespace TypeSqf.Edit.Replace
                 if (result != null)
                 {
                     SelectionStart = result.StartOffset;
-                    SelectionEnd = result.EndOffset;
+                    SelectionEnd = result.Length;
                 }
 
-            }
-            else
-            {
-                SelectionStart = 0;
-                SelectionEnd = editor.Text.Length;
             }
 
             if (!string.IsNullOrEmpty(textToFind))
             {
                 Regex regex = GetRegEx(textToFind);
-                if (regex != null)
+                if (regex != null && !string.IsNullOrEmpty(editor.Text))
                 {
                     foreach (Match match in regex.Matches(editor.Text.Substring(SelectionStart, SelectionEnd)))
                     {
                         SearchResult result = new SearchResult(match);
+                        result.MoveForward(SelectionStart);
                         searchResultsBackgroundRenderer.CurrentResults.Add(result);
                     }
                 }
@@ -399,7 +414,6 @@ namespace TypeSqf.Edit.Replace
 
             // Update current result.
             currentResult = searchResultsBackgroundRenderer.CurrentResults.FindFirstSegmentWithStartAfter(editor.CaretOffset);
-            editor.Select(editor.SelectionStart, 0);
 
             editor.TextArea.TextView.InvalidateLayer(ICSharpCode.AvalonEdit.Rendering.KnownLayer.Selection);
         }
