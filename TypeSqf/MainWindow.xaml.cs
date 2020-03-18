@@ -194,7 +194,7 @@ namespace TypeSqf.Edit
             var textEditor = FindVisualChildByName<TextEditor>(TabControl, "TheTextEditor");
             if (textEditor != null)
             {
-                FindReplaceDialog.ShowForReplace(textEditor, true);
+                FindReplaceDialog.ShowForReplace(MyContext, textEditor, true);
             }
         }
 

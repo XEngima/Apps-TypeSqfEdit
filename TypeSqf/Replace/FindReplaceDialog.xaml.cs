@@ -22,6 +22,7 @@ namespace TypeSqf.Edit.Replace
     {
 
         private TextEditor editor;
+        private MainWindowViewModel mainWindowViewModel;
         TextDocument currentDocument;
         private int documentLength;
         private static string textToFind = "";
@@ -110,10 +111,11 @@ namespace TypeSqf.Edit.Replace
             }
         }
 
-        public FindReplaceDialog(TextEditor editor)
+        public FindReplaceDialog(MainWindowViewModel mainWindowViewModel, TextEditor editor)
         {
             InitializeComponent();
 
+            this.mainWindowViewModel = mainWindowViewModel;
             this.editor = editor;
 
             txtFind.Text = txtFind2.Text = textToFind;
@@ -143,7 +145,9 @@ namespace TypeSqf.Edit.Replace
                 currentDocument.TextChanged += textArea_Document_TextChanged;
                 documentLength = currentDocument.TextLength;
             }
-            editor.TextArea.DocumentChanged += textArea_DocumentChanged;
+            //editor.TextArea.DocumentChanged += textArea_DocumentChanged;
+            //mainWindowViewModel.TabGettingFocus += textArea_NewDocument;
+            mainWindowViewModel.TabLosingFocus += textArea_CloseDocument;
 
             editor.TextArea.SelectionChanged += TextArea_SelectionChanged;
             
@@ -190,24 +194,13 @@ namespace TypeSqf.Edit.Replace
             TextArea_SelectionChanged();
             TxtFind_TextChanged();
         }
-
-        void textArea_DocumentChanged(object sender, EventArgs e)
+   
+        void textArea_CloseDocument(object sender, EventArgs e)
         {
-            if (currentDocument != null)
+            ClearMarkerSelection();
+            if (theDialog != null)
             {
-                currentDocument.TextChanged -= textArea_Document_TextChanged;
-                editor.TextArea.SelectionChanged -= TextArea_SelectionChanged;
-            }
-            currentDocument = editor.TextArea.Document;
-            if (currentDocument != null)
-            {
-                currentDocument.TextChanged += textArea_Document_TextChanged;
-                editor.TextArea.SelectionChanged += TextArea_SelectionChanged;
-                documentLength = currentDocument.TextLength;
-
-                ClearMarkerSelection();
-                TextArea_SelectionChanged();
-                MarkAllWords(SearchText);
+                theDialog.Close();
             }
         }
 
@@ -255,6 +248,11 @@ namespace TypeSqf.Edit.Replace
             searchUp = (cbSearchUp.IsChecked == true);
             editor.TextArea.TextView.BackgroundRenderers.Remove(searchResultsBackgroundRenderer);
             editor.TextArea.TextView.BackgroundRenderers.Remove(selectionSearchBackgroundRenderer);
+
+            mainWindowViewModel.TabLosingFocus -= textArea_CloseDocument;
+            currentDocument.TextChanged -= textArea_Document_TextChanged;
+            editor.TextArea.SelectionChanged -= TextArea_SelectionChanged;
+
             theDialog = null;
         }
 
@@ -508,7 +506,7 @@ namespace TypeSqf.Edit.Replace
 
         private static FindReplaceDialog theDialog = null;
 
-        public static void ShowForReplace(TextEditor editor, bool showReplaceTab = false)
+        public static void ShowForReplace(MainWindowViewModel myContext, TextEditor editor, bool showReplaceTab = false)
         {
             int selectedTab = 0;
             if (showReplaceTab)
@@ -518,7 +516,7 @@ namespace TypeSqf.Edit.Replace
 
             if (theDialog == null)
             {
-                theDialog = new FindReplaceDialog(editor);
+                theDialog = new FindReplaceDialog(myContext, editor);
                 theDialog.Owner = Application.Current.MainWindow;
                 
                 var editorWidth = editor.ActualWidth;
