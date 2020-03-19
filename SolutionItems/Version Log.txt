@@ -4,11 +4,15 @@ Future
 -SQX: Script command "spawn" can now be used without arguments.
 
 Version 1.01
-Updated analyzer and SQX compiler to version 1.01.
+-Updated analyzer and SQX compiler to version 1.01.
+-Fixed: Crasch when performing search and replace in text selection (thanks Josef!)
 -SQX: Added checks for when a sub class is missing call to explicit base constructor.
 
 Version 1.0
 -Updated analyzer and SQX compiler to version 1.0.
+-SQX: Fixed: Debug logging in implicit constructors missing.
+-SQX: Fixed: Error when defining an interface with the same name as a class.
+-SQX: Added error message explaining that type Number that has changed to Scalar.
 
 Version 0.70
 -Added Search And Replace functionality (Big tanks to Josef!).
