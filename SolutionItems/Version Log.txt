@@ -3,6 +3,9 @@ Future
 -Added function "goto definition" for types, methods and variables.
 -SQX: Script command "spawn" can now be used without arguments.
 
+Version 1.0
+-Updated analyzer and SQX compiler to version 1.0.
+
 Version 0.70
 -Added Search And Replace functionality (Big tanks to Josef!).
 
