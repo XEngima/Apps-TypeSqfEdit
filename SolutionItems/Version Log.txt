@@ -3,6 +3,10 @@ Future
 -Added function "goto definition" for types, methods and variables.
 -SQX: Script command "spawn" can now be used without arguments.
 
+Version 1.01
+Updated analyzer and SQX compiler to version 1.01.
+-SQX: Added checks for when a sub class is missing call to explicit base constructor.
+
 Version 1.0
 -Updated analyzer and SQX compiler to version 1.0.
 
