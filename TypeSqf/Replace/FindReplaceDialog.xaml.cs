@@ -139,6 +139,7 @@ namespace TypeSqf.Edit.Replace
             KeyDown += FindReplaceDialog_KeyDown;
             txtFind.TextChanged += TxtFind_TextChanged;
             txtFind2.GotFocus += TxtFind_GotFocus;
+            txtFind.GotFocus += TxtFind_GotFocus;
             txtFind2.TextChanged += TxtFind_TextChanged;
             currentDocument = editor.TextArea.Document;
             if (currentDocument != null)
@@ -567,30 +568,31 @@ namespace TypeSqf.Edit.Replace
                 theDialog.Activate();
             }
 
+            // Selected text is a word to search for or a section to search in.
             if (!editor.TextArea.Selection.IsMultiline)
             {
                 theDialog.txtFind.Text = theDialog.txtFind2.Text = editor.TextArea.Selection.GetText();
-                theDialog.txtFind.SelectAll();
-                theDialog.txtFind2.SelectAll();
-                if (showReplaceTab)
-                {
-                    if (theDialog.txtFind2.Text.Length > 0)
-                    {
-                        theDialog.txtReplace.Focus();
-                    }
-                    else
-                    {
-                        theDialog.txtFind2.Focus();
-                    }
-                }
-                else
-                {
-                    theDialog.txtFind.Focus();
-                }
             }
             else
             {
                 theDialog.SelectionOnly = true;
+            }
+
+            // Where to have focus.
+            if (showReplaceTab)
+            {
+                if (theDialog.txtFind2.Text.Length > 0)
+                {
+                    theDialog.txtReplace.Focus();
+                }
+                else
+                {
+                    theDialog.txtFind2.Focus();
+                }
+            }
+            else
+            {
+                theDialog.txtFind.Focus();
             }
         }
     }
