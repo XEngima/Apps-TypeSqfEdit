@@ -194,7 +194,7 @@ namespace TypeSqf.Edit
             var textEditor = FindVisualChildByName<TextEditor>(TabControl, "TheTextEditor");
             if (textEditor != null)
             {
-                FindReplaceDialog.ShowForReplace(textEditor, true);
+                FindReplaceDialog.ShowForReplace(MyContext, textEditor, true);
             }
         }
 
@@ -2084,6 +2084,16 @@ namespace TypeSqf.Edit
 
                 UpdateFoldings();
             }
+        }
+
+        private void TypeSqfEditorForumMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://forums.bohemia.net/forums/topic/196754-release-typesqf-editor-opensource");
+        }
+
+        private void SqxLanguageForumMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

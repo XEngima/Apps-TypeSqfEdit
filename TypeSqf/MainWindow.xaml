@@ -121,7 +121,18 @@
                 </MenuItem>
             </MenuItem>
             <MenuItem Header="_Help">
-                <MenuItem Header="_Browse the SQX API Reference..." Name="SqxReferenceMenuItem" Click="SqxReferenceMenuItem_Click">
+                <MenuItem Header="Browse TypeSqf Editor Forum" Name="TypeSqfEditorForumMenuItem" Click="TypeSqfEditorForumMenuItem_Click">
+                    <MenuItem.Icon>
+                        <Image Source="Images/Browse.png"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <Separator/>
+                <MenuItem Header="Browse SQX Language Forum" Name="SqxLanguageForumMenuItem" Click="SqxLanguageForumMenuItem_Click">
+                    <MenuItem.Icon>
+                        <Image Source="Images/Browse.png"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Browse SQX _API Reference" Name="SqxReferenceMenuItem" Click="SqxReferenceMenuItem_Click">
                     <MenuItem.Icon>
                         <Image Source="Images/Browse.png"/>
                     </MenuItem.Icon>
@@ -133,7 +144,7 @@
                     <MenuItem Header="TypeSqf Features Part 3 - The Power Of CPacks" Name="TypeSqfFeatures3MenuItem" Click="TypeSqfFeatures3MenuItem_Click"/>
                     <MenuItem Header="TypeSqf Features Part 4 - The CPack Console" Name="TypeSqfFeatures4MenuItem" Click="TypeSqfFeatures4MenuItem_Click"/>
                     <Separator />
-                    <MenuItem Header="Creating A Crowd Class In SQX" Name="VideoCrowdClassMenuItem" Click="VideoCrowdClassMenuItem_Click"/>
+                    <MenuItem Header="Creating a crowd object In SQX" Name="VideoCrowdClassMenuItem" Click="VideoCrowdClassMenuItem_Click"/>
                     <MenuItem Header="Installing and using CPack Engima.Civilians" Name="VideoEngimaCivilians" Click="VideoEngimaCivilians_Click"/>
                 </MenuItem>
                 <Separator/>
