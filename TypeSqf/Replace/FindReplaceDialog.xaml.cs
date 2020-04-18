@@ -138,6 +138,8 @@ namespace TypeSqf.Edit.Replace
 
             KeyDown += FindReplaceDialog_KeyDown;
             txtFind.TextChanged += TxtFind_TextChanged;
+            txtFind2.GotFocus += TxtFind_GotFocus;
+            txtFind.GotFocus += TxtFind_GotFocus;
             txtFind2.TextChanged += TxtFind_TextChanged;
             currentDocument = editor.TextArea.Document;
             if (currentDocument != null)
@@ -163,6 +165,15 @@ namespace TypeSqf.Edit.Replace
             else if (!SelectionOnly && SelectionCheckbox && editor.SelectionLength <= 0)
             {
                 SelectionCheckbox = false;
+            }
+        }
+        
+        private void TxtFind_GotFocus(object sender, EventArgs e)
+        {
+            TextBox textBox = sender as TextBox;
+            if (textBox != null)
+            {
+                textBox.SelectAll();
             }
         }
 
@@ -297,7 +308,11 @@ namespace TypeSqf.Edit.Replace
         private void ReplaceAllClick(object sender, RoutedEventArgs e)
         {
             int offset = 0;
+            int counts = 0;
+            statusText.Text = "";
+            
             editor.BeginChange();
+            currentDocument.TextChanged -= textArea_Document_TextChanged;
 
             foreach (SearchResult result in searchResultsBackgroundRenderer.CurrentResults)
             {
@@ -305,10 +320,24 @@ namespace TypeSqf.Edit.Replace
                 {
                     string replacedText = result.Data.Result(txtReplace.Text);
                     editor.Document.Replace(result.StartOffset + offset, result.Length, replacedText);
+                    counts += 1;
                     offset += replacedText.Length - result.Length;
                 }
             }
             editor.EndChange();
+            currentDocument.TextChanged += textArea_Document_TextChanged;
+
+            // Search the document again to clear marked words and see if there's more.
+            MarkAllWords(SearchText);
+
+            if (counts > 0)
+            {
+                statusText.Text = counts + " occurrences replaced.";
+            } else
+            {
+                statusText.Text = "No occurrences replaced.";
+            }
+            
         }
 
         private bool FindNext()
@@ -373,6 +402,8 @@ namespace TypeSqf.Edit.Replace
         private void MarkAllWords(string textToFind)
         {
             searchResultsBackgroundRenderer.CurrentResults.Clear();
+            statusText.Text = "";
+
             if (currentResult != null)
             {
                 if (editor.SelectionStart == currentResult.StartOffset &&
@@ -382,7 +413,7 @@ namespace TypeSqf.Edit.Replace
                 }
             }
 
-                SelectionStart = 0;
+            SelectionStart = 0;
             SelectionEnd = editor.Text.Length;
 
             if (SelectionOnly)
@@ -414,6 +445,9 @@ namespace TypeSqf.Edit.Replace
             currentResult = searchResultsBackgroundRenderer.CurrentResults.FindFirstSegmentWithStartAfter(editor.CaretOffset);
 
             editor.TextArea.TextView.InvalidateLayer(ICSharpCode.AvalonEdit.Rendering.KnownLayer.Selection);
+
+            int count = searchResultsBackgroundRenderer.CurrentResults.Count;
+            statusText.Text = count + " occurrences found.";
         }
 
         private void MarkSelection()
@@ -534,30 +568,31 @@ namespace TypeSqf.Edit.Replace
                 theDialog.Activate();
             }
 
+            // Selected text is a word to search for or a section to search in.
             if (!editor.TextArea.Selection.IsMultiline)
             {
                 theDialog.txtFind.Text = theDialog.txtFind2.Text = editor.TextArea.Selection.GetText();
-                theDialog.txtFind.SelectAll();
-                theDialog.txtFind2.SelectAll();
-                if (showReplaceTab)
-                {
-                    if (theDialog.txtFind2.Text.Length > 0)
-                    {
-                        theDialog.txtReplace.Focus();
-                    }
-                    else
-                    {
-                        theDialog.txtFind2.Focus();
-                    }
-                }
-                else
-                {
-                    theDialog.txtFind.Focus();
-                }
             }
             else
             {
                 theDialog.SelectionOnly = true;
+            }
+
+            // Where to have focus.
+            if (showReplaceTab)
+            {
+                if (theDialog.txtFind2.Text.Length > 0)
+                {
+                    theDialog.txtReplace.Focus();
+                }
+                else
+                {
+                    theDialog.txtFind2.Focus();
+                }
+            }
+            else
+            {
+                theDialog.txtFind.Focus();
             }
         }
     }
