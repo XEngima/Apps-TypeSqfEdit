@@ -3,6 +3,9 @@ Future
 -Added function "goto definition" for types, methods and variables.
 -SQX: Script command "spawn" can now be used without arguments.
 
+Version X
+-Added status bar that shows replaced occurrences on the replace dialog (thanks Josef!).
+
 Version 1.01
 -Updated analyzer and SQX compiler to version 1.01.
 -Fixed: Crasch when performing search and replace in text selection (thanks Josef!)
