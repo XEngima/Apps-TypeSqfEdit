@@ -3,7 +3,7 @@
 		Parser for Arma 3 commands
 			created by Josef
 		   for TypeSQF editor
-	  XML created 2019-11-14 22:04:03
+	  XML created 2020-04-18 14:29:03
 -->
 <ScriptCommands xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Command Name="AGLToASL" ReturnType="Array" ReturnName="Position" ReturnDescr="PositionASL" Descr="Converts position from PositionAGL to PositionASL" Syntax="AGLToASL posAGL">
@@ -2230,6 +2230,18 @@
       </ParamInfos>
     </PostArg>
   </Command>
+  <Command Name="buldozer_LoadNewRoads" ReturnType="Boolean" ReturnName="result" ReturnDescr="Boolean" Descr="Generates new roads. Working only in buldozer." Syntax="buldozer_LoadNewRoads path">
+    <PreArg DataType="Nothing"/>
+    <PostArg DataType="String">
+      <ParamInfos>
+        <ParamInfo Name="path" DataType="String"/>
+      </ParamInfos>
+    </PostArg>
+  </Command>
+  <Command Name="buldozer_reloadOperMap" ReturnType="Nothing" ReturnName="" ReturnDescr="Nothing" Descr="Reload oper map visible in costMap diag tool. Working only in buldozer." Syntax="buldozer_reloadOperMap">
+    <PreArg DataType="Nothing"/>
+    <PostArg DataType="Nothing"/>
+  </Command>
   <Command Name="buttonAction" ReturnType="String" ReturnName="result" ReturnDescr="String" Descr="Return the action assigned to a control of the currently active user dialog. Can be used for buttons and active texts." Syntax="buttonAction idc">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Scalar">
@@ -3097,6 +3109,10 @@
         <ParamInfo Name="unit" DataType="Object"/>
       </ParamInfos>
     </PostArg>
+  </Command>
+  <Command Name="clearForcesRTD" ReturnType="Array" ReturnName="result" ReturnDescr="Array" Descr="Removes all force generators from world.For this command to have any effect, the Arma 3 Advanced Helicopter Flight Model (AFM) has to be enabled." Syntax="clearForcesRTD">
+    <PreArg DataType="Nothing"/>
+    <PostArg DataType="Nothing"/>
   </Command>
   <Command Name="clearGroupIcons" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Removes all icon from group." Syntax="clearGroupIcons group">
     <PreArg DataType="Nothing"/>
@@ -5622,6 +5638,19 @@
       </ParamInfos>
     </PostArg>
   </Command>
+  <Command Name="ctrlSetTextSelection" ReturnType="Nothing" ReturnName="" ReturnDescr="Nothing" Descr="Selects 'length' characters of edit control from the 'start' position and places cursor at the end of selection." Syntax="control ctrlSetTextSelection [start, length]">
+    <PreArg DataType="Control">
+      <ParamInfos>
+        <ParamInfo Name="control" DataType="Control"/>
+      </ParamInfos>
+    </PreArg>
+    <PostArg DataType="Array">
+      <ParamInfos>
+        <ParamInfo Name="start" DataType="Scalar"/>
+        <ParamInfo Name="length" DataType="Scalar"/>
+      </ParamInfos>
+    </PostArg>
+  </Command>
   <Command Name="ctrlSetTooltip" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Sets tooltip text of given control." Syntax="control ctrlSetTooltip text">
     <PreArg DataType="Control">
       <ParamInfos>
@@ -5716,6 +5745,14 @@
     </PostArg>
   </Command>
   <Command Name="ctrlTextHeight" ReturnType="Scalar" ReturnName="result" ReturnDescr="Number" Descr="Returns the control text height. Supported control types are: CT_STATIC 0 CT_EDIT 2        (Since Arma 3 v1.57." Syntax="ctrlTextHeight control">
+    <PreArg DataType="Nothing"/>
+    <PostArg DataType="Control">
+      <ParamInfos>
+        <ParamInfo Name="control" DataType="Control"/>
+      </ParamInfos>
+    </PostArg>
+  </Command>
+  <Command Name="ctrlTextSelection" ReturnType="Array" ReturnName="result" ReturnDescr="Array" Descr="Returns edit control text selection in format [start, length, selectedText]" Syntax="ctrlTextSelection control">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Control">
       <ParamInfos>
@@ -8843,6 +8880,14 @@
       </ParamInfos>
     </PostArg>
   </Command>
+  <Command Name="forceAtPositionRTD" ReturnType="Scalar" ReturnName="result" ReturnDescr="Number - Force index" Descr="Adds force generator to world.For this command to have any effect, the Arma 3 Advanced Helicopter Flight Model (AFM) has to be enabled." Syntax="forceAtPositionRTD position">
+    <PreArg DataType="Nothing"/>
+    <PostArg DataType="Array">
+      <ParamInfos>
+        <ParamInfo Name="position" DataType="Array"/>
+      </ParamInfos>
+    </PostArg>
+  </Command>
   <Command Name="forceEnd" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Enforces mission termination. Can be used in an &quot;END&quot; trigger to force end conditions in the editor." Syntax="forceEnd">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Nothing"/>
@@ -8868,6 +8913,14 @@
     <PostArg DataType="Boolean">
       <ParamInfos>
         <ParamInfo Name="state" DataType="Boolean"/>
+      </ParamInfos>
+    </PostArg>
+  </Command>
+  <Command Name="forceGeneratorRTD" ReturnType="Scalar" ReturnName="result" ReturnDescr="Number - Force index" Descr="Adds force generator to world.For this command to have any effect, the Arma 3 Advanced Helicopter Flight Model (AFM) has to be enabled." Syntax="forceGeneratorRTD index">
+    <PreArg DataType="Nothing"/>
+    <PostArg DataType="Scalar">
+      <ParamInfos>
+        <ParamInfo Name="index" DataType="Scalar"/>
       </ParamInfos>
     </PostArg>
   </Command>
@@ -9451,6 +9504,31 @@
       <ParamInfos>
         <ParamInfo Name="targetPosition" DataType="Array"/>
         <ParamInfo Name="magazineType" DataType="String"/>
+      </ParamInfos>
+    </PostArg>
+  </Command>
+  <Command Name="getAssetDLCInfo" ReturnType="Array" ReturnName="result" ReturnDescr="Array - array in format: [isDlc, isOwned, isInstalled, isAvailable, appID, DLCNa" Descr="Returns DLC information about given object or model." Syntax="getAssetDLCInfo asset">
+    <PreArg DataType="Nothing"/>
+    <PostArg DataType="Object">
+      <ParamInfos>
+        <ParamInfo Name="asset" DataType="Object"/>
+      </ParamInfos>
+    </PostArg>
+  </Command>
+  <Command Name="getAssetDLCInfo" ReturnType="Array" ReturnName="result" ReturnDescr="Array - array in format: [isDlc, isOwned, isInstalled, isAvailable, appID, DLCNa" Descr="Returns DLC information about given object or model." Syntax="getAssetDLCInfo asset">
+    <PreArg DataType="Nothing"/>
+    <PostArg DataType="String">
+      <ParamInfos>
+        <ParamInfo Name="asset" DataType="String"/>
+      </ParamInfos>
+    </PostArg>
+  </Command>
+  <Command Name="getAssetDLCInfo" ReturnType="Array" ReturnName="result" ReturnDescr="Array - array in format: [isDlc, isOwned, isInstalled, isAvailable, appID, DLCNa" Descr="Returns DLC information about given object or model." Syntax="getAssetDLCInfo [class, config]">
+    <PreArg DataType="Nothing"/>
+    <PostArg DataType="Array">
+      <ParamInfos>
+        <ParamInfo Name="class" DataType="String"/>
+        <ParamInfo Name="config" DataType="Config" IsOptional="True"/>
       </ParamInfos>
     </PostArg>
   </Command>
@@ -10445,6 +10523,14 @@
   <Command Name="getResolution" ReturnType="Array" ReturnName="result" ReturnDescr="Array - see the description" Descr="Returns an array containing all information about resolution." Syntax="getResolution">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Nothing"/>
+  </Command>
+  <Command Name="getRoadInfo" ReturnType="Array" ReturnName="result" ReturnDescr="Array" Descr="Returns road info in format [maptype, width, ispedestrian, texture, texture end, material]" Syntax="getRoadInfo road">
+    <PreArg DataType="Nothing"/>
+    <PostArg DataType="Object">
+      <ParamInfos>
+        <ParamInfo Name="road" DataType="Object"/>
+      </ParamInfos>
+    </PostArg>
   </Command>
   <Command Name="getShadowDistance" ReturnType="Scalar" ReturnName="result" ReturnDescr="Number" Descr="Gets the shadows rendering distance." Syntax="getShadowDistance">
     <PreArg DataType="Nothing"/>
@@ -13751,6 +13837,14 @@
     </PostArg>
   </Command>
   <Command Name="leaderboardInit" ReturnType="Boolean" ReturnName="result" ReturnDescr="Boolean" Descr="Initialize the leaderboard structure for board with given name. Returns true if board is already initialized." Syntax="leaderboardInit boardName">
+    <PreArg DataType="Nothing"/>
+    <PostArg DataType="String">
+      <ParamInfos>
+        <ParamInfo Name="boardName" DataType="String"/>
+      </ParamInfos>
+    </PostArg>
+  </Command>
+  <Command Name="leaderboardRequestRowsFriends" ReturnType="Boolean" ReturnName="result" ReturnDescr="Boolean" Descr="Requests given leaderboard to download friends rows from the given leaderboard" Syntax="leaderboardRequestRowsFriends  boardName">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="String">
       <ParamInfos>
@@ -20265,6 +20359,19 @@
       </ParamInfos>
     </PostArg>
   </Command>
+  <Command Name="setEngineRPMRTD" ReturnType="Nothing" ReturnName="" ReturnDescr="Nothing" Descr="engine index 1: engine #2engine index 2: engine #3engine index -1: all enginesFor this command to have any effect, the Arma 3 Advanced Helicopter F" Syntax="helicopterRTD setEngineRPMRTD [value, engineIndex]">
+    <PreArg DataType="Object">
+      <ParamInfos>
+        <ParamInfo Name="helicopterRTD" DataType="Object"/>
+      </ParamInfos>
+    </PreArg>
+    <PostArg DataType="Array">
+      <ParamInfos>
+        <ParamInfo Name="value" DataType="Scalar"/>
+        <ParamInfo Name="engineIndex" DataType="Scalar"/>
+      </ParamInfos>
+    </PostArg>
+  </Command>
   <Command Name="setFSMVariable" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Set variable to given value in the variable space of given FSM.The FSM handle is the number returned by the execFSM command." Syntax="handle setFSMVariable [name, value]">
     <PreArg DataType="Scalar">
       <ParamInfos>
@@ -23079,6 +23186,18 @@
       </ParamInfos>
     </PostArg>
   </Command>
+  <Command Name="setWaypointLoiterAltitude" ReturnType="Nothing" ReturnName="" ReturnDescr="Nothing" Descr="Assignes loiter altitude to waypoint" Syntax="waypoint setWaypointLoiterAltitude loiterAltitude">
+    <PreArg DataType="Array">
+      <ParamInfos>
+        <ParamInfo Name="waypoint" DataType="Array"/>
+      </ParamInfos>
+    </PreArg>
+    <PostArg DataType="Scalar">
+      <ParamInfos>
+        <ParamInfo Name="loiterAltitude" DataType="Scalar"/>
+      </ParamInfos>
+    </PostArg>
+  </Command>
   <Command Name="setWaypointLoiterRadius" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Assignes loiter radius to waypoint" Syntax="waypoint setWaypointLoiterRadius radius">
     <PreArg DataType="Array">
       <ParamInfos>
@@ -23644,6 +23763,14 @@
     <PostArg DataType="Array">
       <ParamInfos>
         <ParamInfo Name="pos" DataType="Array"/>
+      </ParamInfos>
+    </PostArg>
+  </Command>
+  <Command Name="simulSetHumidity" ReturnType="Nothing" ReturnName="" ReturnDescr="Nothing" Descr="Sets simul cloud cover. This command does not affect overcast value." Syntax="simulSetHumidity humidity">
+    <PreArg DataType="Nothing"/>
+    <PostArg DataType="Scalar">
+      <ParamInfos>
+        <ParamInfo Name="humidity" DataType="Scalar"/>
       </ParamInfos>
     </PostArg>
   </Command>
@@ -26318,6 +26445,14 @@
       </ParamInfos>
     </PostArg>
   </Command>
+  <Command Name="waypointLoiterAltitude" ReturnType="Scalar" ReturnName="result" ReturnDescr="Number" Descr="Gets the waypoint loiter altitude. Waypoint uses format Waypoint." Syntax="waypointLoiterAltitude waypoint">
+    <PreArg DataType="Nothing"/>
+    <PostArg DataType="Array">
+      <ParamInfos>
+        <ParamInfo Name="waypoint" DataType="Array"/>
+      </ParamInfos>
+    </PostArg>
+  </Command>
   <Command Name="waypointLoiterRadius" ReturnType="Scalar" ReturnName="result" ReturnDescr="Number" Descr="Gets the waypoint loiter radius. Waypoint uses format Waypoint." Syntax="waypointLoiterRadius Waypoint">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Array">
@@ -26558,6 +26693,10 @@
     <PostArg DataType="Nothing"/>
   </Command>
   <Command Name="windDir" ReturnType="Scalar" ReturnName="result" ReturnDescr="Number - Azimuth" Descr="Returns the current wind azimuth." Syntax="windDir">
+    <PreArg DataType="Nothing"/>
+    <PostArg DataType="Nothing"/>
+  </Command>
+  <Command Name="windRTD" ReturnType="Array" ReturnName="result" ReturnDescr="Array" Descr="Returns wind strength and direction.For this command to have any effect, the Arma 3 Advanced Helicopter Flight Model (AFM) has to be enabled." Syntax="windRTD">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Nothing"/>
   </Command>
