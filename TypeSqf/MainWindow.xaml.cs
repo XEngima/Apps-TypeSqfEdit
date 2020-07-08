@@ -25,6 +25,7 @@ using TypeSqf.Edit.Highlighting;
 using TypeSqf.Edit.Forms;
 using TypeSqf.Analyzer;
 using TypeSqf.Edit.Replace;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace TypeSqf.Edit
 {
@@ -1047,7 +1048,7 @@ namespace TypeSqf.Edit
 
                     word = GetWordBeforeDotReadBackwards(textEditor.Text, textEditor.SelectionStart - 1).ToLower();
 
-                    if ((word == "new" || word == "method" || word == "property" || word == "as" || word == "is"))
+                    if (word == "new" || word == "method" || word == "property" || word == "as" || word == "is")
                     {
                         string inNamespace = GetCurrentNamespaceName(textEditor.Text, textEditor.SelectionStart).ToLower();
                         var usings = GetCurrentUsings(textEditor.Text, textEditor.SelectionStart);
@@ -1105,6 +1106,121 @@ namespace TypeSqf.Edit
                         {
                             _completionShowingNewAlternatives = false;
                             _completionWindow = null;
+                        }
+                    }
+                    else if (word.ToLower() == "override")
+                    {
+                        string typeName = "";
+                        string className = GetCurrentClassName(textEditor.Text, textEditor.SelectionStart);
+                        string namespaceName = GetCurrentNamespaceName(textEditor.Text, textEditor.SelectionStart);
+
+                        if (!string.IsNullOrEmpty(className))
+                        {
+                            if (className.Contains("."))
+                            {
+                                typeName = className;
+                            }
+                            else if (!string.IsNullOrEmpty(namespaceName))
+                            {
+                                typeName = namespaceName + "." + className;
+                            }
+                            else
+                            {
+                                typeName = className;
+                            }
+                        }
+
+                        ClassInfo currentClass = MyContext.DeclaredTypes.FirstOrDefault(c => c.FullName.ToLower() == typeName.ToLower()) as ClassInfo;
+                        string currentClassName = currentClass.FullName;
+                        typeName = currentClass.InheritedClass?.FullName;
+                        typeName = typeName != null ? typeName : "";
+
+                        if (!string.IsNullOrEmpty(typeName))
+                        {
+                            _completionWindow = new CompletionWindow(textEditor.TextArea);
+                            _completionWindow.SizeToContent = SizeToContent.WidthAndHeight;
+                            _completionWindow.MaxHeight = 200;
+
+                            IList<ICompletionData> data = _completionWindow.CompletionList.CompletionData;
+                            var completions = new List<MyCompletionData>();
+
+                            ClassInfo theObject = MyContext.DeclaredTypes.FirstOrDefault(c => c.FullName.ToLower() == typeName.ToLower()) as ClassInfo;
+
+                            foreach (var method in theObject.Methods)
+                            {
+                                var sbDescription = new StringBuilder();
+
+                                if (method.IsVirtual || method.IsOverride)
+                                {
+                                    if (!currentClass.Methods.Any(x => !x.IsImplicitlyInherited && x.Name?.ToLower() == method.Name?.ToLower()))
+                                    {
+                                        sbDescription.Append("[");
+                                        sbDescription.Append(method.Name);
+                                        sbDescription.Append("] ");
+
+                                        sbDescription.Append(method.Name);
+
+                                        var sbParams = new StringBuilder();
+
+                                        sbParams.Append("(");
+                                        string comma = "";
+
+                                        foreach (var param in method.CodeParameters)
+                                        {
+                                            sbParams.Append(comma);
+                                            sbParams.Append(@"""");
+                                            sbParams.Append(param.Name);
+                                            sbParams.Append(@""" as ");
+                                            sbParams.Append(param.TypeName);
+
+                                            comma = ", ";
+                                        }
+
+                                        sbParams.Append(")");
+
+                                        string returnTypeName = "";
+                                        if (method.ReturnValueTypeName?.ToLower() != "any")
+                                        {
+                                            returnTypeName = method.ReturnValueTypeName;
+
+                                            if (returnTypeName.Contains("."))
+                                            {
+                                                returnTypeName = returnTypeName.Substring(returnTypeName.LastIndexOf('.') + 1);
+                                            }
+                                        }
+
+                                        if (returnTypeName != "")
+                                        {
+                                            returnTypeName = " " + returnTypeName;
+                                        }
+
+                                        completions.Add(new MyCompletionData("method" + returnTypeName + " " + method.Name + sbParams, sbDescription.ToString()));
+                                    }
+                                }
+                            }
+
+                            foreach (var completion in completions.OrderBy(c => c.Text))
+                            {
+                                data.Add(completion);
+                            }
+
+                            _completionShowingMethods = true;
+
+                            if (_completionWindow.CompletionList.CompletionData.Count() > 0)
+                            {
+                                _completionWindow.Show();
+                                _completionWindow.Closed += delegate
+                                {
+                                    _completionShowingNewAlternatives = false;
+                                    _completionShowingMethods = false;
+                                    _completionWindow = null;
+                                };
+                            }
+                            else
+                            {
+                                _completionShowingNewAlternatives = false;
+                                _completionWindow = null;
+                            }
                         }
                     }
                     else
