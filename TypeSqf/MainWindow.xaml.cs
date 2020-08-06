@@ -2209,7 +2209,7 @@ namespace TypeSqf.Edit
 
         private void SqxLanguageForumMenuItem_Click(object sender, RoutedEventArgs e)
         {
-
+            System.Diagnostics.Process.Start("https://forums.bohemia.net/forums/topic/228107-release-sqx-language-object-oriented-scripting");
         }
     }
 }

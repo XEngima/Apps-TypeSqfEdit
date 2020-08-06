@@ -6,6 +6,7 @@ Future
 Version 1.03
 -Added intellisense when using the word "override" in a sub class.
 -Updated analyzer and SQX compiler to version 1.03.
+-Fixed: Help menu link to SQX forum not working.
 
 Version 1.02
 -Added support for all script commands up until Arma 3 version 1.96 (into ScriptCommands.xml).
