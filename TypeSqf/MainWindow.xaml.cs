@@ -928,7 +928,9 @@ namespace TypeSqf.Edit
                     }
                     else
                     {
-                        typeName = GetDeclaredVariableType(word, textEditor.Text, textEditor.SelectionStart);
+                        int offset = textEditor.CaretOffset;
+                        DocumentLine lineNumber = textEditor.Document.GetLineByOffset(offset);
+                        typeName = GetDeclaredVariableType(word, MyContext.ActiveTab?.AbsoluteFilePathName, lineNumber.LineNumber);
                     }
 
                     ObjectInfo theObject = MyContext.DeclaredTypes.FirstOrDefault(c => c.FullName.ToLower() == typeName.ToLower()) as ObjectInfo;
@@ -1131,7 +1133,7 @@ namespace TypeSqf.Edit
                         }
 
                         ClassInfo currentClass = MyContext.DeclaredTypes.FirstOrDefault(c => c.FullName.ToLower() == typeName.ToLower()) as ClassInfo;
-                        string currentClassName = currentClass.FullName;
+                        string currentClassName = currentClass?.FullName;
                         typeName = currentClass.InheritedClass?.FullName;
                         typeName = typeName != null ? typeName : "";
 
@@ -1518,7 +1520,7 @@ namespace TypeSqf.Edit
             _scriptCommandCompletions = new List<MyCompletionData>();
 
             MyCompletionData lastData = null;
-            foreach (var scriptCommand in CodeAnalyzer.GetScriptCommandDefinitionCollection().OrderBy(x => x.Name))
+            foreach (var scriptCommand in FileAnalyzer.GetScriptCommandDefinitionCollection().OrderBy(x => x.Name))
             {
                 string text = "";
                 string description = "";
@@ -1784,7 +1786,7 @@ namespace TypeSqf.Edit
 
                 // Convert all to completion data
                 bool isSqx = MyContext.ActiveTabIndex >= 0 && MyContext.Tabs[MyContext.ActiveTabIndex].Name.ToLower().EndsWith(".sqx");
-                foreach (var keyword in CodeAnalyzer.GetKeywords(isSqx))
+                foreach (var keyword in FileAnalyzer.GetKeywords(isSqx))
                 {
                     _allCompletionWords.Add(new MyCompletionData(keyword));
                 }
@@ -1796,53 +1798,17 @@ namespace TypeSqf.Edit
             }
         }
 
-        private string GetDeclaredVariableType(string variableName, string text, int currentIndex)
+        /// <summary>
+        /// Gets a declared private variable from the analyzed list of private variables.
+        /// </summary>
+        /// <param name="variableName">Name of the variable to get.</param>
+        /// <param name="fileName">Name of the file in which the variable resides.</param>
+        /// <param name="lineNumber">The line number</param>
+        /// <returns></returns>
+        private string GetDeclaredVariableType(string variableName, string fileName, int lineNumber)
         {
-            var matches = Regex.Matches(text, @"(?<=""" + variableName + @"""\s+as\s+)[A-Za-z0-9.]+", RegexOptions.IgnoreCase);
-            Match aboveMatch = null;
-
-            foreach (Match match in matches)
-            {
-                if (aboveMatch == null)
-                {
-                    aboveMatch = match;
-                }
-                else
-                {
-                    if (match.Index < currentIndex && match.Index > aboveMatch.Index)
-                    {
-                        aboveMatch = match;
-                    }
-                }
-            }
-
-            string typeName = "";
-            if (aboveMatch != null && aboveMatch.Index < currentIndex)
-            {
-                typeName = aboveMatch.Value;
-
-                if (!typeName.Contains("."))
-                {
-                    string inNamespaceName = GetCurrentNamespaceName(text, currentIndex);
-                    string inNamespaceClassName = string.IsNullOrEmpty(inNamespaceName) ? typeName : inNamespaceName + "." + typeName;
-                    if (MyContext.DeclaredTypes.Select(c => c.FullName.ToLower()).Contains(inNamespaceClassName.ToLower()))
-                    {
-                        return inNamespaceClassName;
-                    }
-
-                    var usings = GetCurrentUsings(text, currentIndex);
-                    foreach (var sUsing in usings)
-                    {
-                        string usingClassName = string.IsNullOrEmpty(sUsing) ? typeName : sUsing + "." + typeName;
-                        if (MyContext.DeclaredTypes.Select(c => c.FullName.ToLower()).Contains(usingClassName.ToLower()))
-                        {
-                            return usingClassName;
-                        }
-                    }
-                }
-            }
-
-            return typeName;
+            var _privateVariable = MyContext.DeclaredPrivateVariables.OrderByDescending(v => v.DeclaredAtLineNumber).FirstOrDefault(v => v.Name?.ToLower() == variableName?.ToLower() && v.FileName?.ToLower() == fileName?.ToLower() && v.DeclaredAtLineNumber <= lineNumber);
+            return _privateVariable != null ? _privateVariable.TypeName : "";
         }
 
         public static string GetCurrentNamespaceName(string text, int currentIndex)
@@ -1958,7 +1924,7 @@ namespace TypeSqf.Edit
         {
             //Analyzer.WriteScriptCommandsToDisk();
             //MyContext.RemoveProjectFilesThatDoNotExist();
-            MessageBox.Show(this, "TypeSqf Editor " + CurrentApplication.Version + Environment.NewLine + "SQF/SQX Analyzer and Compiler " + CodeAnalyzer.Version + Environment.NewLine + Environment.NewLine +" by Engima", "About", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show(this, "TypeSqf Editor " + CurrentApplication.Version + Environment.NewLine + "SQF/SQX Analyzer and Compiler " + ProjectAnalyzer.Version + Environment.NewLine + Environment.NewLine +" by Engima", "About", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private FindInAllFilesWindow FindInAllFilesWindow { get; set; }

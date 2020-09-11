@@ -136,6 +136,12 @@ namespace TypeSqf.Edit.Highlighting
       (?=\s+[A-Za-z0-9_]+) # followed by ""{""
     </Rule>
 
+    <Rule color=""NativeTypes"">
+      (?&lt;=private\s+)
+      [A-Za-z0-9._]+
+      (?=\s+[A-Za-z0-9_]+) # followed by an identifier
+    </Rule>
+
     <Rule color=""ClassItems"">
       private\s+(static\s+)?fields
     </Rule>
@@ -237,6 +243,7 @@ namespace TypeSqf.Edit.Highlighting
 
     <Keywords color=""Keywords"">
       <Word>private</Word>
+      <Word>var</Word>
       <Word>new</Word>
       <Word>if</Word>
       <Word>then</Word>

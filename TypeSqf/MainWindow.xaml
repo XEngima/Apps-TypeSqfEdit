@@ -25,8 +25,9 @@
         <KeyBinding Key="S" Modifiers="Control" Command="{Binding SaveFileCommand}" />
         <KeyBinding Key="S" Modifiers="Control+Shift" Command="{Binding SaveAllFilesCommand}" />
         <KeyBinding Key="F" Modifiers="Control" Command="Find"/>
-        <KeyBinding Key="B" Modifiers="Control+Shift" Command="{Binding CompileCommand}"/>
-        <KeyBinding Key="B" Modifiers="Control" Command="{Binding CompileCurrentFileCommand}"/>
+        <KeyBinding Key="B" Modifiers="Control" Command="{Binding BuildCurrentFileCommand}"/>
+        <KeyBinding Key="B" Modifiers="Control+Shift" Command="{Binding BuildProjectCommand}"/>
+        <KeyBinding Key="B" Modifiers="Control+Alt+Shift" Command="{Binding RebuildProjectCommand}"/>
         <KeyBinding Key="H" Modifiers="Control" Command="Replace"/>
     </Window.InputBindings>
     <DockPanel Name="MainDockPanel">
@@ -92,8 +93,9 @@
                 </MenuItem>
             </MenuItem>
             <MenuItem x:Name="BuildAllMenuItem" Header="_Build">
-                <MenuItem Header="Compile _file" ToolTip="Compile the currently open .sqx file." Command="{Binding CompileCurrentFileCommand}" InputGestureText="Ctrl-B"/>
-                <MenuItem Header="Compile _project" ToolTip="Compile all .sqx files in the project." Command="{Binding CompileCommand}" InputGestureText="Ctrl-Shift-B"/>
+                <MenuItem Header="Build _file" ToolTip="Compile the currently selected .sqx file." Command="{Binding BuildCurrentFileCommand}" InputGestureText="Ctrl-B"/>
+                <MenuItem Header="Build _project" ToolTip="Compile all .sqx files in the project." Command="{Binding BuildProjectCommand}" InputGestureText="Ctrl-Shift-B"/>
+                <MenuItem Header="Rebuild _project" ToolTip="Reset analyzer, reanalyze alla files, and compile all .sqx files in the project." Command="{Binding RebuildProjectCommand}" InputGestureText="Ctrl-Alt-Shift-B"/>
                 <Separator />
                 <MenuItem Header="C_lean project" ToolTip="Remove all compiled files (.sqx.sqf files) from the project folder." Command="{Binding CleanCommand}"/>
                 <Separator/>
