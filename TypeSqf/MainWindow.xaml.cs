@@ -1238,7 +1238,7 @@ namespace TypeSqf.Edit
                     CollectCompletionWords(textEditor.Text, textEditor.SelectionStart);
 
                     // Do not suggest autocompletion in private declarations
-                    if (Regex.IsMatch(lowerLine.Trim(), @"private\s+\""") || Regex.IsMatch(lowerLine.Trim(), @"private\s+\[") || lowerLine.StartsWith("params") || InComment(textEditor.Text, textEditor.SelectionStart))
+                    if (Regex.IsMatch(lowerLine.Trim(), @"private\s+\""") || Regex.IsMatch(lowerLine.Trim(), @"private\s+\[") || Regex.IsMatch(lowerLine.Trim(), @"var\s+") || lowerLine.StartsWith("params") || InComment(textEditor.Text, textEditor.SelectionStart))
                     {
                         return;
                     }
@@ -1249,12 +1249,17 @@ namespace TypeSqf.Edit
                         _completionWindow.StartOffset = textEditor.SelectionStart - word.Length;
                         _completionWindow.SizeToContent = SizeToContent.WidthAndHeight;
                         _completionWindow.MaxHeight = 200;
-                        //_completionWindow
+
                         IList<ICompletionData> data = _completionWindow.CompletionList.CompletionData;
+                        var addedCompletionWords = new List<string>();
 
                         foreach (MyCompletionData completionData in _allCompletionWords.OrderBy(x => x.Text))
                         {
-                            data.Add(completionData);
+                            if (!addedCompletionWords.Contains(completionData.Text))
+                            {
+                                addedCompletionWords.Add(completionData.Text);
+                                data.Add(completionData);
+                            }
                         }
 
                         _completionWindow.Show();

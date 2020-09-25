@@ -3,6 +3,9 @@ Future
 -Added function "goto definition" for types, methods and variables.
 -SQX: Script command "spawn" can now be used without arguments.
 
+Version X
+-Fixed: Intellisense sometimes contained multiple identical private variables.
+
 Version 1.04
 -Added menu item "Rebuild project" to perform a full reset, reanalyze and build of the project.
 -General improvements.
