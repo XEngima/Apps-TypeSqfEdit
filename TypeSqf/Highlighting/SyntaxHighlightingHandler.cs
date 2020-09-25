@@ -95,6 +95,16 @@ namespace TypeSqf.Edit.Highlighting
       <End>\*/</End>
     </Span>
 
+    <Rule color=""Default"">
+      (?&lt;=\.)
+      [A-Za-z0-9_]+
+    </Rule>
+
+    <Rule color=""Default"">
+      (?&lt;=\#region\s+)
+      [A-Za-z0-9_]+
+    </Rule>
+
     <Rule color=""NativeTypes"">
       (?&lt;=public\s+class\s+)
       [A-Za-z0-9_]+

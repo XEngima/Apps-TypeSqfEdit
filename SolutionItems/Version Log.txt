@@ -4,6 +4,7 @@ Future
 -SQX: Script command "spawn" can now be used without arguments.
 
 Version X
+Improved the syntax highlighting.
 -Fixed: Intellisense sometimes contained multiple identical private variables.
 
 Version 1.04
