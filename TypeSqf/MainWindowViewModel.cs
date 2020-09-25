@@ -426,134 +426,6 @@ namespace TypeSqf.Edit
             }
         }
 
-        private static bool DependenciesInCollection(CodeFile codeFile, CodeFile[] codeFiles)
-        {
-            var allDependenciesExists = true;
-
-            foreach (string dependency in codeFile.ClassDependencies)
-            {
-                bool dependencyExists = false;
-
-                if (codeFile.Classes.Contains(dependency))
-                {
-                    dependencyExists = true;
-                }
-
-                foreach (var file in codeFiles)
-                {
-                    if (file.Classes.Contains(dependency))
-                    {
-                        dependencyExists = true;
-                    }
-                }
-
-                if (!dependencyExists) {
-                    allDependenciesExists = false;
-                }
-            }
-
-            return allDependenciesExists;
-        }
-
-        private static CodeFile[] OrderCodeFiles(CodeFile[] codeFiles)
-        {
-            // Check for classes and class dependencies in each file
-            foreach (CodeFile codeFile in codeFiles)
-            {
-                if (codeFile.FileName.EndsWith(".sqx"))
-                {
-                    var sClasses = new List<string>();
-                    var sInheritedClasses = new List<string>();
-
-                    var classMatches = Regex.Matches(codeFile.Code, @"public\s+class\s+([a-zA-Z0-9]+)");
-
-                    for (int i = 0; i < classMatches.Count; i++)
-                    {
-                        string value = classMatches[i].Groups[1].Value; 
-                        if (!sClasses.Contains(value))
-                        {
-                            sClasses.Add(value);
-                        }
-                    }
-
-                    var interfaceMatches = Regex.Matches(codeFile.Code, @"public\s+interface\s+([a-zA-Z0-9]+)");
-
-                    for (int i = 0; i < interfaceMatches.Count; i++)
-                    {
-                        string value = interfaceMatches[i].Groups[1].Value;
-                        if (!sClasses.Contains(value))
-                        {
-                            sClasses.Add(value);
-                        }
-                    }
-
-                    codeFile.Classes = sClasses.ToArray();
-
-                    var baseClassMatches = Regex.Matches(codeFile.Code, @"public\s+class\s*[a-zA-Z0-9]+\s*:\s*([a-zA-Z0-9]+)");
-
-                    for (int i = 0; i < baseClassMatches.Count; i++)
-                    {
-                        string value = baseClassMatches[i].Groups[1].Value;
-                        if (!sInheritedClasses.Contains(value))
-                        {
-                            sInheritedClasses.Add(value);
-                        }
-                    }
-
-                    var refClassMatches = Regex.Matches(codeFile.Code, @"\bnew\s+([a-zA-Z0-9]+);");
-
-                    for (int i = 0; i < refClassMatches.Count; i++)
-                    {
-                        string value = refClassMatches[i].Groups[1].Value;
-                        if (!sInheritedClasses.Contains(value))
-                        {
-                            sInheritedClasses.Add(value);
-                        }
-                    }
-
-                    codeFile.ClassDependencies = sInheritedClasses.ToArray();
-                }
-            }
-
-            var addedCodeFiles = new List<CodeFile>();
-            int iterations = 0;
-
-            while (addedCodeFiles.Count() < codeFiles.Count() && iterations < codeFiles.Count())
-            {
-                foreach (var file in codeFiles)
-                {
-                    if (!addedCodeFiles.Contains(file))
-                    {
-                        // If there are no dependencies, add file
-                        if (file.ClassDependencies.Length == 0)
-                        {
-                            addedCodeFiles.Add(file);
-                        }
-                        else if (DependenciesInCollection(file, addedCodeFiles.ToArray()))
-                        {
-                            addedCodeFiles.Add(file);
-                        }
-                    }
-                }
-
-                iterations++;
-            }
-
-            // Add the rest of the files
-            if (addedCodeFiles.Count() < codeFiles.Count())
-            {
-                foreach (var file in codeFiles)
-                {
-                    if (!addedCodeFiles.Contains(file))
-                    {
-                        addedCodeFiles.Add(file);
-                    }
-                }
-            }
-
-            return addedCodeFiles.ToArray();
-        }
-
         private ProjectAnalyzer Analyzer { get; set; }
 
         private void AnalyzerWorkerOnDoWork(object sender, DoWorkEventArgs e)
@@ -562,31 +434,34 @@ namespace TypeSqf.Edit
             var args = e.Argument as AnalyzerWorkerArgs;
             e.Result = null;
 
-            foreach (var file in args.FilesToRemove)
+            if (!string.IsNullOrEmpty(args.ProjectRootDirectory))
             {
-                Analyzer.RemoveFileContentFromAnalyzer(file);
-            }
+                if (Analyzer == null)
+                {
+                    Analyzer = new ProjectAnalyzer(args.ProjectRootDirectory);
+                }
 
-            if (args.MissionFileNeedsUpdate)
-            {
-                Analyzer.MissionFileHasChanged = true;
-            }
+                foreach (var file in args.FilesToRemove)
+                {
+                    Analyzer.RemoveFileContentFromAnalyzer(file);
+                }
 
-            if (args.StartReason == AnalyzerStartReason.PrepareProject)
-            {
-                Analyzer = new ProjectAnalyzer(args.ProjectRootDirectory);
-            }
+                if (args.MissionFileNeedsUpdate)
+                {
+                    Analyzer.MissionFileHasChanged = true;
+                }
 
-            if (args.StartReason == AnalyzerStartReason.PrepareProject)
-            {
-                var cancelChecker = new BackgroundWorkerCancelChecker(backgroundWorker);
-                var progressReporter = new BackgroundWorkerProgressReporter(backgroundWorker);
+                if (args.StartReason == AnalyzerStartReason.PrepareProject)
+                {
+                    var cancelChecker = new BackgroundWorkerCancelChecker(backgroundWorker);
+                    var progressReporter = new BackgroundWorkerProgressReporter(backgroundWorker);
 
-                Analyzer.ResetAndPrepareVariablesAndTypes(cancelChecker, progressReporter);
-            }
-            else
-            {
-                e.Result = Analyzer.AnalyzeFile(args.CodeFile, args.FileIsInProject);
+                    Analyzer.ResetAndPrepareVariablesAndTypes(cancelChecker, progressReporter);
+                }
+                else
+                {
+                    e.Result = Analyzer.AnalyzeFile(args.CodeFile, args.FileIsInProject);
+                }
             }
         }
 
