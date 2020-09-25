@@ -25,7 +25,6 @@ using TypeSqf.Edit.Highlighting;
 using TypeSqf.Edit.Forms;
 using TypeSqf.Analyzer;
 using TypeSqf.Edit.Replace;
-using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace TypeSqf.Edit
 {
@@ -811,22 +810,42 @@ namespace TypeSqf.Edit
 						{
 							if (method.IsStatic)
 							{
-								var sbDescription = new StringBuilder();
+                                var intellisenseString = MethodToIntellisenseString(method);
+								//var sbDescription = new StringBuilder();
 
-								if (method.ReturnValueTypeName != "Nothing")
-								{
-									sbDescription.Append("Method: [");
-									sbDescription.Append(method.ReturnValueTypeName);
-									sbDescription.Append("] = ");
+								//if (method.ReturnValueTypeName != "Nothing")
+								//{
+								//	sbDescription.Append("Method: [");
+								//	sbDescription.Append(method.ReturnValueTypeName);
+								//	sbDescription.Append("] = ");
 
-									sbDescription.Append(method.Name);
-								}
+								//	sbDescription.Append(method.Name);
+								//}
 
-								completions.Add(new MyCompletionData(method.Name, sbDescription.ToString()));
+								completions.Add(new MyCompletionData(method.Name, intellisenseString));
 							}
 						}
 
-						foreach (var completion in completions.OrderBy(c => c.Text))
+                        foreach (var property in typeObj.Properties)
+                        {
+                            if (property.IsStatic)
+                            {
+                                var sbDescription = new StringBuilder();
+
+                                if (property.ReturnValueTypeName != "Nothing")
+                                {
+                                    sbDescription.Append("Property: [");
+                                    sbDescription.Append(property.ReturnValueTypeName);
+                                    sbDescription.Append("] = ");
+
+                                    sbDescription.Append(property.Name);
+                                }
+
+                                completions.Add(new MyCompletionData(property.Name, sbDescription.ToString()));
+                            }
+                        }
+
+                        foreach (var completion in completions.OrderBy(c => c.Text))
 						{
 							data.Add(completion);
 						}
@@ -980,35 +999,8 @@ namespace TypeSqf.Edit
                         {
                             if (method.Accessability == Accessability.Public || isSelf)
                             {
-                                var sbDescription = new StringBuilder();
-
-                                if (method.ReturnValueTypeName != "Nothing")
-                                {
-                                    sbDescription.Append("[");
-                                    sbDescription.Append(method.ReturnValueTypeName);
-                                    sbDescription.Append("] ");
-                                }
-
-                                sbDescription.Append(method.Name);
-
-                                string comma = "";
-                                sbDescription.Append("(");
-
-                                if (method.CodeParameters?.Count() > 0)
-                                {
-                                    foreach (var parameter in method.CodeParameters)
-                                    {
-                                        sbDescription.Append(comma);
-                                        sbDescription.Append(parameter.Name);
-                                        sbDescription.Append(" as ");
-                                        sbDescription.Append(parameter.TypeName);
-                                        comma = ", ";
-                                    }
-                                }
-
-                                sbDescription.Append(")");
-
-                                completions.Add(new MyCompletionData(method.Name, sbDescription.ToString()));
+                                string intellisenseString = MethodToIntellisenseString(method);
+                                completions.Add(new MyCompletionData(method.Name, intellisenseString));
                             }
                         }
 
@@ -1291,6 +1283,38 @@ namespace TypeSqf.Edit
                     _completionWindow = null;
                 }
             }
+        }
+
+        private static string MethodToIntellisenseString(MethodInfo method)
+        {
+            var sbDescription = new StringBuilder();
+
+            if (method.ReturnValueTypeName != "Nothing")
+            {
+                sbDescription.Append("[");
+                sbDescription.Append(method.ReturnValueTypeName);
+                sbDescription.Append("] ");
+            }
+
+            sbDescription.Append(method.Name);
+
+            string comma = "";
+            sbDescription.Append(" (");
+
+            if (method.CodeParameters?.Count() > 0)
+            {
+                foreach (var parameter in method.CodeParameters)
+                {
+                    sbDescription.Append(comma);
+                    sbDescription.Append(parameter.Name);
+                    sbDescription.Append(" as ");
+                    sbDescription.Append(parameter.TypeName);
+                    comma = ", ";
+                }
+            }
+
+            sbDescription.Append(")");
+            return sbDescription.ToString();
         }
 
         public static IEnumerable<TypeInfo> GetPossibleTypes(string inNamespaceName, List<TypeInfo> declaredTypes, IEnumerable<string> usings)
