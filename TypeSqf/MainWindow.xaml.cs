@@ -1189,6 +1189,11 @@ namespace TypeSqf.Edit
                                             }
                                         }
 
+                                        if (returnTypeName?.ToLower().Trim() == "any")
+                                        {
+                                            returnTypeName = "";
+                                        }
+
                                         if (returnTypeName != "")
                                         {
                                             returnTypeName = " " + returnTypeName;
