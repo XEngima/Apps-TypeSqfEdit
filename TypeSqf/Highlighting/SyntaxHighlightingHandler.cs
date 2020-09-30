@@ -95,6 +95,16 @@ namespace TypeSqf.Edit.Highlighting
       <End>\*/</End>
     </Span>
 
+    <Rule color=""Default"">
+      (?&lt;=\.)
+      [A-Za-z0-9_]+
+    </Rule>
+
+    <Rule color=""Default"">
+      (?&lt;=\#region\s+)
+      [A-Za-z0-9_]+
+    </Rule>
+
     <Rule color=""NativeTypes"">
       (?&lt;=public\s+class\s+)
       [A-Za-z0-9_]+
@@ -134,6 +144,12 @@ namespace TypeSqf.Edit.Highlighting
       (?&lt;=(method|property)\s+)
       [A-Za-z0-9._]+
       (?=\s+[A-Za-z0-9_]+) # followed by ""{""
+    </Rule>
+
+    <Rule color=""NativeTypes"">
+      (?&lt;=private\s+)
+      [A-Za-z0-9._]+
+      (?=\s+[A-Za-z0-9_]+) # followed by an identifier
     </Rule>
 
     <Rule color=""ClassItems"">
@@ -237,6 +253,7 @@ namespace TypeSqf.Edit.Highlighting
 
     <Keywords color=""Keywords"">
       <Word>private</Word>
+      <Word>var</Word>
       <Word>new</Word>
       <Word>if</Word>
       <Word>then</Word>

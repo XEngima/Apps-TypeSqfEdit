@@ -93,8 +93,7 @@
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
-    <Reference Include="TypeSqf.Analyzer, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="TypeSqf.Analyzer">
       <HintPath>..\Dependencies\TypeSqf.Analyzer.dll</HintPath>
     </Reference>
     <Reference Include="TypeSqf.WebService">
@@ -109,7 +108,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AnalyzerWorkerArgs.cs" />
+    <Compile Include="BackgroundWorkerProgressReporter.cs" />
     <Compile Include="BooleanToCollapsedVisibilityConverter.cs" />
+    <Compile Include="CancelChecker.cs" />
+    <Compile Include="CompilerWorkerArgs.cs" />
     <Compile Include="CPackConsoleViewModel.cs" />
     <Compile Include="CPackInstallationResult.cs" />
     <Compile Include="DelegateCommand.cs" />

@@ -4,7 +4,21 @@ Future
 -SQX: Script command "spawn" can now be used without arguments.
 
 Version X
--Added intellisense when using the word "override".
+Improved the syntax highlighting.
+-Fixed: Editor crasched when there were files but no project file loaded at start.
+-Fixed: Intellisense sometimes contained multiple identical private variables.
+
+Version 1.04
+-Added menu item "Rebuild project" to perform a full reset, reanalyze and build of the project.
+-General improvements.
+-Added support for all script commands up until Arma 3 version 1.98 (into ScriptCommands.xml).
+-Made the project root node expanded from start when opening a project.
+-Updated analyzer and SQX compiler to version 1.03.
+
+Version 1.03
+-Added intellisense when using the word "override" in a sub class.
+-Updated analyzer and SQX compiler to version 1.02.
+-Fixed: Help menu link to SQX forum not working.
 
 Version 1.02
 -Added support for all script commands up until Arma 3 version 1.96 (into ScriptCommands.xml).

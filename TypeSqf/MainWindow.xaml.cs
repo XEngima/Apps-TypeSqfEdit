@@ -25,7 +25,6 @@ using TypeSqf.Edit.Highlighting;
 using TypeSqf.Edit.Forms;
 using TypeSqf.Analyzer;
 using TypeSqf.Edit.Replace;
-using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace TypeSqf.Edit
 {
@@ -811,22 +810,42 @@ namespace TypeSqf.Edit
 						{
 							if (method.IsStatic)
 							{
-								var sbDescription = new StringBuilder();
+                                var intellisenseString = MethodToIntellisenseString(method);
+								//var sbDescription = new StringBuilder();
 
-								if (method.ReturnValueTypeName != "Nothing")
-								{
-									sbDescription.Append("Method: [");
-									sbDescription.Append(method.ReturnValueTypeName);
-									sbDescription.Append("] = ");
+								//if (method.ReturnValueTypeName != "Nothing")
+								//{
+								//	sbDescription.Append("Method: [");
+								//	sbDescription.Append(method.ReturnValueTypeName);
+								//	sbDescription.Append("] = ");
 
-									sbDescription.Append(method.Name);
-								}
+								//	sbDescription.Append(method.Name);
+								//}
 
-								completions.Add(new MyCompletionData(method.Name, sbDescription.ToString()));
+								completions.Add(new MyCompletionData(method.Name, intellisenseString));
 							}
 						}
 
-						foreach (var completion in completions.OrderBy(c => c.Text))
+                        foreach (var property in typeObj.Properties)
+                        {
+                            if (property.IsStatic)
+                            {
+                                var sbDescription = new StringBuilder();
+
+                                if (property.ReturnValueTypeName != "Nothing")
+                                {
+                                    sbDescription.Append("Property: [");
+                                    sbDescription.Append(property.ReturnValueTypeName);
+                                    sbDescription.Append("] = ");
+
+                                    sbDescription.Append(property.Name);
+                                }
+
+                                completions.Add(new MyCompletionData(property.Name, sbDescription.ToString()));
+                            }
+                        }
+
+                        foreach (var completion in completions.OrderBy(c => c.Text))
 						{
 							data.Add(completion);
 						}
@@ -928,7 +947,9 @@ namespace TypeSqf.Edit
                     }
                     else
                     {
-                        typeName = GetDeclaredVariableType(word, textEditor.Text, textEditor.SelectionStart);
+                        int offset = textEditor.CaretOffset;
+                        DocumentLine lineNumber = textEditor.Document.GetLineByOffset(offset);
+                        typeName = GetDeclaredVariableType(word, MyContext.ActiveTab?.AbsoluteFilePathName, lineNumber.LineNumber);
                     }
 
                     ObjectInfo theObject = MyContext.DeclaredTypes.FirstOrDefault(c => c.FullName.ToLower() == typeName.ToLower()) as ObjectInfo;
@@ -978,35 +999,8 @@ namespace TypeSqf.Edit
                         {
                             if (method.Accessability == Accessability.Public || isSelf)
                             {
-                                var sbDescription = new StringBuilder();
-
-                                if (method.ReturnValueTypeName != "Nothing")
-                                {
-                                    sbDescription.Append("[");
-                                    sbDescription.Append(method.ReturnValueTypeName);
-                                    sbDescription.Append("] ");
-                                }
-
-                                sbDescription.Append(method.Name);
-
-                                string comma = "";
-                                sbDescription.Append("(");
-
-                                if (method.CodeParameters?.Count() > 0)
-                                {
-                                    foreach (var parameter in method.CodeParameters)
-                                    {
-                                        sbDescription.Append(comma);
-                                        sbDescription.Append(parameter.Name);
-                                        sbDescription.Append(" as ");
-                                        sbDescription.Append(parameter.TypeName);
-                                        comma = ", ";
-                                    }
-                                }
-
-                                sbDescription.Append(")");
-
-                                completions.Add(new MyCompletionData(method.Name, sbDescription.ToString()));
+                                string intellisenseString = MethodToIntellisenseString(method);
+                                completions.Add(new MyCompletionData(method.Name, intellisenseString));
                             }
                         }
 
@@ -1131,7 +1125,7 @@ namespace TypeSqf.Edit
                         }
 
                         ClassInfo currentClass = MyContext.DeclaredTypes.FirstOrDefault(c => c.FullName.ToLower() == typeName.ToLower()) as ClassInfo;
-                        string currentClassName = currentClass.FullName;
+                        string currentClassName = currentClass?.FullName;
                         typeName = currentClass.InheritedClass?.FullName;
                         typeName = typeName != null ? typeName : "";
 
@@ -1241,7 +1235,7 @@ namespace TypeSqf.Edit
                     CollectCompletionWords(textEditor.Text, textEditor.SelectionStart);
 
                     // Do not suggest autocompletion in private declarations
-                    if (Regex.IsMatch(lowerLine.Trim(), @"private\s+\""") || Regex.IsMatch(lowerLine.Trim(), @"private\s+\[") || lowerLine.StartsWith("params") || InComment(textEditor.Text, textEditor.SelectionStart))
+                    if (Regex.IsMatch(lowerLine.Trim(), @"private\s+\""") || Regex.IsMatch(lowerLine.Trim(), @"private\s+\[") || Regex.IsMatch(lowerLine.Trim(), @"var\s+") || lowerLine.StartsWith("params") || InComment(textEditor.Text, textEditor.SelectionStart))
                     {
                         return;
                     }
@@ -1252,12 +1246,17 @@ namespace TypeSqf.Edit
                         _completionWindow.StartOffset = textEditor.SelectionStart - word.Length;
                         _completionWindow.SizeToContent = SizeToContent.WidthAndHeight;
                         _completionWindow.MaxHeight = 200;
-                        //_completionWindow
+
                         IList<ICompletionData> data = _completionWindow.CompletionList.CompletionData;
+                        var addedCompletionWords = new List<string>();
 
                         foreach (MyCompletionData completionData in _allCompletionWords.OrderBy(x => x.Text))
                         {
-                            data.Add(completionData);
+                            if (!addedCompletionWords.Contains(completionData.Text))
+                            {
+                                addedCompletionWords.Add(completionData.Text);
+                                data.Add(completionData);
+                            }
                         }
 
                         _completionWindow.Show();
@@ -1289,6 +1288,38 @@ namespace TypeSqf.Edit
                     _completionWindow = null;
                 }
             }
+        }
+
+        private static string MethodToIntellisenseString(MethodInfo method)
+        {
+            var sbDescription = new StringBuilder();
+
+            if (method.ReturnValueTypeName != "Nothing")
+            {
+                sbDescription.Append("[");
+                sbDescription.Append(method.ReturnValueTypeName);
+                sbDescription.Append("] ");
+            }
+
+            sbDescription.Append(method.Name);
+
+            string comma = "";
+            sbDescription.Append(" (");
+
+            if (method.CodeParameters?.Count() > 0)
+            {
+                foreach (var parameter in method.CodeParameters)
+                {
+                    sbDescription.Append(comma);
+                    sbDescription.Append(parameter.Name);
+                    sbDescription.Append(" as ");
+                    sbDescription.Append(parameter.TypeName);
+                    comma = ", ";
+                }
+            }
+
+            sbDescription.Append(")");
+            return sbDescription.ToString();
         }
 
         public static IEnumerable<TypeInfo> GetPossibleTypes(string inNamespaceName, List<TypeInfo> declaredTypes, IEnumerable<string> usings)
@@ -1523,7 +1554,7 @@ namespace TypeSqf.Edit
             _scriptCommandCompletions = new List<MyCompletionData>();
 
             MyCompletionData lastData = null;
-            foreach (var scriptCommand in CodeAnalyzer.GetScriptCommandDefinitionCollection().OrderBy(x => x.Name))
+            foreach (var scriptCommand in FileAnalyzer.GetScriptCommandDefinitionCollection().OrderBy(x => x.Name))
             {
                 string text = "";
                 string description = "";
@@ -1789,7 +1820,7 @@ namespace TypeSqf.Edit
 
                 // Convert all to completion data
                 bool isSqx = MyContext.ActiveTabIndex >= 0 && MyContext.Tabs[MyContext.ActiveTabIndex].Name.ToLower().EndsWith(".sqx");
-                foreach (var keyword in CodeAnalyzer.GetKeywords(isSqx))
+                foreach (var keyword in FileAnalyzer.GetKeywords(isSqx))
                 {
                     _allCompletionWords.Add(new MyCompletionData(keyword));
                 }
@@ -1801,53 +1832,17 @@ namespace TypeSqf.Edit
             }
         }
 
-        private string GetDeclaredVariableType(string variableName, string text, int currentIndex)
+        /// <summary>
+        /// Gets a declared private variable from the analyzed list of private variables.
+        /// </summary>
+        /// <param name="variableName">Name of the variable to get.</param>
+        /// <param name="fileName">Name of the file in which the variable resides.</param>
+        /// <param name="lineNumber">The line number</param>
+        /// <returns></returns>
+        private string GetDeclaredVariableType(string variableName, string fileName, int lineNumber)
         {
-            var matches = Regex.Matches(text, @"(?<=""" + variableName + @"""\s+as\s+)[A-Za-z0-9.]+", RegexOptions.IgnoreCase);
-            Match aboveMatch = null;
-
-            foreach (Match match in matches)
-            {
-                if (aboveMatch == null)
-                {
-                    aboveMatch = match;
-                }
-                else
-                {
-                    if (match.Index < currentIndex && match.Index > aboveMatch.Index)
-                    {
-                        aboveMatch = match;
-                    }
-                }
-            }
-
-            string typeName = "";
-            if (aboveMatch != null && aboveMatch.Index < currentIndex)
-            {
-                typeName = aboveMatch.Value;
-
-                if (!typeName.Contains("."))
-                {
-                    string inNamespaceName = GetCurrentNamespaceName(text, currentIndex);
-                    string inNamespaceClassName = string.IsNullOrEmpty(inNamespaceName) ? typeName : inNamespaceName + "." + typeName;
-                    if (MyContext.DeclaredTypes.Select(c => c.FullName.ToLower()).Contains(inNamespaceClassName.ToLower()))
-                    {
-                        return inNamespaceClassName;
-                    }
-
-                    var usings = GetCurrentUsings(text, currentIndex);
-                    foreach (var sUsing in usings)
-                    {
-                        string usingClassName = string.IsNullOrEmpty(sUsing) ? typeName : sUsing + "." + typeName;
-                        if (MyContext.DeclaredTypes.Select(c => c.FullName.ToLower()).Contains(usingClassName.ToLower()))
-                        {
-                            return usingClassName;
-                        }
-                    }
-                }
-            }
-
-            return typeName;
+            var _privateVariable = MyContext.DeclaredPrivateVariables.OrderByDescending(v => v.DeclaredAtLineNumber).FirstOrDefault(v => v.Name?.ToLower() == variableName?.ToLower() && v.FileName?.ToLower() == fileName?.ToLower() && v.DeclaredAtLineNumber <= lineNumber);
+            return _privateVariable != null ? _privateVariable.TypeName : "";
         }
 
         public static string GetCurrentNamespaceName(string text, int currentIndex)
@@ -1963,7 +1958,7 @@ namespace TypeSqf.Edit
         {
             //Analyzer.WriteScriptCommandsToDisk();
             //MyContext.RemoveProjectFilesThatDoNotExist();
-            MessageBox.Show(this, "TypeSqf Editor " + CurrentApplication.Version + Environment.NewLine + "SQF/SQX Analyzer and Compiler " + CodeAnalyzer.Version + Environment.NewLine + Environment.NewLine +" by Engima", "About", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show(this, "TypeSqf Editor " + CurrentApplication.Version + Environment.NewLine + "SQF/SQX Analyzer and Compiler " + ProjectAnalyzer.Version + Environment.NewLine + Environment.NewLine +" by Engima", "About", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private FindInAllFilesWindow FindInAllFilesWindow { get; set; }
@@ -2214,7 +2209,7 @@ namespace TypeSqf.Edit
 
         private void SqxLanguageForumMenuItem_Click(object sender, RoutedEventArgs e)
         {
-
+            System.Diagnostics.Process.Start("https://forums.bohemia.net/forums/topic/228107-release-sqx-language-object-oriented-scripting");
         }
     }
 }

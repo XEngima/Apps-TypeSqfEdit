@@ -52,6 +52,7 @@
     <Compile Include="MyWebClient.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="ProjectFileHandler.cs" />
     <Compile Include="SettingsFile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

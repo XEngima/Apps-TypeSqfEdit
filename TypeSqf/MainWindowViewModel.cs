@@ -16,15 +16,15 @@ using System.Xml.Serialization;
 using TypeSqf.Edit.Highlighting;
 using TypeSqf.Model;
 using TypeSqf.Edit.Services;
-using TypeSqf.Analyzer.Compile;
 using TypeSqf.WebService;
 using SwiftPbo;
 using TypeSqf.Analyzer.Commands;
 using TypeSqf.Analyzer;
+using System.Windows.Controls;
 
 namespace TypeSqf.Edit
 {
-	public class MainWindowViewModel : INotifyPropertyChanged
+    public partial class MainWindowViewModel : INotifyPropertyChanged
     {
         //----------------------------------------------------------------------------------------------------------------
         #region Private variables
@@ -38,10 +38,9 @@ namespace TypeSqf.Edit
         private string _startCompilerWhenPossibleFileName = "";
         private TabViewModel _activeTab;
         private ProjectViewModel _project;
-		private static List<GlobalContextVariable> _missionCfgPublicVariables = null;
-		private volatile List<GlobalContextVariable> _declaredPublicVariables = null;
-        private volatile List<GlobalContextVariable> _declaredPrivateVariables = null;
-        private volatile List<TypeInfo> _declaredTypes = null;
+        private List<GlobalContextVariable> _declaredPublicVariables = new List<GlobalContextVariable>();
+        private List<GlobalContextVariable> _declaredPrivateVariables = new List<GlobalContextVariable>();
+        private List<TypeInfo> _declaredTypes = null;
         private string _newVersionMessage = "";
         private Visibility _newVersionVisibility = Visibility.Hidden;
         private bool _runOnTabGettingFocus = true;
@@ -111,6 +110,10 @@ namespace TypeSqf.Edit
             // Check for associated file types sent in as argument.
             string commandLineProject = "";
             string commandLineFile = "";
+            FilesToRemoveFromAnalyzer = new List<string>();
+            MissionFileHasChanged = false;
+            ProjectIsPrepared = false;
+
             try
             {
                 foreach (string arg in Environment.GetCommandLineArgs())
@@ -137,14 +140,23 @@ namespace TypeSqf.Edit
             Tabs.CollectionChanged += TabsOnCollectionChanged;
             ActiveTabIndex = -1;
 
-            _analyzerWorker = new BackgroundWorker();
+            _analyzerWorker = new BackgroundWorker()
+            {
+                WorkerSupportsCancellation = true,
+                WorkerReportsProgress = true,
+            };
+
             _analyzerWorker.DoWork += AnalyzerWorkerOnDoWork;
+            _analyzerWorker.ProgressChanged += AnalyzerWorkerProgressChanged;
             _analyzerWorker.RunWorkerCompleted += AnalyzerWorkerOnRunWorkerCompleted;
+
             AnalyzerListFileQueue = new List<string>();
+            CompilerProgressBarMax = 100;
 
             _compilerWorker = new BackgroundWorker()
             {
-                WorkerReportsProgress = true
+                WorkerSupportsCancellation = true,
+                WorkerReportsProgress = true,
             };
 
             _compilerWorker.DoWork += CompilerWorkerOnDoWork;
@@ -205,11 +217,11 @@ namespace TypeSqf.Edit
                 });
             }
 
-			string absoluteTemplateDirectoryName = Path.Combine(CurrentApplication.AppDataFolder, "Templates");
-			if (!Directory.Exists(absoluteTemplateDirectoryName))
-			{
-				FileTemplateHandler.CreateDefaultFileTemplates();
-			}
+            string absoluteTemplateDirectoryName = Path.Combine(CurrentApplication.AppDataFolder, "Templates");
+            if (!Directory.Exists(absoluteTemplateDirectoryName))
+            {
+                FileTemplateHandler.CreateDefaultFileTemplates();
+            }
 
             // Create theme files
             try
@@ -264,7 +276,7 @@ namespace TypeSqf.Edit
             // Load Script Commands
             try
             {
-                CodeAnalyzer.LoadScriptCommandsFromDisk();
+                FileAnalyzer.LoadScriptCommandsFromDisk();
             }
             catch (Exception ex)
             {
@@ -273,6 +285,10 @@ namespace TypeSqf.Edit
         }
 
         private List<string> AnalyzerListFileQueue { get; set; }
+
+        private List<string> FilesToRemoveFromAnalyzer { get; set; }
+
+        private bool MissionFileHasChanged { get; set; }
 
         private void StartAnalyzer()
         {
@@ -283,6 +299,20 @@ namespace TypeSqf.Edit
             }
 
             StartAnalyzer(explicitFileName);
+        }
+
+        private bool ProjectIsPrepared { get; set; }
+
+        private List<string> CloneList(List<string> items)
+        {
+            var clonedItems = new List<string>();
+
+            foreach (var item in items)
+            {
+                clonedItems.Add(item);
+            }
+
+            return clonedItems;
         }
 
         private void StartAnalyzer(string fileName)
@@ -305,171 +335,140 @@ namespace TypeSqf.Edit
                 }
             }
 
-            if (_analyzerWorker != null && ActiveTabIndex >= 0 && !_analyzerWorker.IsBusy && !_compilerWorker.IsBusy)
+            if (!_analyzerWorker.IsBusy && !_compilerWorker.IsBusy && ((usingExplicitFileName && ActiveTabIndex >= 0) || !usingExplicitFileName))
             {
-                bool performHunt = Project != null && Project.ProjectRootNode != null && (_declaredPublicVariables == null || _declaredTypes == null || _declaredPrivateVariables == null);
-                if (performHunt)
-                {
-                    List<CodeFile> codes2 = new List<CodeFile>();
-                    Project.ProjectRootNode.GetAllCodes(ProjectRootDirectory.ToLower(), codes2);
-                    _declaredPublicVariables = new List<GlobalContextVariable>();
-                    _declaredPrivateVariables = new List<GlobalContextVariable>();
-                    _declaredTypes = new List<TypeInfo>();
+                bool prepareProject = Project != null && Project.ProjectRootNode != null && !ProjectIsPrepared;
 
-                    var args2 = new AnalyzerWorkerArgs()
-                    {
-                        CollectPublicVariablesAndClasses = performHunt,
-                        CodeFiles = codes2,
-                        DeclaredPublicVariables = _declaredPublicVariables,
-                        DeclaredPrivateVariables = _declaredPrivateVariables,
-                        DeclaredTypes = _declaredTypes,
-                        FilteredOutAnalyzerResults = Project.FilteredAnalyzerResultItems.ToList(),
-                    };
+                CompilerProgressBarValue = 0;
+
+                if (prepareProject)
+                {
+                    var args2 = new AnalyzerWorkerArgs(AnalyzerStartReason.PrepareProject, ProjectRootDirectory, null, Project.FilteredAnalyzerResultItems.ToList(), CloneList(FilesToRemoveFromAnalyzer), MissionFileHasChanged, true);
+
+                    // Reset files to add and remove.
+                    FilesToRemoveFromAnalyzer = new List<string>();
+                    MissionFileHasChanged = false;
 
                     _analyzerWorker.RunWorkerAsync(args2);
+                    ProjectIsPrepared = true;
                     return;
-                }
-
-                if (string.IsNullOrEmpty(fileName))
-                {
-                    fileName = ActiveTabIndex >= 0 ? Tabs[ActiveTabIndex].AbsoluteFilePathName.ToLower() : "";
-                }
-
-                bool fileBelongsToProject = !string.IsNullOrEmpty(ProjectRootDirectory) 
-                    && !string.IsNullOrEmpty(fileName)
-                    && !fileName.ToLower().EndsWith(".sqx.sqf")
-                    && fileName.ToLower().StartsWith(ProjectRootDirectory.ToLower());
-
-                if (_declaredPublicVariables == null)
-                {
-                    _declaredPublicVariables = new List<GlobalContextVariable>();
-                }
-                if (_declaredPrivateVariables == null)
-                {
-                    _declaredPrivateVariables = new List<GlobalContextVariable>();
-                }
-                if (_declaredTypes == null)
-                {
-                    _declaredTypes = new List<TypeInfo>();
-                }
-
-                _startAnalyzerWhenPossible = performHunt;
-
-                List<CodeFile> codes = new List<CodeFile>();
-
-                if (performHunt)
-                {
-                    Project.ProjectRootNode.GetAllCodes(ProjectRootDirectory.ToLower(), codes);
-                }
-                else if (usingExplicitFileName)
-                {
-                    codes.Add(new CodeFile(fileName.ToLower(), File.ReadAllText(fileName)));
                 }
                 else
                 {
-                    codes.Add(new CodeFile(Tabs[ActiveTabIndex].AbsoluteFilePathName, Tabs[ActiveTabIndex].Text));
+                    if (string.IsNullOrEmpty(fileName))
+                    {
+                        fileName = ActiveTabIndex >= 0 ? Tabs[ActiveTabIndex].AbsoluteFilePathName.ToLower() : "";
+                    }
+
+                    bool fileBelongsToProject = !string.IsNullOrEmpty(ProjectRootDirectory)
+                        && !string.IsNullOrEmpty(fileName)
+                        && !fileName.ToLower().EndsWith(".sqx.sqf")
+                        && fileName.ToLower().StartsWith(ProjectRootDirectory.ToLower());
+
+                    _startAnalyzerWhenPossible = prepareProject;
+
+                    CodeFile codeFile = null;
+
+                    if (prepareProject)
+                    {
+                        codeFile = null;
+                    }
+                    else if (usingExplicitFileName)
+                    {
+                        codeFile = new CodeFile(fileName.ToLower(), File.ReadAllText(fileName));
+                    }
+                    else
+                    {
+                        if (ActiveTabIndex < 0)
+                        {
+                            return;
+                        }
+
+                        codeFile = new CodeFile(Tabs[ActiveTabIndex].AbsoluteFilePathName, Tabs[ActiveTabIndex].Text);
+                    }
+
+                    var filteredAnalyzerResultItems = new List<string>();
+                    if (Project != null && Project.FilteredAnalyzerResultItems != null)
+                    {
+                        filteredAnalyzerResultItems = Project.FilteredAnalyzerResultItems.ToList();
+                    }
+
+                    var filteredAnalyzerResultItemsToUse = filteredAnalyzerResultItems;
+
+                    if (!fileBelongsToProject)
+                    {
+                        filteredAnalyzerResultItemsToUse = new List<string>();
+                    }
+
+                    var args = new AnalyzerWorkerArgs(AnalyzerStartReason.AnalyzeFile, ProjectRootDirectory, codeFile, filteredAnalyzerResultItemsToUse, CloneList(FilesToRemoveFromAnalyzer), MissionFileHasChanged, fileBelongsToProject);
+
+                    // Reset files to add and remove.
+                    FilesToRemoveFromAnalyzer = new List<string>();
+                    MissionFileHasChanged = false;
+
+                    // Remove the current enqueued file.
+
+                    string fileToRemove = AnalyzerListFileQueue.FirstOrDefault(x => x.ToLower() == fileName.ToLower());
+                    if (!string.IsNullOrWhiteSpace(fileToRemove))
+                    {
+                        AnalyzerListFileQueue.Remove(fileToRemove);
+                        _startAnalyzerWhenPossible = true;
+                    }
+                    else if (AnalyzerListFileQueue.Count > 0)
+                    {
+                        _startAnalyzerWhenPossible = true;
+                    }
+
+                    // Start the analyzer.
+
+                    _analyzerWorker.RunWorkerAsync(args);
                 }
-
-                var filteredAnalyzerResultItems = new List<string>();
-                if (Project != null && Project.FilteredAnalyzerResultItems != null)
-                {
-                    filteredAnalyzerResultItems = Project.FilteredAnalyzerResultItems.ToList();
-                }
-
-                var declaredPublicVariablesToUse = _declaredPublicVariables;
-                var declaredPrivateVariablesToUse = _declaredPrivateVariables;
-                var declaredClassesToUse = _declaredTypes;
-                var filteredAnalyzerResultItemsToUse = filteredAnalyzerResultItems;
-
-                if (!fileBelongsToProject)
-                {
-                    declaredPublicVariablesToUse = new List<GlobalContextVariable>();
-                    declaredPrivateVariablesToUse = new List<GlobalContextVariable>();
-                    declaredClassesToUse = new List<TypeInfo>();
-                    filteredAnalyzerResultItemsToUse = new List<string>();
-                }
-
-                var args = new AnalyzerWorkerArgs()
-                {
-                    CollectPublicVariablesAndClasses = performHunt,
-                    CodeFiles = codes,
-                    DeclaredPublicVariables = declaredPublicVariablesToUse,
-                    DeclaredPrivateVariables = declaredPrivateVariablesToUse,
-                    DeclaredTypes = declaredClassesToUse,
-                    FilteredOutAnalyzerResults = filteredAnalyzerResultItemsToUse,
-                };
-
-				string fileToRemove = AnalyzerListFileQueue.FirstOrDefault(x => x.ToLower() == fileName.ToLower());
-				if (!string.IsNullOrWhiteSpace(fileToRemove))
-				{
-					AnalyzerListFileQueue.Remove(fileToRemove);
-                    _startAnalyzerWhenPossible = true;
-                }
-                else if (AnalyzerListFileQueue.Count > 0)
-                {
-                    _startAnalyzerWhenPossible = true;
-                }
-
-                _analyzerWorker.RunWorkerAsync(args);
             }
         }
 
+        private ProjectAnalyzer Analyzer { get; set; }
+
         private void AnalyzerWorkerOnDoWork(object sender, DoWorkEventArgs e)
         {
+            var backgroundWorker = sender as BackgroundWorker;
             var args = e.Argument as AnalyzerWorkerArgs;
+            e.Result = null;
 
-            if (args.CollectPublicVariablesAndClasses)
+            if (!string.IsNullOrEmpty(args.ProjectRootDirectory))
             {
-                e.Result = null;
-
-                // Collect types/classes
-                foreach (CodeFile code in args.CodeFiles)
+                if (Analyzer == null)
                 {
-                    string extension = Path.GetExtension(code.FileName).ToLower();
-
-                    if (extension == ".sqf" || extension == ".sqx")
-                    {
-                        var analyzer = new CodeAnalyzer(code.Code, new ScriptCommandCache(), code.FileName, extension == ".sqx", new List<GlobalContextVariable>(), new List<GlobalContextVariable>(), args.DeclaredTypes, ProjectRootDirectory, args.FilteredOutAnalyzerResults);
-                        analyzer.AnalyzeLogics();
-                    }
+                    Analyzer = new ProjectAnalyzer(args.ProjectRootDirectory);
                 }
 
-				// Collect public variables
-
-				GetMissionCfgPublicVariables(args.DeclaredPublicVariables);
-
-				foreach (CodeFile code in args.CodeFiles)
+                foreach (var file in args.FilesToRemove)
                 {
-                    string extension = Path.GetExtension(code.FileName).ToLower();
-
-                    if (extension == ".sqf" || extension == ".sqx")
-                    {
-                        var analyzer = new CodeAnalyzer(code.Code, new ScriptCommandCache(), code.FileName, extension == ".sqx", args.DeclaredPublicVariables, args.DeclaredPrivateVariables, args.DeclaredTypes, ProjectRootDirectory, args.FilteredOutAnalyzerResults);
-                        analyzer.AnalyzeLogics();
-                    }
+                    Analyzer.RemoveFileContentFromAnalyzer(file);
                 }
-            }
-            else
-            {
-				string extension = Path.GetExtension(args.CodeFiles[0].FileName).ToLower();
 
-                if (extension == ".sqf" || extension == ".sqx")
+                if (args.MissionFileNeedsUpdate)
                 {
-					GetMissionCfgPublicVariables(args.DeclaredPublicVariables);
+                    Analyzer.MissionFileHasChanged = true;
+                }
 
-					var analyzer = new CodeAnalyzer(args.CodeFiles[0].Code, new ScriptCommandCache(), args.CodeFiles[0].FileName.ToLower(), extension == ".sqx", args.DeclaredPublicVariables, args.DeclaredPrivateVariables, args.DeclaredTypes, ProjectRootDirectory, args.FilteredOutAnalyzerResults);
-                    analyzer.AnalyzeLogics();
-                    e.Result = new AnalyzerResult
-                    {
-                        AbsoluteFileName = args.CodeFiles[0].FileName,
-                        CodeErrors = analyzer.GetErrors()
-                    };
+                if (args.StartReason == AnalyzerStartReason.PrepareProject)
+                {
+                    var cancelChecker = new BackgroundWorkerCancelChecker(backgroundWorker);
+                    var progressReporter = new BackgroundWorkerProgressReporter(backgroundWorker);
+
+                    Analyzer.ResetAndPrepareVariablesAndTypes(cancelChecker, progressReporter);
+                }
+                else
+                {
+                    e.Result = Analyzer.AnalyzeFile(args.CodeFile, args.FileIsInProject);
                 }
             }
         }
 
         private void AnalyzerWorkerOnRunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
+            CompilerProgressBarValue = CompilerProgressBarMax;
+
             if (e.Result != null)
             {
                 var result = e.Result as AnalyzerResult;
@@ -487,6 +486,10 @@ namespace TypeSqf.Edit
 
                     AnalyzerResult = sb.ToString();
                 }
+
+                _declaredPublicVariables = result.DeclaredPublicVariables;
+                _declaredPrivateVariables = result.DeclaredPrivateVariables;
+                _declaredTypes = result.DeclaredTypes;
             }
 
             if (_startAnalyzerWhenPossible)
@@ -495,7 +498,7 @@ namespace TypeSqf.Edit
             }
             else if (_startCompilerWhenPossible)
             {
-                StartCompiler(_startCompilerWhenPossibleFileName);
+                StartCompiler(false, _startCompilerWhenPossibleFileName);
             }
         }
 
@@ -514,12 +517,12 @@ namespace TypeSqf.Edit
             }
         }
 
-        private void StartCompiler(string currentFilePathName = "")
+        private void StartCompiler(bool fullRebuild, string currentFilePathName = "")
         {
             SaveAllFiles();
             _startCompilerWhenPossible = true;
             _startCompilerWhenPossibleFileName = currentFilePathName;
-            CompilerProgressBarIndeterminate = true;
+            //CompilerProgressBarIndeterminate = true;
 
             if (!_compilerWorker.IsBusy && !_analyzerWorker.IsBusy)
             {
@@ -527,15 +530,19 @@ namespace TypeSqf.Edit
                 _startCompilerWhenPossible = false;
                 _startCompilerWhenPossibleFileName = "";
                 CompilerProgressBarIndeterminate = false;
-                CompilerProgressBarValue = 0;
                 CompilerResultItems.Clear();
-                CompilerResultItems.Add(new AnalyzerResultItem("Build started at " + DateTime.Now.ToString("HH:mm:ss") + "."));
-                _compilerWorker.RunWorkerAsync( new CompilerWorkerArgument { ProjectRootDirectory = ProjectRootDirectory, CurrentFilePathName = currentFilePathName });
+
+                var startReason = currentFilePathName == "" ? AnalyzerStartReason.BuildProject : AnalyzerStartReason.BuildFile;
+                if (fullRebuild)
+                {
+                    startReason = AnalyzerStartReason.RebuildProject;
+                }
+
+                _compilerWorker.RunWorkerAsync( new CompilerWorkerArgs(startReason, ProjectRootDirectory, currentFilePathName));
             }
             else
             {
                 ChangeSelectedResultTab(ResultTabs.Compiler);
-                CompilerProgressBarValue = 0;
                 CompilerResultItems.Clear();
                 CompilerResultItems.Add(new AnalyzerResultItem("Analyzing project files. Compilation will start soon. Please wait..."));
             }
@@ -543,19 +550,13 @@ namespace TypeSqf.Edit
 
         private void CompilerWorkerOnDoWork(object sender, DoWorkEventArgs e)
         {
-            CompilerWorkerArgument argument = e.Argument as CompilerWorkerArgument;
-            PerformCompilation(sender as BackgroundWorker, argument.ProjectRootDirectory, argument.CurrentFilePathName);
-        }
-
-        class CompilerWorkerArgument
-        {
-            public string ProjectRootDirectory { get; set; }
-
-            public string CurrentFilePathName { get; set; }
+            CompilerWorkerArgs args = e.Argument as CompilerWorkerArgs;
+            e.Result = PerformCompilation(sender as BackgroundWorker, args);
         }
 
         private void CompilerWorkerOnRunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
+            int builtFilesCount = (int)e.Result;
             int errorCount = CompilerResultItems.Count(i => i.IsError);
 
             ChangeSelectedResultTab(ResultTabs.Compiler);
@@ -563,7 +564,8 @@ namespace TypeSqf.Edit
 
             if (errorCount == 0)
             {
-                CompilerResultItems.Add(new AnalyzerResultItem("Build completed successfully."));
+                string sFiles = builtFilesCount == 1 ? " file" : " files";
+                CompilerResultItems.Add(new AnalyzerResultItem(builtFilesCount.ToString() + sFiles + " successfully built."));
             }
             else
             {
@@ -576,180 +578,96 @@ namespace TypeSqf.Edit
             }
             else if (_startCompilerWhenPossible)
             {
-                StartCompiler(_startCompilerWhenPossibleFileName);
+                StartCompiler(false, _startCompilerWhenPossibleFileName);
             }
         }
 
-        private void CompilerWorkerProgressChanged(object sender, ProgressChangedEventArgs e)
+        private void AnalyzerWorkerProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             var item = e.UserState as AnalyzerResultItem;
-            int progress = e.ProgressPercentage;
 
-            CompilerProgressBarValue = progress;
+            CompilerProgressBarValue = e.ProgressPercentage;
+
             if (item != null)
             {
                 CompilerResultItems.Add(item);
             }
         }
 
-        public void CompileAsync(string currentFilePathName = "")
+        private void CompilerWorkerProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            StartCompiler(currentFilePathName);
+            var item = e.UserState as AnalyzerResultItem;
+
+            CompilerProgressBarValue = e.ProgressPercentage;
+
+            if (item != null)
+            {
+                CompilerResultItems.Add(item);
+            }
         }
 
-        List<string> _compilerProjectFileNames = null;
-        List<TypeInfo> _compilerDeclaredTypes = null;
-        List<GlobalContextVariable> _compilerDeclaredPublicVariables = null;
-        List<GlobalContextVariable> _compilerDeclaredPrivateVariables = null;
-        List<CodeFile> _compilerFiles = null;
-
-        public void PerformCompilation(BackgroundWorker compilerWorker, string projectRootDirectory, string currentFilePathName = "")
+        public void BuildCurrentFileAsync(string currentFilePathName)
         {
-            if (string.IsNullOrWhiteSpace(projectRootDirectory))
+            StartCompiler(false, currentFilePathName);
+        }
+
+        public void BuildProjectAsync()
+        {
+            StartCompiler(false, "");
+        }
+
+        public void RebuildProjectAsync()
+        {
+            StartCompiler(true, "");
+        }
+
+        public int PerformCompilation(BackgroundWorker compilerWorker, CompilerWorkerArgs args)
+        {
+            int builtFiles = 0;
+
+            if (Analyzer == null)
             {
-                compilerWorker.ReportProgress(0, new AnalyzerResultItem("Project has no valid root directory. Aborting."));
-                return;
+                compilerWorker.ReportProgress(0, new AnalyzerResultItem("Analyzer is not yet ready. Aborting."));
+                return 0;
             }
 
-            // If only the current file is being compiled
-            if (!string.IsNullOrEmpty(currentFilePathName))
+            if (string.IsNullOrWhiteSpace(args.ProjectRootDirectory))
             {
-                if (_compilerProjectFileNames != null)
-                {
-                    // Read the file
-                    string currentCode = File.ReadAllText(currentFilePathName);
+                compilerWorker.ReportProgress(0, new AnalyzerResultItem("Project has no valid root directory. Aborting."));
+                return 0;
+            }
 
-                    // Update the file in the file collection
-                    CodeFile existingCode = _compilerFiles.FirstOrDefault(f => f.FileName == currentFilePathName);
-                    if (existingCode != null)
-                    {
-                        _compilerFiles.Remove(existingCode);
-                    }
-                    _compilerFiles.Add(new CodeFile(currentFilePathName, currentCode));
+            var cancelChecker = new BackgroundWorkerCancelChecker(compilerWorker);
+            var progressReporter = new BackgroundWorkerProgressReporter(compilerWorker);
 
-                    /*
-                    // First, run through all files to collect all types/classes
-                    foreach (CodeFile code in _compilerFiles)
-                    {
-                        if (Path.GetExtension(code.FileName).ToLower() == ".sqx")
-                        {
-                            var analyzer = new CodeAnalyzer(code.Code, new ScriptCommandCache(), code.FileName, true, new List<GlobalContextVariable>(), new List<GlobalContextVariable>(), _compilerDeclaredTypes, ProjectRootDirectory);
-                            analyzer.AnalyzeLogics();
-                        }
-                    }
-
-                    // Then, run through all files again to collect all public variables
-                    foreach (CodeFile file in _compilerFiles)
-                    {
-                        var analyzer = new CodeAnalyzer(file.Code, new ScriptCommandCache(), file.FileName, true, _compilerDeclaredPublicVariables, _compilerDeclaredPrivateVariables, _compilerDeclaredTypes, ProjectRootDirectory);
-                        analyzer.AnalyzeLogics();
-                    }
-                    */
-
-                    try
-                    {
-                        string sqxContent = File.ReadAllText(currentFilePathName);
-                        CodeError[] analyzerCodeErrors;
-                        string sqfContent = SqxCompiler.Compile(sqxContent, currentFilePathName, out analyzerCodeErrors, _compilerDeclaredPublicVariables, _compilerDeclaredTypes, ProjectRootDirectory, Settings.AddMethodCallLogging);
-
-                        foreach (var error in analyzerCodeErrors)
-                        {
-                            if (error.Priority >= 4)
-                            {
-                                //AnalyzerResultItems.Add(new AnalyzerResultItem { AbsoluteFilePathName = file.FileName, RelativeFilePathName = AbsoluteToRelativeFilePathName(file.FileName), LineNo = error.LineNumber, Description = error.Message });
-                                compilerWorker.ReportProgress(50, new AnalyzerResultItem(error.Message, error.LineNumber, currentFilePathName, AbsoluteToRelativeFilePathName(currentFilePathName)));
-                            }
-                        }
-
-                        string outputFileName = currentFilePathName + ".sqf";
-                        var outputStream = File.CreateText(outputFileName);
-                        outputStream.Write(sqfContent);
-                        outputStream.Close();
-                    }
-                    catch (Exception ex)
-                    {
-                        compilerWorker.ReportProgress(50, new AnalyzerResultItem(ex.Message, 0, currentFilePathName, AbsoluteToRelativeFilePathName(currentFilePathName)));
-                    }
-                }
+            // If only the current file is being compiled
+            if (args.StartReason == AnalyzerStartReason.BuildFile)
+            {
+                Analyzer.BuildFile(cancelChecker, progressReporter, args.CurrentFilePathName, Settings.AddMethodCallLogging);
+                builtFiles = 1;
             }
             else // Full compile
             {
-                _compilerProjectFileNames = new List<string>();
-                _compilerDeclaredTypes = new List<TypeInfo>();
-                _compilerDeclaredPublicVariables = new List<GlobalContextVariable>();
-                _compilerDeclaredPrivateVariables = new List<GlobalContextVariable>();
-                _compilerFiles = new List<CodeFile>();
+                var compilerProjectFileNames = new List<string>();
 
                 // Get the files in the project
-                FindProjectFiles(projectRootDirectory, _compilerProjectFileNames);
+                ProjectFileHandler.FindProjectFiles(args.ProjectRootDirectory, compilerProjectFileNames);
 
-                int _progress = 0;
-                CompilerProgressBarMax = (_compilerProjectFileNames.Count(i => i.EndsWith(".sqx", true, null))) * 3;
-
-                // First, run through all files to collect all types/classes
-                compilerWorker.ReportProgress(_progress, new AnalyzerResultItem("Collecting types..."));
-
-                foreach (string filePathName in _compilerProjectFileNames)
-                {
-                    if (FileInProject(filePathName) && Path.GetExtension(filePathName).ToLower() == ".sqx")
-                    {
-                        string code = File.ReadAllText(filePathName);
-                        _compilerFiles.Add(new CodeFile(filePathName, code));
-
-                        var analyzer = new CodeAnalyzer(code, new ScriptCommandCache(), filePathName, true, new List<GlobalContextVariable>(), new List<GlobalContextVariable>(), _compilerDeclaredTypes, ProjectRootDirectory);
-                        analyzer.AnalyzeLogics();
-
-                        _progress++;
-                        compilerWorker.ReportProgress(_progress);
-                    }
-                }
-
-                // Then, run through all files again to collect all public variables
-                compilerWorker.ReportProgress(_progress, new AnalyzerResultItem("Fetching variables..."));
-
-                foreach (CodeFile file in _compilerFiles)
-                {
-                    var analyzer = new CodeAnalyzer(file.Code, new ScriptCommandCache(), file.FileName, true, _compilerDeclaredPublicVariables, _compilerDeclaredPrivateVariables, _compilerDeclaredTypes, ProjectRootDirectory);
-                    analyzer.AnalyzeLogics();
-
-                    _progress++;
-                    compilerWorker.ReportProgress(_progress);
-                }
-
+                var compilerFiles = compilerProjectFileNames.Where(i => i.EndsWith(".sqx", true, null));
+                //CompilerProgressBarMax = compilerFiles.Count();
 
                 // Perform the compile of all files
-                compilerWorker.ReportProgress(CompilerProgressBarValue, new AnalyzerResultItem("Building..."));
-
-                foreach (CodeFile file in _compilerFiles)
+                if (args.StartReason == AnalyzerStartReason.RebuildProject)
                 {
-                    try
-                    {
-                        string sqxContent = File.ReadAllText(file.FileName);
-                        CodeError[] analyzerCodeErrors;
-                        string sqfContent = SqxCompiler.Compile(sqxContent, file.FileName, out analyzerCodeErrors, _compilerDeclaredPublicVariables, _compilerDeclaredTypes, ProjectRootDirectory, Settings.AddMethodCallLogging);
-
-                        foreach (var error in analyzerCodeErrors)
-                        {
-                            if (error.Priority >= 4)
-                            {
-                                compilerWorker.ReportProgress(CompilerProgressBarValue, new AnalyzerResultItem(error.Message, error.LineNumber, file.FileName, AbsoluteToRelativeFilePathName(file.FileName)));
-                            }
-                        }
-
-                        string outputFileName = file.FileName + ".sqf";
-                        var outputStream = File.CreateText(outputFileName);
-                        outputStream.Write(sqfContent);
-                        outputStream.Close();
-
-                        _progress++;
-                        compilerWorker.ReportProgress(_progress);
-                    }
-                    catch (Exception ex)
-                    {
-                        compilerWorker.ReportProgress(CompilerProgressBarValue, new AnalyzerResultItem(ex.Message, 0, file.FileName, AbsoluteToRelativeFilePathName(file.FileName)));
-                    }
+                    builtFiles = Analyzer.RebuildProject(cancelChecker, progressReporter, Settings.AddMethodCallLogging);
+                }
+                else
+                {
+                    builtFiles = Analyzer.BuildProject(cancelChecker, progressReporter, Settings.AddMethodCallLogging);
                 }
             }
+
+            return builtFiles;
         }
 
         private ObservableCollection<AnalyzerResultItem> _analyzerResultItems = new ObservableCollection<AnalyzerResultItem>();
@@ -1098,14 +1016,25 @@ namespace TypeSqf.Edit
 
                     InitFileWatcher(rootPath);
 
-                    _declaredPublicVariables = null;
-                    _declaredPrivateVariables = null;
-                    _declaredTypes = null;
+                    _declaredPublicVariables = new List<GlobalContextVariable>();
+                    _declaredPrivateVariables = new List<GlobalContextVariable>();
+                    _declaredTypes = new List<TypeInfo>();
 
                     // Close all open files
                     CloseAllTabs();
 
                     OnProjectChanged();
+
+                    ProjectIsPrepared = false;
+
+                    if (_analyzerWorker.IsBusy)
+                    {
+                        _analyzerWorker.CancelAsync();
+                    }
+
+                    Project.ProjectRootNode.IsExpanded = true;
+
+                    StartAnalyzer();
                 }
             }
             catch (Exception)
@@ -1193,9 +1122,9 @@ namespace TypeSqf.Edit
                 FileWatcher = null;
             }
 
-            _declaredPublicVariables = null;
-            _declaredPrivateVariables = null;
-            _declaredTypes = null;
+            _declaredPublicVariables = new List<GlobalContextVariable>();
+            _declaredPrivateVariables = new List<GlobalContextVariable>();
+            _declaredTypes = new List<TypeInfo>();
 
             string rootPath = Path.GetDirectoryName(fileName);
             string missionName = Path.GetFileNameWithoutExtension(Path.GetDirectoryName(fileName));
@@ -1212,6 +1141,9 @@ namespace TypeSqf.Edit
             InitFileWatcher(rootPath);
 
             OnProjectChanged();
+
+            ProjectIsPrepared = false;
+            StartAnalyzer();
         }
 
         private void FileWatcherOnChanged(object sender, FileSystemEventArgs e)
@@ -1227,7 +1159,7 @@ namespace TypeSqf.Edit
 
 			if (e.FullPath.EndsWith("mission.sqm"))
 			{
-				_missionCfgPublicVariables = null;
+                MissionFileHasChanged = true;
 			}
         }
 
@@ -1338,7 +1270,11 @@ namespace TypeSqf.Edit
                     {
                         OnTabGettingFocus();
                     }
-                    StartAnalyzer();
+
+                    if (_activeTabIndex >= 0)
+                    {
+                        StartAnalyzer();
+                    }
                 }
             }
         }
@@ -1668,6 +1604,11 @@ namespace TypeSqf.Edit
 
                 SaveProjectFile();
 
+                //if (filePathName.ToLower().EndsWith(".sqf") || filePathName.ToLower().EndsWith(".sqx"))
+                //{
+                //    FilesToAddToAnalyzer.Add(filePathName);
+                //}
+
                 StartAnalyzer(filePathName);
                 StartAnalyzer();
             }
@@ -1738,21 +1679,7 @@ namespace TypeSqf.Edit
 
         private void ClearDeclaredVariableAndClasses(string fileName)
         {
-            if (DeclaredPublicVariables != null)
-            {
-                foreach (var variable in DeclaredPublicVariables.Where(v => v.FileName.ToLower() == fileName.ToLower()).ToList())
-                {
-                    DeclaredPublicVariables.Remove(variable);
-                }
-            }
-
-            if (DeclaredTypes != null)
-            {
-                foreach (var classInfo in DeclaredTypes.Where(v => v.FileName.ToLower() == fileName.ToLower()).ToList())
-                {
-                    DeclaredTypes.Remove(classInfo);
-                }
-            }
+            FilesToRemoveFromAnalyzer.Add(fileName);
         }
 
         private void RemoveActiveProjectNode()
@@ -1794,8 +1721,9 @@ namespace TypeSqf.Edit
         private DelegateCommand _installCPackCommand;
         private DelegateCommand _getNewVersionCommand;
         private DelegateCommand _findInAllfilesCommand;
-        private DelegateCommand _compileCommand;
-        private DelegateCommand _compileCurrentFileCommand;
+        private DelegateCommand _buildCurrentFileCommand;
+        private DelegateCommand _buildProjectCommand;
+        private DelegateCommand _rebuildProjectCommand;
         private DelegateCommand _deploy1Command;
         private DelegateCommand _deploy2Command;
         private DelegateCommand _cleanCommand;
@@ -2310,32 +2238,6 @@ namespace TypeSqf.Edit
             System.Diagnostics.Process.Start(CurrentApplication.TypeSqfDomain);
         }
 
-        public void FindProjectFiles(string sourceDir, List<string> allFiles)
-        {
-            string[] fileEntries = Directory.GetFiles(sourceDir);
-            foreach (string fileName in fileEntries)
-            {
-                allFiles.Add(fileName);
-            }
-
-            //Recursion    
-            string[] subdirectoryEntries = Directory.GetDirectories(sourceDir);
-            foreach (string item in subdirectoryEntries)
-            {
-                // Avoid "reparse points"
-                FileAttributes attributes = File.GetAttributes(item);
-                //bool isReparsePoint = attributes.HasFlag(FileAttributes.ReparsePoint);
-                bool isHidden = attributes.HasFlag(FileAttributes.Hidden);
-                bool isSystem = attributes.HasFlag(FileAttributes.System);
-
-                if (!isHidden && !isSystem)
-                //if ((File.GetAttributes(item) & FileAttributes.ReparsePoint) != FileAttributes.ReparsePoint)
-                {
-                    FindProjectFiles(item, allFiles);
-                }
-            }
-        }
-
         private string _syntaxHighlighing;
         public string SyntaxHighlighting
         {
@@ -2379,7 +2281,7 @@ namespace TypeSqf.Edit
             }
 
             List<string> allFiles = new List<string>();
-            FindProjectFiles(ProjectRootDirectory, allFiles);
+            ProjectFileHandler.FindProjectFiles(ProjectRootDirectory, allFiles);
 
             // First, run through all files to collect classes and global functions/variables
             _runOnTabLosingFocus = false;
@@ -2419,24 +2321,37 @@ namespace TypeSqf.Edit
             SaveProjectFile();
         }
 
-        private void DoCompile(object context)
+        private void DoBuildCurrentFile(object context)
         {
-            CompileAsync();
+            if (ActiveTab != null)
+            {
+                BuildCurrentFileAsync(ActiveTab.AbsoluteFilePathName);
+            }
         }
 
-        private void DoCompileCurrentFile(object context)
+        private void DoBuildProject(object context)
         {
-            CompileAsync(ActiveTab.AbsoluteFilePathName);
+            BuildProjectAsync();
         }
 
-        public DelegateCommand CompileCommand
+        private void DoRebuildProject(object context)
         {
-            get { return (_compileCommand = _compileCommand ?? new DelegateCommand(x => true, DoCompile)); }
+            RebuildProjectAsync();
         }
 
-        public DelegateCommand CompileCurrentFileCommand
+        public DelegateCommand BuildCurrentFileCommand
         {
-            get { return (_compileCurrentFileCommand = _compileCurrentFileCommand ?? new DelegateCommand(x => true, DoCompileCurrentFile)); }
+            get { return (_buildCurrentFileCommand = _buildCurrentFileCommand ?? new DelegateCommand(x => true, DoBuildCurrentFile)); }
+        }
+
+        public DelegateCommand BuildProjectCommand
+        {
+            get { return (_buildProjectCommand = _buildProjectCommand ?? new DelegateCommand(x => true, DoBuildProject)); }
+        }
+
+        public DelegateCommand RebuildProjectCommand
+        {
+            get { return (_rebuildProjectCommand = _rebuildProjectCommand ?? new DelegateCommand(x => true, DoRebuildProject)); }
         }
 
         private void DoClean(object context)
@@ -2711,50 +2626,5 @@ namespace TypeSqf.Edit
                 return null;
             }
         }
-
-		public void RefreshPublicVariablesFromMissionCfg()
-		{
-			_missionCfgPublicVariables = new List<GlobalContextVariable>();
-
-			try
-			{
-				string fileContent = File.ReadAllText(Path.Combine(ProjectRootDirectory, "mission.sqm"));
-
-				int missionClassIndex = fileContent.IndexOf("class Mission\r\n{");
-
-				if (missionClassIndex >= 0)
-				{
-					string missionContent = fileContent.Substring(missionClassIndex);
-
-					var matches = Regex.Matches(missionContent, @"name=""[a-zA-Z0-9_]+""");
-
-					foreach (Match match in matches)
-					{
-						_missionCfgPublicVariables.Add(new GlobalContextVariable(match.Value.Substring(6, match.Value.Length - 7), SqfDataType.Any, SqfDataType.Any.ToString(), false, "mission.sqm", -1));
-					}
-				}
-			}
-			catch
-			{
-			}
-		}
-
-		public void GetMissionCfgPublicVariables(List<GlobalContextVariable> declaredPublicVariables)
-		{
-			if (_missionCfgPublicVariables == null)
-			{
-				RefreshPublicVariablesFromMissionCfg();
-			}
-
-			foreach (var variable in declaredPublicVariables.Where(v => v.FileName.ToLower() == "mission.sqm").ToList())
-			{
-				declaredPublicVariables.Remove(variable);
-			}
-
-			foreach (GlobalContextVariable variable in _missionCfgPublicVariables)
-			{
-				declaredPublicVariables.Add(variable);
-			}
-		}
 	}
 }
