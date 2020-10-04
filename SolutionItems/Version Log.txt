@@ -5,7 +5,7 @@ Future
 
 Version X
 Improved the syntax highlighting.
--Fixed: Editor crasched when there were files but no project file loaded at start.
+-Fixed: Editor crasching when analyzing files that do not belong to current project.
 -Fixed: Intellisense sometimes contained multiple identical private variables.
 
 Version 1.04

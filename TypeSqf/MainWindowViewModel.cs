@@ -343,7 +343,7 @@ namespace TypeSqf.Edit
 
                 if (prepareProject)
                 {
-                    var args2 = new AnalyzerWorkerArgs(AnalyzerStartReason.PrepareProject, ProjectRootDirectory, null, Project.FilteredAnalyzerResultItems.ToList(), CloneList(FilesToRemoveFromAnalyzer), MissionFileHasChanged, true);
+                    var args2 = new AnalyzerWorkerArgs(AnalyzerStartReason.PrepareProject, ProjectRootDirectory, null, Project.FilteredAnalyzerResultItems.ToList(), CloneList(FilesToRemoveFromAnalyzer), MissionFileHasChanged);
 
                     // Reset files to add and remove.
                     FilesToRemoveFromAnalyzer = new List<string>();
@@ -359,11 +359,6 @@ namespace TypeSqf.Edit
                     {
                         fileName = ActiveTabIndex >= 0 ? Tabs[ActiveTabIndex].AbsoluteFilePathName.ToLower() : "";
                     }
-
-                    bool fileBelongsToProject = !string.IsNullOrEmpty(ProjectRootDirectory)
-                        && !string.IsNullOrEmpty(fileName)
-                        && !fileName.ToLower().EndsWith(".sqx.sqf")
-                        && fileName.ToLower().StartsWith(ProjectRootDirectory.ToLower());
 
                     _startAnalyzerWhenPossible = prepareProject;
 
@@ -395,12 +390,7 @@ namespace TypeSqf.Edit
 
                     var filteredAnalyzerResultItemsToUse = filteredAnalyzerResultItems;
 
-                    if (!fileBelongsToProject)
-                    {
-                        filteredAnalyzerResultItemsToUse = new List<string>();
-                    }
-
-                    var args = new AnalyzerWorkerArgs(AnalyzerStartReason.AnalyzeFile, ProjectRootDirectory, codeFile, filteredAnalyzerResultItemsToUse, CloneList(FilesToRemoveFromAnalyzer), MissionFileHasChanged, fileBelongsToProject);
+                    var args = new AnalyzerWorkerArgs(AnalyzerStartReason.AnalyzeFile, ProjectRootDirectory, codeFile, filteredAnalyzerResultItemsToUse, CloneList(FilesToRemoveFromAnalyzer), MissionFileHasChanged);
 
                     // Reset files to add and remove.
                     FilesToRemoveFromAnalyzer = new List<string>();
@@ -434,34 +424,36 @@ namespace TypeSqf.Edit
             var args = e.Argument as AnalyzerWorkerArgs;
             e.Result = null;
 
-            if (!string.IsNullOrEmpty(args.ProjectRootDirectory))
+            if (Analyzer == null)
             {
-                if (Analyzer == null)
-                {
-                    Analyzer = new ProjectAnalyzer(args.ProjectRootDirectory);
-                }
+                Analyzer = new ProjectAnalyzer(args.ProjectRootDirectory);
+            }
 
-                foreach (var file in args.FilesToRemove)
-                {
-                    Analyzer.RemoveFileContentFromAnalyzer(file);
-                }
+            foreach (var file in args.FilesToRemove)
+            {
+                Analyzer.RemoveFileContentFromAnalyzer(file);
+            }
 
-                if (args.MissionFileNeedsUpdate)
-                {
-                    Analyzer.MissionFileHasChanged = true;
-                }
+            if (args.MissionFileNeedsUpdate)
+            {
+                Analyzer.MissionFileHasChanged = true;
+            }
 
-                if (args.StartReason == AnalyzerStartReason.PrepareProject)
-                {
-                    var cancelChecker = new BackgroundWorkerCancelChecker(backgroundWorker);
-                    var progressReporter = new BackgroundWorkerProgressReporter(backgroundWorker);
+            if (args.StartReason == AnalyzerStartReason.PrepareProject)
+            {
+                Analyzer = new ProjectAnalyzer(args.ProjectRootDirectory);
+            }
 
-                    Analyzer.ResetAndPrepareVariablesAndTypes(cancelChecker, progressReporter);
-                }
-                else
-                {
-                    e.Result = Analyzer.AnalyzeFile(args.CodeFile, args.FileIsInProject);
-                }
+            if (args.StartReason == AnalyzerStartReason.PrepareProject)
+            {
+                var cancelChecker = new BackgroundWorkerCancelChecker(backgroundWorker);
+                var progressReporter = new BackgroundWorkerProgressReporter(backgroundWorker);
+
+                Analyzer.ResetAndPrepareVariablesAndTypes(cancelChecker, progressReporter);
+            }
+            else
+            {
+                e.Result = Analyzer.AnalyzeFile(args.CodeFile);
             }
         }
 
@@ -487,9 +479,12 @@ namespace TypeSqf.Edit
                     AnalyzerResult = sb.ToString();
                 }
 
-                _declaredPublicVariables = result.DeclaredPublicVariables;
-                _declaredPrivateVariables = result.DeclaredPrivateVariables;
-                _declaredTypes = result.DeclaredTypes;
+                if (result.FileIsInProject)
+                {
+                    _declaredPublicVariables = result.DeclaredPublicVariables;
+                    _declaredPrivateVariables = result.DeclaredPrivateVariables;
+                    _declaredTypes = result.DeclaredTypes;
+                }
             }
 
             if (_startAnalyzerWhenPossible)

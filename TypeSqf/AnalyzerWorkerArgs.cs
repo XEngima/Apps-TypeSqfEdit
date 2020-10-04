@@ -14,7 +14,7 @@ namespace TypeSqf.Edit
 
 	public class AnalyzerWorkerArgs
     {
-        public AnalyzerWorkerArgs(AnalyzerStartReason startReason, string projectRootDirectory, CodeFile codeFile, List<string> filteredOutAnalyzerResults, List<string> filesToRemove, bool missionFileNeedsUpdate, bool fileIsInProject)
+        public AnalyzerWorkerArgs(AnalyzerStartReason startReason, string projectRootDirectory, CodeFile codeFile, List<string> filteredOutAnalyzerResults, List<string> filesToRemove, bool missionFileNeedsUpdate)
         {
             StartReason = startReason;
             ProjectRootDirectory = projectRootDirectory;
@@ -22,7 +22,6 @@ namespace TypeSqf.Edit
             FilteredOutAnalyzerResults = filteredOutAnalyzerResults;
             FilesToRemove = filesToRemove;
             MissionFileNeedsUpdate = missionFileNeedsUpdate;
-            FileIsInProject = fileIsInProject;
         }
 
         public AnalyzerStartReason StartReason { get; private set; }
@@ -36,7 +35,5 @@ namespace TypeSqf.Edit
         public List<string> FilesToRemove { get; private set; }
 
         public bool MissionFileNeedsUpdate { get; private set; }
-
-        public bool FileIsInProject { get; private set; }
     }
 }
