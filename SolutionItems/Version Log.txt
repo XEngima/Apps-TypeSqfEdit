@@ -3,7 +3,7 @@ Future
 -Added function "goto definition" for types, methods and variables.
 -SQX: Script command "spawn" can now be used without arguments.
 
-Version X
+Version 1.05
 Improved the syntax highlighting.
 -Fixed: Editor crasching when analyzing files that do not belong to current project.
 -Fixed: Intellisense sometimes contained multiple identical private variables.
