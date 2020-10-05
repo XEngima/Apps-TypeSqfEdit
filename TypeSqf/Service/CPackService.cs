@@ -202,30 +202,33 @@ namespace TypeSqf.Edit.Service
 
         private static void DeleteFolderIfEmpty(string folderPathName, string projectRootDirectory)
         {
-            folderPathName = folderPathName.Replace("/", "\\");
-
-            string relativeFolderPathName = folderPathName.Substring(projectRootDirectory.Length + 1);
-
-            string[] folders = relativeFolderPathName.Split("\\".ToCharArray());
-
-            for (int noOfFolders = folders.Length; noOfFolders > 0; noOfFolders--)
+            if (folderPathName.ToLower() != projectRootDirectory.ToLower())
             {
-                var sbFolderName = new StringBuilder();
-                sbFolderName.Append(projectRootDirectory);
+                folderPathName = folderPathName.Replace("/", "\\");
 
-                for (int i = 0; i < noOfFolders; i++)
-                {
-                    sbFolderName.Append("\\");
-                    sbFolderName.Append(folders[i]);
-                }
+                string relativeFolderPathName = folderPathName.Substring(projectRootDirectory.Length + 1);
 
-                if (Directory.Exists(sbFolderName.ToString()) && !Directory.EnumerateFileSystemEntries(sbFolderName.ToString()).Any())
+                string[] folders = relativeFolderPathName.Split("\\".ToCharArray());
+
+                for (int noOfFolders = folders.Length; noOfFolders > 0; noOfFolders--)
                 {
-                    Directory.Delete(sbFolderName.ToString());
-                }
-                else
-                {
-                    return;
+                    var sbFolderName = new StringBuilder();
+                    sbFolderName.Append(projectRootDirectory);
+
+                    for (int i = 0; i < noOfFolders; i++)
+                    {
+                        sbFolderName.Append("\\");
+                        sbFolderName.Append(folders[i]);
+                    }
+
+                    if (Directory.Exists(sbFolderName.ToString()) && !Directory.EnumerateFileSystemEntries(sbFolderName.ToString()).Any())
+                    {
+                        Directory.Delete(sbFolderName.ToString());
+                    }
+                    else
+                    {
+                        return;
+                    }
                 }
             }
         }
