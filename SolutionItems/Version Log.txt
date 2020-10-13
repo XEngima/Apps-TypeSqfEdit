@@ -3,6 +3,10 @@ Future
 -Added function "goto definition" for types, methods and variables.
 -SQX: Script command "spawn" can now be used without arguments.
 
+Version X
+-Fixed: General stability fixes to CPack manager.
+-Fixed: Project fils is not saved when project is opened.
+
 Version 1.05
 Improved the syntax highlighting.
 -Fixed: Editor crasching when analyzing files that do not belong to current project.

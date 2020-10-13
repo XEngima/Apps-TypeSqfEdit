@@ -1018,6 +1018,8 @@ namespace TypeSqf.Edit
                     // Close all open files
                     CloseAllTabs();
 
+                    SaveProjectFile();
+
                     OnProjectChanged();
 
                     ProjectIsPrepared = false;
