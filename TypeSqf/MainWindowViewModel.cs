@@ -638,8 +638,11 @@ namespace TypeSqf.Edit
             // If only the current file is being compiled
             if (args.StartReason == AnalyzerStartReason.BuildFile)
             {
-                Analyzer.BuildFile(cancelChecker, progressReporter, args.CurrentFilePathName, Settings.AddMethodCallLogging);
-                builtFiles = 1;
+                if (args.CurrentFilePathName.ToLower().EndsWith(".sqx"))
+                {
+                    Analyzer.BuildFile(cancelChecker, progressReporter, args.CurrentFilePathName, Settings.AddMethodCallLogging);
+                    builtFiles = 1;
+                }
             }
             else // Full compile
             {
@@ -958,6 +961,7 @@ namespace TypeSqf.Edit
                 ActiveTabIndex = Tabs.IndexOf(tab);
 
                 SaveFileCommand.RaiseCanExecuteChanged();
+                BuildCurrentFileCommand.RaiseCanExecuteChanged();
             }
 
             OnFileOpened();
@@ -1263,6 +1267,7 @@ namespace TypeSqf.Edit
 
                     AnalyzerResult = "";
                     SaveFileCommand.RaiseCanExecuteChanged();
+                    BuildCurrentFileCommand.RaiseCanExecuteChanged();
                     if (_activeTabIndex >= 0)
                     {
                         OnTabGettingFocus();
@@ -1310,6 +1315,7 @@ namespace TypeSqf.Edit
             {
                 _analyzerChangeNo++;
                 SaveFileCommand.RaiseCanExecuteChanged();
+                BuildCurrentFileCommand.RaiseCanExecuteChanged();
 
                 if (tab == Tabs[ActiveTabIndex])
                 {
@@ -1824,6 +1830,7 @@ namespace TypeSqf.Edit
             Tabs.Add(newTab);
             ActiveTabIndex = Tabs.IndexOf(newTab);
             SaveFileCommand.RaiseCanExecuteChanged();
+            BuildCurrentFileCommand.RaiseCanExecuteChanged();
             newTab.Name = fileName;
             newTab.Header = fileName;
             newTab.Text = content;
@@ -1902,6 +1909,16 @@ namespace TypeSqf.Edit
             if (ActiveTabIndex >= 0)
             {
                 return Tabs[ActiveTabIndex].IsDirty;
+            }
+
+            return false;
+        }
+
+        public bool CanCompile(object context)
+        {
+            if (ActiveTabIndex >= 0)
+            {
+                return Tabs[ActiveTabIndex].AbsoluteFilePathName.ToLower().EndsWith(".sqx");
             }
 
             return false;
@@ -2338,7 +2355,7 @@ namespace TypeSqf.Edit
 
         public DelegateCommand BuildCurrentFileCommand
         {
-            get { return (_buildCurrentFileCommand = _buildCurrentFileCommand ?? new DelegateCommand(x => true, DoBuildCurrentFile)); }
+            get { return (_buildCurrentFileCommand = _buildCurrentFileCommand ?? new DelegateCommand(CanCompile, DoBuildCurrentFile)); }
         }
 
         public DelegateCommand BuildProjectCommand

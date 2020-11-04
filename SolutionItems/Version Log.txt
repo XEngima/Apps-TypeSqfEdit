@@ -3,6 +3,9 @@ Future
 -Added function "goto definition" for types, methods and variables.
 -SQX: Script command "spawn" can now be used without arguments.
 
+Version X
+-Fixed: It is no longer possible to build a file that is not an SQX file.
+
 Version 1.06
 -Added support for all script commands up until Arma 3 version 2.00 (ScriptCommands.xml).
 -Fixed: General stability issues in CPack manager.
