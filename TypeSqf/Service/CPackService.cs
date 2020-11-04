@@ -574,6 +574,7 @@ namespace TypeSqf.Edit.Service
                     foreach (ZipArchiveEntry entry in zip.Entries)
                     {
                         Directory.CreateDirectory(Path.GetDirectoryName(Path.Combine(projectRootDirectory, entry.FullName)));
+
                         if (!entry.FullName.EndsWith("/"))
                         {
                             string filePath = Path.Combine(projectRootDirectory, entry.FullName);

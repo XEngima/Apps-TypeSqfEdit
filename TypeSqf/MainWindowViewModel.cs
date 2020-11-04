@@ -2586,31 +2586,37 @@ namespace TypeSqf.Edit
 
             if (cpack != null)
             {
-				// Börja med att lägga till alla dependencies
-				foreach (var dependency in cpack.Dependencies)
-				{
-					var dependencyPack = settings.CPacks.FirstOrDefault(p => p.Name.ToLower() == dependency.Name.ToLower());
-
-					if (dependencyPack != null)
-					{
-						foreach (CPackFile file in dependencyPack.Files)
-						{
-							if (file.Name.ToLower().EndsWith(".sqx") || file.Name.ToLower().EndsWith(".sqf") && !file.Name.ToLower().EndsWith(".sqx.sqf"))
-							{
-								// Lägg till filen i projektet om det inte redan finns i projektet.
-								if (Project.ProjectRootNode.GetNodeByRelativeFileName(file.Name) == null)
-								{
-									string absoluteFilePathName = Path.Combine(ProjectRootDirectory, file.Name);
-									AddExistingFileNode(absoluteFilePathName);
-								}
-							}
-						}
-					}
-				}
-
-				foreach (CPackFile file in cpack.Files)
+                // Börja med att lägga till alla dependencies
+                foreach (var dependency in cpack.Dependencies)
                 {
-                    if (file.Name.ToLower().EndsWith(".sqx") || file.Name.ToLower().EndsWith(".sqf") && !file.Name.ToLower().EndsWith(".sqx.sqf"))
+                    var dependencyPack = settings.CPacks.FirstOrDefault(p => p.Name.ToLower() == dependency.Name.ToLower());
+
+                    if (dependencyPack != null)
+                    {
+                        foreach (CPackFile file in dependencyPack.Files)
+                        {
+                            string fileName = file.Name.ToLower();
+
+                            if (fileName.EndsWith(".sqx") || (fileName.EndsWith(".sqf") && !fileName.EndsWith(".sqx.sqf")) || fileName.EndsWith(".ext") || fileName.EndsWith(".txt") || fileName == "mission.sqm")
+                            {
+                                // Lägg till filen i projektet om det inte redan finns i projektet.
+                                if (Project.ProjectRootNode.GetNodeByRelativeFileName(file.Name) == null)
+                                {
+                                    string absoluteFilePathName = Path.Combine(ProjectRootDirectory, file.Name);
+                                    AddExistingFileNode(absoluteFilePathName);
+                                }
+                            }
+                        }
+
+                        AddInitFileNodes(cpack);
+                    }
+                }
+
+                foreach (CPackFile file in cpack.Files)
+                {
+                    string fileName = file.Name.ToLower();
+
+                    if (fileName.EndsWith(".sqx") || (fileName.EndsWith(".sqf") && !fileName.EndsWith(".sqx.sqf")) || fileName.EndsWith(".ext") || fileName.EndsWith(".txt") || fileName == "mission.sqm")
                     {
                         // Lägg till filen i projektet om det inte redan finns i projektet.
                         if (Project.ProjectRootNode.GetNodeByRelativeFileName(file.Name) == null)
@@ -2619,6 +2625,43 @@ namespace TypeSqf.Edit
                             AddExistingFileNode(absoluteFilePathName);
                         }
                     }
+                }
+
+                AddInitFileNodes(cpack);
+            }
+        }
+
+        private void AddInitFileNodes(CPack cpack)
+        {
+            var initFiles = new List<string>();
+
+            if (!string.IsNullOrWhiteSpace(cpack.InitLine))
+            {
+                initFiles.Add("init.sqf");
+            }
+
+            if (!string.IsNullOrWhiteSpace(cpack.InitPlayerLocalLine))
+            {
+                initFiles.Add("initplayerlocal.sqf");
+            }
+
+            if (!string.IsNullOrWhiteSpace(cpack.InitPlayerServerLine))
+            {
+                initFiles.Add("initplayerserver.sqf");
+            }
+
+            if (!string.IsNullOrWhiteSpace(cpack.InitServerLine))
+            {
+                initFiles.Add("initserver.sqf");
+            }
+
+            foreach (string initFileName in initFiles)
+            {
+                // Lägg till filen i projektet om det inte redan finns i projektet.
+                if (Project.ProjectRootNode.GetNodeByRelativeFileName(initFileName) == null)
+                {
+                    string absoluteFilePathName = Path.Combine(ProjectRootDirectory, initFileName);
+                    AddExistingFileNode(absoluteFilePathName);
                 }
             }
         }
