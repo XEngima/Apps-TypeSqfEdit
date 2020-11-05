@@ -1931,29 +1931,29 @@ namespace TypeSqf.Edit
 
         public void SaveAllFiles()
         {
-            bool projectFileSaved = SaveProjectFile();
+            SaveProjectFile();
 
             if (FileWatcher != null)
             {
                 FileWatcher.EnableRaisingEvents = false;
             }
 
-            //if (projectFileSaved)
-            //{
-                for (int i = 0; i < Tabs.Count; i++)
+            for (int i = 0; i < Tabs.Count; i++)
+            {
+                TabViewModel tab = Tabs[i];
+
+                if (string.IsNullOrWhiteSpace(tab.AbsoluteFilePathName))
                 {
-                    TabViewModel tab = Tabs[i];
-
-                    if (string.IsNullOrWhiteSpace(tab.AbsoluteFilePathName))
-                    {
-                        ActiveTabIndex = i;
-                    }
-
-                    Tabs[i].Save(FileService);
+                    ActiveTabIndex = i;
                 }
 
-                SaveFileCommand.RaiseCanExecuteChanged();
-            //}
+                if (Tabs[i].IsDirty)
+                {
+                    Tabs[i].Save(FileService);
+                }
+            }
+
+            SaveFileCommand.RaiseCanExecuteChanged();
 
             if (FileWatcher != null)
             {
