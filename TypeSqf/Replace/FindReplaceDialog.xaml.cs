@@ -295,14 +295,6 @@ namespace TypeSqf.Edit.Replace
                 editor.Select(carretPositionAfter, 0);
                 editor.CaretOffset = carretPositionAfter;
             }
-            /*
-            // currentResult is updated after editor text is changed, thats why we need to check it again.
-            if (currentResult != null)
-            {
-                editor.Select(currentResult.StartOffset, currentResult.Length);
-                TextLocation loc = editor.Document.GetLocation(currentResult.StartOffset);
-                editor.ScrollTo(loc.Line, loc.Column);
-            }*/
             
             if (!FindNext())
             {
@@ -447,7 +439,7 @@ namespace TypeSqf.Edit.Replace
             }
 
             // Update current result.
-            currentResult = null; // searchResultsBackgroundRenderer.CurrentResults.FindFirstSegmentWithStartAfter(editor.CaretOffset);
+            currentResult = null;
 
             editor.TextArea.TextView.InvalidateLayer(ICSharpCode.AvalonEdit.Rendering.KnownLayer.Selection);
 
@@ -481,7 +473,7 @@ namespace TypeSqf.Edit.Replace
 
             if (result != null)
             {
-                if (result.EndOffset <= changeStartOffset)
+                if (result.EndOffset < changeStartOffset)
                 {
                     // Text changed after current selection. No changes required.
                     return;
