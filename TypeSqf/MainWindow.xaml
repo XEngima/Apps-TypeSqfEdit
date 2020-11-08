@@ -253,6 +253,8 @@
                                     <MenuItem Header="Add Existing File" Command="{Binding Source={StaticResource TreeViewProxy}, Path=Data.AddExistingFileNodeCommand}"/>
                                     <MenuItem Header="Add New Folder" Command="{Binding Source={StaticResource TreeViewProxy}, Path=Data.AddNewFolderNodeCommand}"/>
                                     <Separator />
+                                    <MenuItem Header="Rename" Command="{Binding Source={StaticResource TreeViewProxy}, Path=Data.RenameFileNodeCommand}"/>
+                                    <Separator />
                                     <MenuItem Header="Collapse Sub Nodes" Command="{Binding Source={StaticResource TreeViewProxy}, Path=Data.CollapseAllSubNodesCommand}"/>
                                     <MenuItem Header="Expand Sub Nodes" Command="{Binding Source={StaticResource TreeViewProxy}, Path=Data.ExpandAllSubNodesCommand}"/>
                                     <Separator />

@@ -117,6 +117,7 @@ namespace TypeSqf.Edit
             MyContext.FileNameService = new AskForFileNameService();
             MyContext.FolderNameService = new AskForFolderNameService();
             MyContext.ProjectNameService = new AskForProjectNameService();
+            MyContext.TextService = new AskForTextService();
 
             MyContext.ProjectChanged += MyContext_ProjectChanged;
 

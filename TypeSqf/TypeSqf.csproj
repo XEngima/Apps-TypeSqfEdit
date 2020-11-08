@@ -135,6 +135,10 @@
     <Compile Include="HotKey.cs" />
     <Compile Include="HotKeyF12.cs" />
     <Compile Include="HotKeyHandler.cs" />
+    <Compile Include="InputTextWindowViewModel.cs" />
+    <Compile Include="InputTextWindow.xaml.cs">
+      <DependentUpon>InputTextWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="PropertyInfo.cs" />
     <Compile Include="Replace\FindReplaceDialog.xaml.cs" />
     <Compile Include="Replace\RegexCodeSheet.xaml.cs">
@@ -165,9 +169,11 @@
     <Compile Include="ProjectViewModel.cs" />
     <Compile Include="Services\AnalyzerService.cs" />
     <Compile Include="Services\AskForFileNameService .cs" />
+    <Compile Include="Services\AskForTextService.cs" />
     <Compile Include="Services\AskForProjectNameService.cs" />
     <Compile Include="Services\AskForFolderNameService.cs" />
     <Compile Include="Services\IAnalyzerService.cs" />
+    <Compile Include="Services\IAskForTextService.cs" />
     <Compile Include="Services\IAskForFileNameService.cs" />
     <Compile Include="Services\IAskForProjectNameService.cs" />
     <Compile Include="Services\IUserMessageService.cs" />
@@ -195,6 +201,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="InputFileNameWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="InputTextWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

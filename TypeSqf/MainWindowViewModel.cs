@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SwiftPbo;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -6,21 +7,19 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Threading;
 using System.Xml.Serialization;
-using TypeSqf.Edit.Highlighting;
-using TypeSqf.Model;
-using TypeSqf.Edit.Services;
-using TypeSqf.WebService;
-using SwiftPbo;
-using TypeSqf.Analyzer.Commands;
 using TypeSqf.Analyzer;
-using System.Windows.Controls;
+using TypeSqf.Analyzer.Commands;
+using TypeSqf.Edit.Highlighting;
+using TypeSqf.Edit.Services;
+using TypeSqf.Model;
+using TypeSqf.WebService;
 
 namespace TypeSqf.Edit
 {
@@ -871,6 +870,8 @@ namespace TypeSqf.Edit
             set;
         }
 
+        public IAskForTextService TextService { get; set; }
+
         public ProjectNodeViewModel SelectedProjectNode
         {
             get { return Project.ProjectRootNode.GetSelectedNode(); }
@@ -1425,12 +1426,6 @@ namespace TypeSqf.Edit
                 fileName = fileName + "." + extension;
             }
 
-            //string lowerFileName = fileName.ToLower();
-            //if (!lowerFileName.EndsWith(".sqf") && !lowerFileName.EndsWith(".sqx") && !lowerFileName.EndsWith(".ext") && !lowerFileName.EndsWith(".cpp"))
-            //{
-            //    fileName = fileName + extension;
-            //}
-
             string displayName = Path.GetFileNameWithoutExtension(fileName);
             string relativeFilePathName = Path.Combine(relativePath, fileName);
             string absoluteFilePathName = Path.Combine(ProjectRootDirectory, relativeFilePathName);
@@ -1459,7 +1454,6 @@ namespace TypeSqf.Edit
             ProjectFileNodeViewModel fileNode = new ProjectFileNodeViewModel()
             {
                 RelativeFileName = relativeFilePathName,
-                //AbsoluteFileName = absoluteFilePathName,
                 DisplayName = displayName,
                 IsSelected = true
             };
@@ -1467,6 +1461,89 @@ namespace TypeSqf.Edit
             SelectedProjectNode.InsertChildNode(fileNode);
             OpenFileInTab(absoluteFilePathName);
             SaveProjectFile();
+        }
+
+        private void RenameFileNode()
+        {
+            try
+            {
+                if (!(SelectedProjectNode is ProjectFileNodeViewModel))
+                {
+                    UserMessageService.ShowMessage(
+                        "A folder or the project root node cannot be renamed.", "Rename",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                string oldRelativePathName = SelectedProjectNode.RelativeFileName;
+                string oldRelativePath = Path.GetDirectoryName(oldRelativePathName);
+                string oldAbsolutePathName = Path.Combine(ProjectRootDirectory, oldRelativePathName);
+                string oldAbsolutePath = Path.GetDirectoryName(oldAbsolutePathName);
+                string oldSuffix = Path.GetExtension(oldAbsolutePathName);
+
+                string newFileName = TextService.GetText(SelectedProjectNode.DisplayName)?.Trim();
+                //string newSuffix = Path.GetExtension(newFileName);
+
+                //if (string.IsNullOrEmpty(newSuffix) && !string.IsNullOrEmpty(oldSuffix))
+                //{
+                //    newFileName += oldSuffix;
+                //}
+
+                if (TextService.Cancelled || string.IsNullOrEmpty(newFileName))
+                {
+                    return;
+                }
+
+                string newAbsolutePathName = Path.Combine(oldAbsolutePath, newFileName);
+
+                if (File.Exists(newAbsolutePathName))
+                {
+                    UserMessageService.ShowMessage("A file named '" + newFileName + "' already exists.", "File exists",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                Directory.Move(oldAbsolutePathName, newAbsolutePathName);
+
+                _runOnTabLosingFocus = false;
+                _runOnTabGettingFocus = false;
+
+                for (int i = Tabs.Count() - 1; i >= 0; i--)
+                {
+                    if (Tabs[i].AbsoluteFilePathName.ToLower() == oldAbsolutePathName.ToLower())
+                    {
+                        ActiveTabIndex--;
+                        Tabs.RemoveAt(i);
+                        break;
+                    }
+                }
+
+                _runOnTabLosingFocus = true;
+                _runOnTabGettingFocus = true;
+
+                string newRelativePathName = Path.Combine(oldRelativePath, newFileName);
+
+                //ProjectFileNodeViewModel fileNode = new ProjectFileNodeViewModel()
+                //{
+                //    RelativeFileName = newRelativePathName,
+                //    DisplayName = newFileName,
+                //    IsSelected = true
+                //};
+
+                //SelectedProjectNode.InsertChildNode(fileNode);
+                SelectedProjectNode.RelativeFileName = newRelativePathName;
+                SelectedProjectNode.DisplayName = newFileName;
+
+                //OpenFileInTab(oldAbsoluteFilePathName);
+
+                SaveProjectFile();
+            }
+            catch
+            {
+                UserMessageService.ShowMessage("The file or folder could not be renamed.", "File error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
         }
 
         private void AddNewFolderNode()
@@ -1712,6 +1789,7 @@ namespace TypeSqf.Edit
         private DelegateCommand _openProjectNodeCommand;
         private DelegateCommand _addProjectFolderNodeCommand;
         private DelegateCommand _addNewFileNodeCommand;
+        private DelegateCommand _renameFileNodeCommand;
         private DelegateCommand _addNewFolderNodeCommand;
         private DelegateCommand _addExistingFileNodeCommand;
         private DelegateCommand _openInFileExplorerCommand;
@@ -2017,7 +2095,7 @@ namespace TypeSqf.Edit
                 try
                 {
                     string fileName = Tabs[_activeTabIndex].AbsoluteFilePathName;
-                    _tabOpenedOrder.Remove(fileName);
+                    _tabOpenedOrder.Remove(fileName); TODO
 
                     if (_tabOpenedOrder.Count() > 0)
                     {
@@ -2111,6 +2189,16 @@ namespace TypeSqf.Edit
         private void DoAddNewFileNodeCommand(object context)
         {
             AddNewFileNode();
+        }
+
+        public DelegateCommand RenameFileNodeCommand
+        {
+            get { return (_renameFileNodeCommand = _renameFileNodeCommand ?? new DelegateCommand(x => true, DoRenameFileNodeCommand)); }
+        }
+
+        private void DoRenameFileNodeCommand(object context)
+        {
+            RenameFileNode();
         }
 
         public DelegateCommand AddNewFolderNodeCommand

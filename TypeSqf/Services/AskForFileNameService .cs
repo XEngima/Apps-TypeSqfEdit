@@ -49,7 +49,6 @@ namespace TypeSqf.Edit.Services
 
             Cancelled = (fileWindowContext.Result == null || fileWindowContext.Result == false);
             SelectedTemplate = fileWindowContext.SelectedTemplate;
-            //return fileWindow.FileNameTextBox.Text;
             return fileWindowContext.FixedFileName;
         }
 
