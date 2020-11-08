@@ -10,7 +10,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Threading;
 using System.Xml.Serialization;
@@ -943,6 +942,7 @@ namespace TypeSqf.Edit
         {
             // Kolla om fönstret redan är öppet
             TabViewModel tab = Tabs.FirstOrDefault(t => t.AbsoluteFilePathName.ToLower() == absoluteFilePathName.ToLower());
+
             if (tab != null)
             {
                 ActiveTab = tab;
@@ -1505,21 +1505,20 @@ namespace TypeSqf.Edit
 
                 Directory.Move(oldAbsolutePathName, newAbsolutePathName);
 
-                _runOnTabLosingFocus = false;
-                _runOnTabGettingFocus = false;
+                //_runOnTabLosingFocus = false;
+                //_runOnTabGettingFocus = false;
 
                 for (int i = Tabs.Count() - 1; i >= 0; i--)
                 {
                     if (Tabs[i].AbsoluteFilePathName.ToLower() == oldAbsolutePathName.ToLower())
                     {
-                        ActiveTabIndex--;
-                        Tabs.RemoveAt(i);
+                        CloseTab(i);
                         break;
                     }
                 }
 
-                _runOnTabLosingFocus = true;
-                _runOnTabGettingFocus = true;
+                //_runOnTabLosingFocus = true;
+                //_runOnTabGettingFocus = true;
 
                 string newRelativePathName = Path.Combine(oldRelativePath, newFileName);
 
@@ -1684,11 +1683,6 @@ namespace TypeSqf.Edit
 
                 SaveProjectFile();
 
-                //if (filePathName.ToLower().EndsWith(".sqf") || filePathName.ToLower().EndsWith(".sqx"))
-                //{
-                //    FilesToAddToAnalyzer.Add(filePathName);
-                //}
-
                 StartAnalyzer(filePathName);
                 StartAnalyzer();
             }
@@ -1696,7 +1690,7 @@ namespace TypeSqf.Edit
 
         private void RemoveFromDisc()
         {
-            string msg = "";
+            string msg;
 
             if (SelectedProjectNode is ProjectFileNodeViewModel)
             {
@@ -1721,20 +1715,20 @@ namespace TypeSqf.Edit
             {
                 if (dialogResult == MessageBoxResult.Yes)
                 {
-                    _runOnTabLosingFocus = false;
-                    _runOnTabGettingFocus = false;
+                    //_runOnTabLosingFocus = false;
+                    //_runOnTabGettingFocus = false;
 
                     for (int i = Tabs.Count() - 1; i >= 0; i--)
                     {
                         if (Tabs[i].AbsoluteFilePathName.ToLower() == absoluteFileName.ToLower())
                         {
-                            Tabs.RemoveAt(i);
+                            CloseTab(i);
                             break;
                         }
                     }
 
-                    _runOnTabLosingFocus = true;
-                    _runOnTabGettingFocus = true;
+                    //_runOnTabLosingFocus = true;
+                    //_runOnTabGettingFocus = true;
 
                     if (SelectedProjectNode is ProjectFileNodeViewModel)
                     {
@@ -2089,32 +2083,66 @@ namespace TypeSqf.Edit
             if (!userCancelled)
             {
                 OnTabLosingFocus(true);
+                CloseTab(ActiveTabIndex);
 
-                int tabIndexToRemove = ActiveTabIndex;
+                //int tabIndexToRemove = ActiveTabIndex;
 
-                try
-                {
-                    string fileName = Tabs[_activeTabIndex].AbsoluteFilePathName;
-                    _tabOpenedOrder.Remove(fileName); TODO
+                //try
+                //{
+                //    string fileName = Tabs[_activeTabIndex].AbsoluteFilePathName;
+                //    _tabOpenedOrder.Remove(fileName);
 
-                    if (_tabOpenedOrder.Count() > 0)
-                    {
-                        string lastFileName = _tabOpenedOrder[_tabOpenedOrder.Count() - 1];
+                //    if (_tabOpenedOrder.Count() > 0)
+                //    {
+                //        string lastFileName = _tabOpenedOrder[_tabOpenedOrder.Count() - 1];
                         
-                        if (FileIsOpenInTab(lastFileName))
-                        {
-                            OpenFileInTab(lastFileName);
-                        }
+                //        if (FileIsOpenInTab(lastFileName))
+                //        {
+                //            OpenFileInTab(lastFileName);
+                //        }
+                //    }
+                //}
+                //catch
+                //{
+                //}
+
+                //_runOnTabLosingFocus = false;
+                //Tabs.RemoveAt(tabIndexToRemove);
+                //_runOnTabLosingFocus = true;
+            }
+        }
+
+        private void CloseTab(int tabIndex)
+        {
+            if (ActiveTabIndex == tabIndex)
+            {
+                if (Tabs.Count() >= 2 && _tabOpenedOrder.Count() >= 2)
+                {
+                    string lastFileName = _tabOpenedOrder[_tabOpenedOrder.Count() - 2];
+                    
+                    if (FileIsOpenInTab(lastFileName))
+                    {
+                        OpenFileInTab(lastFileName);
+                    }
+                    else
+                    {
+                        _tabOpenedOrder.Remove(lastFileName);
                     }
                 }
-                catch
-                {
-                }
-
-                _runOnTabLosingFocus = false;
-                Tabs.RemoveAt(tabIndexToRemove);
-                _runOnTabLosingFocus = true;
             }
+
+            try
+            {
+                string fileNameToRemove = Tabs[tabIndex].AbsoluteFilePathName;
+                _tabOpenedOrder.Remove(fileNameToRemove);
+            }
+            catch
+            {
+            }
+
+            _runOnTabLosingFocus = false;
+            Tabs.RemoveAt(tabIndex);
+            _runOnTabLosingFocus = true;
         }
 
         public bool FileIsOpenInTab(string absoluteFilePathName)

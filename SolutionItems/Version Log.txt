@@ -4,8 +4,10 @@ Future
 -SQX: Script command "spawn" can now be used without arguments.
 
 Version X
+-It is now possible to rename files in the project tree view.
 -Fixed: It is no longer possible to build a file that is not an SQX file.
 -Fixed: The editor sometimes crashed during a search-and-replace (thanks Josef!).
+-Minor fixes and improvements.
 
 Version 1.06
 -Added support for all script commands up until Arma 3 version 2.00 (ScriptCommands.xml).
