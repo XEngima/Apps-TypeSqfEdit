@@ -24,6 +24,7 @@ namespace TypeSqf.Edit.Replace
         private TextEditor editor;
         private MainWindowViewModel mainWindowViewModel;
         TextDocument currentDocument;
+        private RegexCodeSheet regexInfoWindow;
         private int documentLength;
         private static string textToFind = "";
         private static bool caseSensitive = false;
@@ -264,6 +265,12 @@ namespace TypeSqf.Edit.Replace
             currentDocument.TextChanged -= textArea_Document_TextChanged;
             editor.TextArea.SelectionChanged -= TextArea_SelectionChanged;
 
+            if (regexInfoWindow != null)
+            {
+                regexInfoWindow.Close();
+                regexInfoWindow = null;
+            }
+
             theDialog = null;
         }
 
@@ -335,6 +342,23 @@ namespace TypeSqf.Edit.Replace
                 statusText.Text = "No occurrences replaced.";
             }
             
+        }
+
+        private void RegexInfoClick(object sender, RoutedEventArgs e)
+        {
+            if (regexInfoWindow == null)
+            {
+                regexInfoWindow = new RegexCodeSheet();
+                regexInfoWindow.Closed += RegexInfoWindow_Closed;
+            }
+
+            regexInfoWindow.Show();
+            regexInfoWindow.Activate();
+        }
+
+        private void RegexInfoWindow_Closed(object sender, EventArgs e)
+        {
+            regexInfoWindow = null;
         }
 
         private bool FindNext()

@@ -1,0 +1,25 @@
+﻿<Window
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:TypeSqf.Edit.Replace"
+      xmlns:CodeCompletion="clr-namespace:ICSharpCode.AvalonEdit.CodeCompletion;assembly=ICSharpCode.AvalonEdit" x:Class="TypeSqf.Edit.Replace.RegexCodeSheet"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="700"
+      Title="Regex Cheet Sheet" Width="700" Height="450">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="32"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <ScrollViewer Grid.Row="0" Grid.Column="0" Height="Auto" Margin="0,2" BorderBrush="#FFB6B6B6"
+                              VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <TextBlock VerticalAlignment="Stretch" HorizontalAlignment="Stretch" TextWrapping="Wrap" IsEnabled="False" ScrollViewer.HorizontalScrollBarVisibility="Auto" Padding="5" ScrollViewer.CanContentScroll="True" Background="White"><Run Text="^"/><Run Text="&#x9;"/><Run Text="&#x9;&#x9;"/><Run Text="- Matches start of line."/><LineBreak/><Run Text="$"/><Run Text="&#x9;"/><Run Text="&#x9;&#x9;"/><Run Text="- Matches End line."/><LineBreak/><Run Text=".&#x9;"/><Run Text="&#x9;&#x9;"/><Run Text="- Wildcard: Matches any single character except \n."/><LineBreak/><Run Text="\w&#x9;"/><Run Text="&#x9;&#x9;"/><Run Text="- Matches any word character."/><LineBreak/><Run Text="\W&#x9;"/><Run Text="&#x9;&#x9;"/><Run Text="- Matches any non-word character."/><LineBreak/><Run Text="\s&#x9;"/><Run Text="&#x9;&#x9;"/><Run Text="- Matches any white-space character."/><LineBreak/><Run Text="\S&#x9;"/><Run Text="&#x9;&#x9;"/><Run Text="- Matches any non-white-space character."/><LineBreak/><Run Text="\t"/><Run Text="&#x9;"/><Run Text="&#x9;&#x9;"/><Run Text="- Matches a tab."/><LineBreak/><Run Text="\d&#x9;"/><Run Text="&#x9;&#x9;"/><Run Text="- Matches any decimal digit."/><LineBreak/><Run Text="\D&#x9;"/><Run Text="&#x9;&#x9;"/><Run Text="- Matches any character other than a decimal digit."/><LineBreak/><Run Text="\n&#x9;"/><Run Text="&#x9;&#x9;"/><Run Text="- Matches a new line"/><LineBreak/><Run/><LineBreak/><Run FontWeight="Bold" Text="Multipliers:"/><LineBreak/><Run Text="*&#x9;"/><Run Text="&#x9;&#x9;"/><Run Text="- "/><Run Text="Matches the previous element zero or more times."/><LineBreak/><Run Text="+&#x9;"/><Run Text="&#x9;&#x9;"/><Run Text="- "/><Run Text="Matches the previous element one or more times."/><LineBreak/><Run Text="?&#x9;"/><Run Text="&#x9;&#x9;"/><Run Text="- "/><Run Text="Matches the previous element zero or one time."/><LineBreak/><Run Text="{}{ n }&#x9;"/><Run Text="&#x9;&#x9;"/><Run Text="- "/><Run Text="Matches the previous element exactly n times."/><LineBreak/><Run Text="{}{ n , m }&#x9;"/><Run Text="&#x9;&#x9;"/><Run Text="- "/><Run Text="Matches the previous element at least n times, but no more than m times."/><LineBreak/><Run/><LineBreak/><Run FontWeight="Bold" Text="Range:"/><LineBreak/><Run Text="[characters]"/><Run Text="&#x9;"/><Run Text="&#x9;"/><Run Text="- Matches any single character in characters. By default, the match is case-sensitive."/><LineBreak/><Run Text="[^characters]"/><Run Text="&#x9;"/><Run Text="&#x9;"/><Run Text="- Matches any single character NOT in characters. By default, the match is case-sensitive."/><LineBreak/><Run Text="[first-last"/><Run Text="]&#x9;"/><Run Text="&#x9;"/><Run Text="- Character range: Matches any single character in the range from first to last."/><LineBreak/><Run/><LineBreak/><Run FontWeight="Bold" Text="Groups:"/><LineBreak/><Run Text="(expression)"/><Run Text="&#x9;&#x9;"/><Run Text="- Captures the matched expression and assigns it a one-based ordinal number."/><LineBreak/><Run Text="(?&lt;name&gt;expression)"/><Run Text="&#x9;"/><Run Text="- Captures the matched subexpression into a named group."/><LineBreak/><Run Text="(?: expression )"/><Run Text="&#x9;&#x9;"/><Run Text="- Defines a noncapturing group."/><LineBreak/><Run/><LineBreak/><Run FontWeight="Bold" Text="Replacement"/><Run FontWeight="Bold" Text="s"/><Run FontWeight="Bold" Text=":"/><LineBreak/><Run Text="$&amp; "/><Run Text="&#x9;&#x9;"/><Run Text="&#x9;"/><Run Text="- "/><Run Text="Retrieve w"/><Run Text="hole match"/><LineBreak/><Run Text="$number "/><Run Text="&#x9;"/><Run Text="&#x9;"/><Run Text="- "/><Run Text="Retrieve g"/><Run Text="roup matched by number"/><LineBreak/><Run Text="${name} "/><Run Text="&#x9;&#x9;"/><Run Text="&#x9;"/><Run Text="- "/><Run Text="Retrieve g"/><Run Text="roup matched by name"/></TextBlock>
+        </ScrollViewer>
+        <Button Grid.Row="1" Grid.Column="0" Width="80" Margin="20,5" Padding="0" HorizontalAlignment="Right" Content="Close" Click="Close_Click"/>
+    </Grid>
+</Window>

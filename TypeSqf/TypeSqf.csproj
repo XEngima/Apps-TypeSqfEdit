@@ -83,8 +83,10 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -135,6 +137,9 @@
     <Compile Include="HotKeyHandler.cs" />
     <Compile Include="PropertyInfo.cs" />
     <Compile Include="Replace\FindReplaceDialog.xaml.cs" />
+    <Compile Include="Replace\RegexCodeSheet.xaml.cs">
+      <DependentUpon>RegexCodeSheet.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Replace\SearchResultsBackgroundRenderer.cs" />
     <Compile Include="SearchResultItem.cs" />
     <Compile Include="InputFileNameWindow.xaml.cs">
@@ -229,6 +234,10 @@
     <Page Include="Replace\FindReplaceDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Replace\RegexCodeSheet.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
@@ -333,6 +342,7 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\replace.png" />
+    <Resource Include="Images\info.png" />
     <Content Include="ScriptCommands.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
