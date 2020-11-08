@@ -8,7 +8,7 @@ namespace TypeSqf.Edit.Services
 {
     public interface IAskForTextService
     {
-        string GetText(string suggestedText);
+        string GetText(string dialogHeader, string textHeader, string suggestedText);
 
         bool Cancelled { get; }
     }

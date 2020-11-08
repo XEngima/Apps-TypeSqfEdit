@@ -1481,7 +1481,7 @@ namespace TypeSqf.Edit
                 string oldAbsolutePath = Path.GetDirectoryName(oldAbsolutePathName);
                 string oldSuffix = Path.GetExtension(oldAbsolutePathName);
 
-                string newFileName = TextService.GetText(SelectedProjectNode.DisplayName)?.Trim();
+                string newFileName = TextService.GetText("File Name", "File Name", SelectedProjectNode.DisplayName)?.Trim();
                 //string newSuffix = Path.GetExtension(newFileName);
 
                 //if (string.IsNullOrEmpty(newSuffix) && !string.IsNullOrEmpty(oldSuffix))

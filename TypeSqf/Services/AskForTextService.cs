@@ -15,9 +15,12 @@ namespace TypeSqf.Edit.Services
             Cancelled = true;
         }
 
-        public string GetText(string suggestedText)
+        public string GetText(string dialogHeader, string textHeader, string suggestedText)
         {
             var inputTextWindow = new InputTextWindow();
+
+            inputTextWindow.Dialog.Title = dialogHeader;
+            inputTextWindow.TextHeaderLabel.Content = textHeader;
             inputTextWindow.TextTextBox.Text = suggestedText;
 
             inputTextWindow.TextTextBox.SelectionStart = 0;

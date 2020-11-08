@@ -1,4 +1,4 @@
-﻿<Window x:Class="TypeSqf.Edit.InputTextWindow"
+﻿<Window x:Class="TypeSqf.Edit.InputTextWindow" x:Name="Dialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:TypeSqf.Edit"
@@ -7,7 +7,7 @@
         <local:InputTextWindowViewModel />
     </Window.DataContext>
     <Canvas>
-        <Label Canvas.Left="20" Canvas.Top="15" Padding="0">Text</Label>
+        <Label x:Name="TextHeaderLabel" Canvas.Left="20" Canvas.Top="15" Padding="0">Text</Label>
         <TextBox x:Name="TextTextBox" Canvas.Top="35" Canvas.Left="20" Width="300" Padding="5" Text="{Binding Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TabIndex="0" />
         <Button Canvas.Left="20" Canvas.Top="80" Width="50" Command="{Binding OkCommand}" IsDefault="True">OK</Button>
         <Button Name="CancelButton" Canvas.Left="80" Canvas.Top="80" Width="50" Click="CancelButton_Click">Cancel</Button>
