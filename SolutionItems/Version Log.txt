@@ -5,6 +5,7 @@ Future
 
 Version X
 -Fixed: It is no longer possible to build a file that is not an SQX file.
+-Fixed: The editor sometimes crashed during a search-and-replace (thanks Josef!).
 
 Version 1.06
 -Added support for all script commands up until Arma 3 version 2.00 (ScriptCommands.xml).
