@@ -24,6 +24,7 @@ namespace TypeSqf.Edit.Replace
         private TextEditor editor;
         private MainWindowViewModel mainWindowViewModel;
         TextDocument currentDocument;
+        private RegexCodeSheet regexInfoWindow;
         private int documentLength;
         private static string textToFind = "";
         private static bool caseSensitive = false;
@@ -223,7 +224,7 @@ namespace TypeSqf.Edit.Replace
             {
                 int newLength = document.TextLength;
                 int step = newLength - documentLength;
-                documentLength = currentDocument.TextLength;
+                documentLength = document.TextLength;
                 MoveMarkerSelection(editor.CaretOffset, step);
             }
         }
@@ -264,6 +265,12 @@ namespace TypeSqf.Edit.Replace
             currentDocument.TextChanged -= textArea_Document_TextChanged;
             editor.TextArea.SelectionChanged -= TextArea_SelectionChanged;
 
+            if (regexInfoWindow != null)
+            {
+                regexInfoWindow.Close();
+                regexInfoWindow = null;
+            }
+
             theDialog = null;
         }
 
@@ -289,17 +296,14 @@ namespace TypeSqf.Edit.Replace
             {
                 string replacedText = currentResult.Data.Result(txtReplace.Text);
 
-                editor.Document.Replace(currentResult.StartOffset, currentResult.Length, replacedText);
-            }
+                int carretPositionAfter = currentResult.EndOffset;
 
-            // currentResult is updated after editor text is changed, thats why we need to check it again.
-            if (currentResult != null)
-            {
-                editor.Select(currentResult.StartOffset, currentResult.Length);
-                TextLocation loc = editor.Document.GetLocation(currentResult.StartOffset);
-                editor.ScrollTo(loc.Line, loc.Column);
+                editor.Document.Replace(currentResult.StartOffset, currentResult.Length, replacedText);
+                editor.Select(carretPositionAfter, 0);
+                editor.CaretOffset = carretPositionAfter;
             }
-            else if (!FindNext())
+            
+            if (!FindNext())
             {
                 System.Media.SystemSounds.Beep.Play();
             }
@@ -338,6 +342,23 @@ namespace TypeSqf.Edit.Replace
                 statusText.Text = "No occurrences replaced.";
             }
             
+        }
+
+        private void RegexInfoClick(object sender, RoutedEventArgs e)
+        {
+            if (regexInfoWindow == null)
+            {
+                regexInfoWindow = new RegexCodeSheet();
+                regexInfoWindow.Closed += RegexInfoWindow_Closed;
+            }
+
+            regexInfoWindow.Show();
+            regexInfoWindow.Activate();
+        }
+
+        private void RegexInfoWindow_Closed(object sender, EventArgs e)
+        {
+            regexInfoWindow = null;
         }
 
         private bool FindNext()
@@ -442,7 +463,7 @@ namespace TypeSqf.Edit.Replace
             }
 
             // Update current result.
-            currentResult = searchResultsBackgroundRenderer.CurrentResults.FindFirstSegmentWithStartAfter(editor.CaretOffset);
+            currentResult = null;
 
             editor.TextArea.TextView.InvalidateLayer(ICSharpCode.AvalonEdit.Rendering.KnownLayer.Selection);
 
@@ -472,9 +493,11 @@ namespace TypeSqf.Edit.Replace
         private void MoveMarkerSelection(int offset, int steps)
         {
             SearchResult result = selectionSearchBackgroundRenderer.CurrentResults.FirstSegment;
+            int changeStartOffset = offset - steps;
+
             if (result != null)
             {
-                if (result.EndOffset <= offset)
+                if (result.EndOffset < changeStartOffset)
                 {
                     // Text changed after current selection. No changes required.
                     return;
@@ -482,12 +505,18 @@ namespace TypeSqf.Edit.Replace
 
                 int start = result.StartOffset;
                 int length = result.Length;
-                if (result.StartOffset >= offset)
+
+
+                if (result.StartOffset >= changeStartOffset)
                 {
                     // Text changed before current selection. Move selection start forward/backward.
                     start = result.StartOffset + steps;
+                    if (start < 0)
+                    {
+                        start = 0;
+                    }
                 }
-                else if (offset > result.StartOffset)
+                else if (changeStartOffset > result.StartOffset)
                 {
                     // Text changed in current selection. Change selection length to include new changes.
                     length = result.Length + steps;
