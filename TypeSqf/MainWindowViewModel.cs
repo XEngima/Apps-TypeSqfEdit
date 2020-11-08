@@ -1482,12 +1482,6 @@ namespace TypeSqf.Edit
                 string oldSuffix = Path.GetExtension(oldAbsolutePathName);
 
                 string newFileName = TextService.GetText("File Name", "File Name", SelectedProjectNode.DisplayName)?.Trim();
-                //string newSuffix = Path.GetExtension(newFileName);
-
-                //if (string.IsNullOrEmpty(newSuffix) && !string.IsNullOrEmpty(oldSuffix))
-                //{
-                //    newFileName += oldSuffix;
-                //}
 
                 if (TextService.Cancelled || string.IsNullOrEmpty(newFileName))
                 {
@@ -1505,9 +1499,6 @@ namespace TypeSqf.Edit
 
                 Directory.Move(oldAbsolutePathName, newAbsolutePathName);
 
-                //_runOnTabLosingFocus = false;
-                //_runOnTabGettingFocus = false;
-
                 for (int i = Tabs.Count() - 1; i >= 0; i--)
                 {
                     if (Tabs[i].AbsoluteFilePathName.ToLower() == oldAbsolutePathName.ToLower())
@@ -1517,17 +1508,7 @@ namespace TypeSqf.Edit
                     }
                 }
 
-                //_runOnTabLosingFocus = true;
-                //_runOnTabGettingFocus = true;
-
                 string newRelativePathName = Path.Combine(oldRelativePath, newFileName);
-
-                //ProjectFileNodeViewModel fileNode = new ProjectFileNodeViewModel()
-                //{
-                //    RelativeFileName = newRelativePathName,
-                //    DisplayName = newFileName,
-                //    IsSelected = true
-                //};
 
                 //SelectedProjectNode.InsertChildNode(fileNode);
                 SelectedProjectNode.RelativeFileName = newRelativePathName;
@@ -1536,6 +1517,8 @@ namespace TypeSqf.Edit
                 //OpenFileInTab(oldAbsoluteFilePathName);
 
                 SaveProjectFile();
+                ClearDeclaredVariableAndClasses(oldAbsolutePathName);
+                StartAnalyzer();
             }
             catch
             {
