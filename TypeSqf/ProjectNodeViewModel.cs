@@ -58,6 +58,16 @@ namespace TypeSqf.Edit
             }
         }
 
+        public void GetAllAbsoluteFileNames(string projectRootPath, List<string> absoluteFilePathNames)
+        {
+            absoluteFilePathNames.Add(Path.Combine(projectRootPath, RelativeFileName));
+
+            foreach (var child in Children)
+            {
+                child.GetAllAbsoluteFileNames(projectRootPath, absoluteFilePathNames);
+            }
+        }
+
         [XmlIgnore]
         private ProjectViewModel Project { get; set; }
 

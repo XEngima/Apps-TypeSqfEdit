@@ -1467,7 +1467,7 @@ namespace TypeSqf.Edit
         {
             try
             {
-                if (!(SelectedProjectNode is ProjectFileNodeViewModel))
+                if (!(SelectedProjectNode is ProjectFileNodeViewModel) && (SelectedProjectNode is ProjectFileNodeViewModel))
                 {
                     UserMessageService.ShowMessage(
                         "A folder or the project root node cannot be renamed.", "Rename",
@@ -1489,35 +1489,56 @@ namespace TypeSqf.Edit
                 }
 
                 string newAbsolutePathName = Path.Combine(oldAbsolutePath, newFileName);
+                string newRelativePathName = Path.Combine(oldRelativePath, newFileName);
 
                 if (File.Exists(newAbsolutePathName))
                 {
-                    UserMessageService.ShowMessage("A file named '" + newFileName + "' already exists.", "File exists",
+                    UserMessageService.ShowMessage("A file or folder named '" + newFileName + "' already exists.", "File/Folder exists",
                         MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
-                Directory.Move(oldAbsolutePathName, newAbsolutePathName);
-
-                for (int i = Tabs.Count() - 1; i >= 0; i--)
+                if (SelectedProjectNode is ProjectFileNodeViewModel)
                 {
-                    if (Tabs[i].AbsoluteFilePathName.ToLower() == oldAbsolutePathName.ToLower())
+                    Directory.Move(oldAbsolutePathName, newAbsolutePathName);
+
+                    for (int i = Tabs.Count() - 1; i >= 0; i--)
                     {
-                        CloseTab(i);
-                        break;
+                        if (Tabs[i].AbsoluteFilePathName.ToLower() == oldAbsolutePathName.ToLower())
+                        {
+                            CloseTab(i);
+                            break;
+                        }
                     }
+
+                    SelectedProjectNode.RelativeFileName = newRelativePathName;
+                    SelectedProjectNode.DisplayName = newFileName;
+
+                    ClearDeclaredVariableAndClasses(oldAbsolutePathName);
+                }
+                if (SelectedProjectNode is ProjectFolderNodeViewModel)
+                {
+                    string oldRelativeFolderPathName = SelectedProjectNode.RelativeFileName;
+
+                    Directory.Move(oldAbsolutePathName, newAbsolutePathName);
+                    SelectedProjectNode.DisplayName = newFileName;
+
+                    // Close all relevant tabs
+                    var absoluteFilePathNames = new List<string>();
+                    SelectedProjectNode.GetAllAbsoluteFileNames(ProjectRootDirectory, absoluteFilePathNames);
+
+                    for (int i = Tabs.Count() - 1; i >= 0; i--)
+                    {
+                        if (absoluteFilePathNames.Contains(Tabs[i].AbsoluteFilePathName))
+                        {
+                            CloseTab(i);
+                        }
+                    }
+
+                    UpdateRelativeFileNameOnNodeAndChildNodes(SelectedProjectNode, SelectedProjectNode.RelativeFileName, newRelativePathName);
                 }
 
-                string newRelativePathName = Path.Combine(oldRelativePath, newFileName);
-
-                //SelectedProjectNode.InsertChildNode(fileNode);
-                SelectedProjectNode.RelativeFileName = newRelativePathName;
-                SelectedProjectNode.DisplayName = newFileName;
-
-                //OpenFileInTab(oldAbsoluteFilePathName);
-
                 SaveProjectFile();
-                ClearDeclaredVariableAndClasses(oldAbsolutePathName);
                 StartAnalyzer();
             }
             catch
@@ -1525,6 +1546,24 @@ namespace TypeSqf.Edit
                 UserMessageService.ShowMessage("The file or folder could not be renamed.", "File error",
                     MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
+            }
+        }
+
+        private void UpdateRelativeFileNameOnNodeAndChildNodes(ProjectNodeViewModel node, string pathToReplace, string replacementPath)
+        {
+            if (node.RelativeFileName.StartsWith(pathToReplace))
+            {
+                if (node is ProjectFileNodeViewModel)
+                {
+                    ClearDeclaredVariableAndClasses(Path.Combine(ProjectRootDirectory, node.RelativeFileName));
+                }
+
+                node.RelativeFileName = replacementPath + node.RelativeFileName.Substring(pathToReplace.Length);
+
+                foreach (var child in node.XmlChildren)
+                {
+                    UpdateRelativeFileNameOnNodeAndChildNodes(child, pathToReplace, replacementPath);
+                }
             }
         }
 
