@@ -134,7 +134,7 @@
                         <Image Source="Images/Browse.png"/>
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="Browse SQX _API Reference" Name="SqxReferenceMenuItem" Click="SqxReferenceMenuItem_Click">
+                <MenuItem Header="Browse SQX Reference Page" Name="SqxReferenceMenuItem" Click="SqxReferenceMenuItem_Click">
                     <MenuItem.Icon>
                         <Image Source="Images/Browse.png"/>
                     </MenuItem.Icon>
