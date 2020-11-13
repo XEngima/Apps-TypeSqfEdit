@@ -7,7 +7,7 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{15049EE7-B73C-4778-A0C8-358B3DDBB310}
 AppName=TypeSqf
-AppVersion=1.06
+AppVersion=1.07
 ;AppVerName=TypeSqf 0.55
 AppPublisher=Engima
 AppPublisherURL=http://www.typesqf.com/

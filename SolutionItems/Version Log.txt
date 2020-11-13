@@ -3,10 +3,9 @@ Future
 -Added function "goto definition" for types, methods and variables.
 -SQX: Script command "spawn" can now be used without arguments.
 
-Version X
+Version 1.07
 -It is now possible to rename files in the project tree view.
--Fixed: It is no longer possible to build a file that is not an SQX file.
--Fixed: The editor sometimes crashed during a search-and-replace (thanks Josef!).
+-Fixed: Addressed some stability issues (thanks Josef!).
 -Minor fixes and improvements.
 
 Version 1.06
