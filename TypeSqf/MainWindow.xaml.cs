@@ -469,6 +469,7 @@ namespace TypeSqf.Edit
                 textEditor.TextArea.TextEntered += TextArea_TextEntered;
                 textEditor.TextArea.TextEntering += TextArea_TextEntering;
                 textEditor.TextArea.KeyUp += TextArea_KeyUp;
+                new BracketsHighlighter(textEditor);
                 ApplySyntaxHighlighting();
                 ApplyNewSettings();
             }

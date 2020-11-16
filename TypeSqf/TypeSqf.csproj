@@ -172,6 +172,7 @@
     <Compile Include="Services\AskForTextService.cs" />
     <Compile Include="Services\AskForProjectNameService.cs" />
     <Compile Include="Services\AskForFolderNameService.cs" />
+    <Compile Include="Highlighting\BracketsHighlighter.cs" />
     <Compile Include="Services\IAnalyzerService.cs" />
     <Compile Include="Services\IAskForTextService.cs" />
     <Compile Include="Services\IAskForFileNameService.cs" />
