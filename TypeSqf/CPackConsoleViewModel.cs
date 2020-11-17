@@ -153,7 +153,11 @@ namespace TypeSqf.Edit
                 string packageName = commandItems[1];
                 var result = await Service.InstallPackageAsync(packageName, ProjectRootDirectory, targetVersion, updateDependencies, overwrite, beta, progress);
                 TextBoxEnabled = true;
-                OnPackageInstalled(packageName);
+
+                if (result)
+                {
+                    OnPackageInstalled(packageName);
+                }
                 //result.ContinueWith((arg) => {});
             }
             else if (commandItems[0].ToLower() == "update") {
@@ -165,7 +169,11 @@ namespace TypeSqf.Edit
                 string packageName = commandItems[1];
                 var result = await Service.UpdatePackageAsync(packageName, ProjectRootDirectory, targetVersion, updateDependencies, overwrite, beta, progress);
                 TextBoxEnabled = true;
-                OnPackageInstalled(packageName);
+
+                if (result)
+                {
+                    OnPackageInstalled(packageName);
+                }
                 //result.ContinueWith((arg) => { TextBoxEnabled = true; });
             }
             else if (commandItems[0].ToLower() == "remove")
@@ -179,7 +187,11 @@ namespace TypeSqf.Edit
                 string packageName = commandItems[1];
                 var result = await Service.RemovePackageAsync(packageName, ProjectRootDirectory, removeDependencies, overwrite, progress);
                 TextBoxEnabled = true;
-                OnPackageInstalled(packageName);
+
+                if (result)
+                {
+                    OnPackageInstalled(packageName);
+                }
                 //result.ContinueWith((arg) => {  });
             }
             else if (commandItems[0].ToLower() == "list")
