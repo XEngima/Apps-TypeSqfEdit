@@ -1666,6 +1666,11 @@ namespace TypeSqf.Edit
                 filePathName = absoluteFilePathName;
             }
 
+            if (!File.Exists(absoluteFilePathName))
+            {
+                return;
+            }
+
             if (!string.IsNullOrEmpty(filePathName))
             {
                 if (!filePathName.StartsWith(ProjectRootDirectory))
