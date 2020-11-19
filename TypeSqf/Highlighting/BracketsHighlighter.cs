@@ -1,5 +1,4 @@
 ﻿using ICSharpCode.AvalonEdit.Document;
-using ICSharpCode.AvalonEdit.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Windows.Media;
@@ -9,8 +8,6 @@ using System.Threading.Tasks;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Editing;
 using TypeSqf.Edit.Replace;
-using TypeSqf.Analyzer;
-using TypeSqf.Analyzer.Commands;
 
 namespace TypeSqf.Edit.Highlighting
 {
