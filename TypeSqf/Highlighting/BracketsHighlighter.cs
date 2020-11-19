@@ -131,7 +131,8 @@ namespace TypeSqf.Edit.Highlighting
         }
 
         /// <summary>
-        ///  Find current matching brackets.
+        ///  Find current matching brackets. 
+        ///  Return null if offset is in comments, strings, pre processor commands
         /// </summary>
         /// <param name="offset">An offset inside brackets to be found.</param>
         /// <param name="openingBracket"></param>
@@ -153,10 +154,6 @@ namespace TypeSqf.Edit.Highlighting
                 {
                     case '#':
                         skipTo = _textEditor.Text.IndexOf('\n', i);
-                        if (skipTo > i)
-                        {
-                            i = skipTo;
-                        }
                         break;
                     case '/':
                         if (i < (_textEditor.Text.Length - 1))
@@ -165,18 +162,10 @@ namespace TypeSqf.Edit.Highlighting
                             if (nextChar == '/')
                             {
                                 skipTo = _textEditor.Text.IndexOf('\n', i);
-                                if (skipTo > i)
-                                {
-                                    i = skipTo;
-                                }
                             }
                             if (nextChar == '*')
                             {
                                 skipTo = _textEditor.Text.IndexOf("*/", i);
-                                if (skipTo > i)
-                                {
-                                    i = skipTo;
-                                }
                             }
                         }
                         break;
@@ -186,7 +175,6 @@ namespace TypeSqf.Edit.Highlighting
                             prevChar = _textEditor.Text[i - 1];
                             if (prevChar != '\\')
                             {
-                                i = skipTo;
                                 break;
                             }
                         }
@@ -197,14 +185,24 @@ namespace TypeSqf.Edit.Highlighting
                             prevChar = _textEditor.Text[i - 1];
                             if (prevChar != '\\')
                             {
-                                i = skipTo;
                                 break;
                             }
                         }
                         break;
                 }
 
-                if (skipTo == -1 && currentChar == openingBracket)
+                // Return null if text cursor was in something that was skipped.
+                if (offset > i && offset <= skipTo)
+                {
+                    return null;
+                }
+                if (skipTo > i)
+                {
+                    i = skipTo + 1;
+                    continue;
+                }
+
+                if (currentChar == openingBracket)
                 {
                     brackets.Push(i);
                     if (i >= offset)
@@ -212,7 +210,7 @@ namespace TypeSqf.Edit.Highlighting
                         bracketBalance++;
                     }
                 }
-                else if (skipTo == -1 && currentChar == closingBracket)
+                else if (currentChar == closingBracket)
                 {
                     if (brackets.Count > 0)
                     {
