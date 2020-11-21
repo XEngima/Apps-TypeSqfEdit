@@ -1,5 +1,4 @@
 ﻿using ICSharpCode.AvalonEdit.Document;
-using ICSharpCode.AvalonEdit.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Windows.Media;
@@ -53,42 +52,42 @@ namespace TypeSqf.Edit.Highlighting
             {
 
             }
-                
+            
             if (_bracketsEnding.Contains(textBefore))
             {
-                SearchResult result = new SearchResult(caretOffset - 1, 1);
-                _backgroundMarker.CurrentResults.Add(result);
-
                 char searchFor = _bracketsStarting[Array.IndexOf(_bracketsEnding, textBefore)];
                 CommentInfo comment = IsInComment(_textEditor.Text, caretOffset - 1);
-                
-                // loop document to begining
-                for (int i = caretOffset-2; i >= comment.StartOffset; i--)
+
+                if (!comment.InComment)
                 {
-                    if (MatchBrackets(i, searchFor, textBefore, comment.InComment))
+                    BracketsMatch bracketsMatch = FindMatchingBrackets(caretOffset - 1, searchFor, textBefore);
+
+                    if (bracketsMatch != null)
                     {
-                        SearchResult result1 = new SearchResult(i, 1);
+                        SearchResult result = new SearchResult(bracketsMatch.OpeningOffset, 1);
+                        _backgroundMarker.CurrentResults.Add(result);
+                        SearchResult result1 = new SearchResult(bracketsMatch.ClosingOffset, 1);
                         _backgroundMarker.CurrentResults.Add(result1);
-                        break;
                     }
                 }
+
+                
             }
             else if (_bracketsStarting.Contains(textAfter))
             {
-                SearchResult result = new SearchResult(caretOffset, 1);
-                _backgroundMarker.CurrentResults.Add(result);
-
                 char searchFor = _bracketsEnding[Array.IndexOf(_bracketsStarting, textAfter)];
                 CommentInfo comment = IsInComment(_textEditor.Text, caretOffset);
 
-                // loop document to begining
-                for (int i = caretOffset+1; i <= comment.EndOffset; i++)
+                if (!comment.InComment)
                 {
-                    if (MatchBrackets(i, searchFor, textAfter, comment.InComment))
+                    BracketsMatch bracketsMatch = FindMatchingBrackets(caretOffset + 1, textAfter, searchFor);
+
+                    if (bracketsMatch != null)
                     {
-                        SearchResult result1 = new SearchResult(i, 1);
+                        SearchResult result = new SearchResult(bracketsMatch.OpeningOffset, 1);
+                        _backgroundMarker.CurrentResults.Add(result);
+                        SearchResult result1 = new SearchResult(bracketsMatch.ClosingOffset, 1);
                         _backgroundMarker.CurrentResults.Add(result1);
-                        break;
                     }
                 }
             }
@@ -131,48 +130,110 @@ namespace TypeSqf.Edit.Highlighting
             return new CommentInfo(false, 0, text.Length);
         }
 
-        private int bracketBalance = 0;
-        private bool MatchBrackets(int offset, char searchBracket, char gotBracket, bool inComment=false)
+        /// <summary>
+        ///  Find current matching brackets. 
+        ///  Return null if offset is in comments, strings, pre processor commands
+        /// </summary>
+        /// <param name="offset">An offset inside brackets to be found.</param>
+        /// <param name="openingBracket"></param>
+        /// <param name="closingBracket"></param>
+        /// <returns></returns>
+        private BracketsMatch FindMatchingBrackets(int offset, char openingBracket, char closingBracket)
         {
-
-            char charAt = '\0';
-            try
+            Stack<int> brackets = new Stack<int>();
+            int firstBracketOffset = 0;
+            int bracketBalance = 0;
+            var i = 0;
+            char currentChar, prevChar, nextChar = '\0';
+            while (i < _textEditor.Text.Length)
             {
-                charAt = _textEditor.Text[offset];
-            }
-            catch
-            {
+                currentChar = _textEditor.Text[i];
+                int skipTo = -1;
 
-            }
-
-            if (charAt == gotBracket)
-            {
-                CommentInfo comment = IsInComment(_textEditor.Text, offset);
-
-                if (inComment == comment.InComment)
+                switch (currentChar)
                 {
-                    bracketBalance++;
+                    case '#':
+                        skipTo = _textEditor.Text.IndexOf('\n', i);
+                        break;
+                    case '/':
+                        if (i < (_textEditor.Text.Length - 1))
+                        {
+                            nextChar = _textEditor.Text[i+1];
+                            if (nextChar == '/')
+                            {
+                                skipTo = _textEditor.Text.IndexOf('\n', i);
+                            }
+                            if (nextChar == '*')
+                            {
+                                skipTo = _textEditor.Text.IndexOf("*/", i);
+                            }
+                        }
+                        break;
+                    case '"':
+                        while ((skipTo = _textEditor.Text.IndexOf('"', i+1)) > -1 )
+                        {
+                            prevChar = _textEditor.Text[i - 1];
+                            if (prevChar != '\\')
+                            {
+                                break;
+                            }
+                        }
+                        break;
+                    case '\'':
+                        while ((skipTo = _textEditor.Text.IndexOf('\'', i+1)) > -1)
+                        {
+                            prevChar = _textEditor.Text[i - 1];
+                            if (prevChar != '\\')
+                            {
+                                break;
+                            }
+                        }
+                        break;
                 }
-            }
-            else if (charAt == searchBracket)
-            {
-                CommentInfo comment = IsInComment(_textEditor.Text, offset);
 
-                if (inComment == comment.InComment)
+                // Return null if text cursor was in something that was skipped.
+                if (offset > i && offset <= skipTo)
                 {
-                    if (bracketBalance == 0)
+                    return null;
+                }
+                if (skipTo > i)
+                {
+                    i = skipTo + 1;
+                    continue;
+                }
+
+                if (currentChar == openingBracket)
+                {
+                    brackets.Push(i);
+                    if (i >= offset)
                     {
-                        return true;
-                    }
-                    else
-                    {
-                        bracketBalance--;
+                        bracketBalance++;
                     }
                 }
+                else if (currentChar == closingBracket)
+                {
+                    if (brackets.Count > 0)
+                    {
+                        firstBracketOffset = brackets.Pop();
+                        if (i >= offset)
+                        {
+                            if (bracketBalance == 0)
+                            {
+                                return new BracketsMatch(openingBracket, firstBracketOffset, closingBracket, i);
+                            }
+                            else
+                            {
+                                bracketBalance--;
+                            }
+                        }
+                    }
+                }
+
+                i++;
             }
-            return false;
+
+            return null; 
         }
-
         public class CommentInfo
         {
             public Boolean InComment;
@@ -186,5 +247,20 @@ namespace TypeSqf.Edit.Highlighting
             }
         }
 
+        public class BracketsMatch
+        {
+            public char OpeningBracket { get; private set; }
+            public char ClosingBracket { get; private set; }
+            public int OpeningOffset { get; private set; }
+            public int ClosingOffset { get; private set; }
+
+            public BracketsMatch(char openingBracket, int openingOffset, char closingBracket, int closingOffset)
+            {
+                OpeningBracket = openingBracket;
+                OpeningOffset  = openingOffset;
+                ClosingBracket = closingBracket;
+                ClosingOffset  = closingOffset;
+            }
+        }
     }
 }
