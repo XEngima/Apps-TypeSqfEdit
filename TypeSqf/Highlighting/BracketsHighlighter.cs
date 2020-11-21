@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Editing;
-using TypeSqf.Edit.Replace;
+using ICSharpCode.AvalonEdit.Rendering;
 
 namespace TypeSqf.Edit.Highlighting
 {
@@ -16,30 +16,31 @@ namespace TypeSqf.Edit.Highlighting
         private char[] _bracketsEnding;
         private char[] _bracketsStarting;
         private TextEditor _textEditor;
-        SearchResultsBackgroundRenderer _backgroundMarker;
+        BracketsMatch _bracketsMatch = null;
+        BracketsColorizingTransformer _bracketsColorizingTransformer;
 
         public BracketsHighlighter(TextEditor textEditor)
         {
             _bracketsStarting = new char[] { '{', '(', '[' };
             _bracketsEnding   = new char[] { '}', ')', ']' };
             _textEditor       = textEditor;
+            _bracketsMatch    = null;
             _textEditor.TextArea.Caret.PositionChanged -= Caret_PositionChanged;
             _textEditor.TextArea.Caret.PositionChanged += Caret_PositionChanged;
 
-            // Create and register the marker pen that's used to mark text selection
-            _backgroundMarker = new SearchResultsBackgroundRenderer();
-            Brush markerBrush = new SolidColorBrush(Colors.LightBlue);
-            markerBrush.Opacity = 0.3;
-            _backgroundMarker.MarkerBrush = markerBrush;
-            _textEditor.TextArea.TextView.BackgroundRenderers.Add(_backgroundMarker);
+            _bracketsColorizingTransformer = new BracketsColorizingTransformer();
+            _textEditor.TextArea.TextView.LineTransformers.Add(_bracketsColorizingTransformer);
         }
 
         // Event rased every time caret is changed in document.
         private void Caret_PositionChanged(object sender, EventArgs eventArgs)
         {
             Caret caret = sender as Caret;
-            
-            _backgroundMarker.CurrentResults.Clear();
+            if (_bracketsMatch != null)
+            {
+                _textEditor.TextArea.TextView.Redraw();
+                _bracketsMatch = null;
+            }
             
             int caretOffset = _textEditor.Document.GetOffset(caret.Location);
             char textBefore = '\0';
@@ -50,84 +51,33 @@ namespace TypeSqf.Edit.Highlighting
                 textBefore = _textEditor.Text[caretOffset-1];
             } catch
             {
-
+                return;
             }
             
             if (_bracketsEnding.Contains(textBefore))
             {
                 char searchFor = _bracketsStarting[Array.IndexOf(_bracketsEnding, textBefore)];
-                CommentInfo comment = IsInComment(_textEditor.Text, caretOffset - 1);
-
-                if (!comment.InComment)
-                {
-                    BracketsMatch bracketsMatch = FindMatchingBrackets(caretOffset - 1, searchFor, textBefore);
-
-                    if (bracketsMatch != null)
-                    {
-                        SearchResult result = new SearchResult(bracketsMatch.OpeningOffset, 1);
-                        _backgroundMarker.CurrentResults.Add(result);
-                        SearchResult result1 = new SearchResult(bracketsMatch.ClosingOffset, 1);
-                        _backgroundMarker.CurrentResults.Add(result1);
-                    }
-                }
-
-                
+                _bracketsMatch = FindMatchingBrackets(caretOffset - 1, searchFor, textBefore);
             }
             else if (_bracketsStarting.Contains(textAfter))
             {
                 char searchFor = _bracketsEnding[Array.IndexOf(_bracketsStarting, textAfter)];
-                CommentInfo comment = IsInComment(_textEditor.Text, caretOffset);
-
-                if (!comment.InComment)
-                {
-                    BracketsMatch bracketsMatch = FindMatchingBrackets(caretOffset + 1, textAfter, searchFor);
-
-                    if (bracketsMatch != null)
-                    {
-                        SearchResult result = new SearchResult(bracketsMatch.OpeningOffset, 1);
-                        _backgroundMarker.CurrentResults.Add(result);
-                        SearchResult result1 = new SearchResult(bracketsMatch.ClosingOffset, 1);
-                        _backgroundMarker.CurrentResults.Add(result1);
-                    }
-                }
+                _bracketsMatch = FindMatchingBrackets(caretOffset + 1, textAfter, searchFor);
             }
 
-            _textEditor.TextArea.TextView.InvalidateLayer(ICSharpCode.AvalonEdit.Rendering.KnownLayer.Selection);
-        }
 
-        private CommentInfo IsInComment(string text, int start)
-        {
-            // Line Comment
-            string line = "";
-            try
+            if (_bracketsMatch != null)
             {
-                int lineOffset = text.LastIndexOf("\n", start) -1;
-                int lineEnd = text.IndexOf("\n", start);
-                line = text.Substring(lineOffset, lineEnd - lineOffset);
-            
-                if (line.LastIndexOf("//", start - lineOffset) > 0)
-                {
-                    return new CommentInfo(true, lineOffset + line.LastIndexOf("//", start - lineOffset), lineOffset + line.Length);
-                }
-            }
-            catch
-            {
-                
-            }
+                TextLocation openingLine = _textEditor.Document.GetLocation(_bracketsMatch.OpeningOffset);
+                TextLocation closingLine = _textEditor.Document.GetLocation(_bracketsMatch.ClosingOffset);
 
-            // Block Comment
-            int blockCommentStart = 0;
-            int blockCommentEnd = 0;
-            blockCommentStart = text.LastIndexOf("/*", start);
-            blockCommentEnd = text.LastIndexOf("*/", start);
+                _bracketsColorizingTransformer.Locations.Clear();
+                _bracketsColorizingTransformer.Locations.Add(openingLine);
+                _bracketsColorizingTransformer.Locations.Add(closingLine);
 
-            if (blockCommentEnd < blockCommentStart)
-            {
-                blockCommentEnd = text.IndexOf("*/", start);
-                return new CommentInfo(true, blockCommentStart, blockCommentEnd);
+                _textEditor.TextArea.TextView.Redraw(_bracketsMatch.OpeningOffset, _bracketsMatch.ClosingOffset - _bracketsMatch.OpeningOffset);
+
             }
-
-            return new CommentInfo(false, 0, text.Length);
         }
 
         /// <summary>
@@ -163,9 +113,13 @@ namespace TypeSqf.Edit.Highlighting
                             {
                                 skipTo = _textEditor.Text.IndexOf('\n', i);
                             }
-                            if (nextChar == '*')
+                            else if (nextChar == '*')
                             {
                                 skipTo = _textEditor.Text.IndexOf("*/", i);
+                                if (skipTo == -1)
+                                {
+                                    skipTo = _textEditor.Text.Length;
+                                }
                             }
                         }
                         break;
@@ -234,18 +188,6 @@ namespace TypeSqf.Edit.Highlighting
 
             return null; 
         }
-        public class CommentInfo
-        {
-            public Boolean InComment;
-            public int StartOffset;
-            public int EndOffset;
-            public CommentInfo(Boolean inComment, int start=0, int end=0)
-            {
-                InComment   = inComment;
-                StartOffset = start;
-                EndOffset   = end;
-            }
-        }
 
         public class BracketsMatch
         {
@@ -260,6 +202,45 @@ namespace TypeSqf.Edit.Highlighting
                 OpeningOffset  = openingOffset;
                 ClosingBracket = closingBracket;
                 ClosingOffset  = closingOffset;
+            }
+        }
+    }
+
+    public class BracketsColorizingTransformer : DocumentColorizingTransformer
+    {
+        public List<TextLocation> Locations = new List<TextLocation>();
+
+        protected override void ColorizeLine(DocumentLine line)
+        {
+            List<TextLocation> rowLocations = Locations.FindAll(x => x.Line == line.LineNumber);
+            
+            if (rowLocations.Count > 0)
+            {
+                foreach (TextLocation textLocation in rowLocations)
+                {
+                    int lineStartOffset = line.Offset;
+
+                    base.ChangeLinePart(
+                        lineStartOffset + textLocation.Column - 1,
+                        lineStartOffset + textLocation.Column,
+                        (VisualLineElement element) =>
+                        {
+                            Typeface tf = element.TextRunProperties.Typeface;
+
+                            element.TextRunProperties.SetTypeface(new Typeface(
+                                tf.FontFamily,
+                                System.Windows.FontStyles.Normal,
+                                System.Windows.FontWeights.Bold,
+                                tf.Stretch
+                            ));
+                            element.TextRunProperties.SetForegroundBrush(new SolidColorBrush(Colors.DarkRed));
+                            Brush markerBrush = new SolidColorBrush(Colors.WhiteSmoke);
+                            //markerBrush.Opacity = 0.8;
+                            element.TextRunProperties.SetBackgroundBrush(markerBrush);
+                        });
+
+                    Locations.Remove(textLocation);
+                }
             }
         }
     }
