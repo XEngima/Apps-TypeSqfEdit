@@ -38,6 +38,7 @@ namespace TypeSqf.Edit.Highlighting
             Caret caret = sender as Caret;
             if (_bracketsMatch != null)
             {
+                _bracketsColorizingTransformer.Locations.Clear();
                 _textEditor.TextArea.TextView.Redraw();
                 _bracketsMatch = null;
             }
@@ -71,7 +72,6 @@ namespace TypeSqf.Edit.Highlighting
                 TextLocation openingLine = _textEditor.Document.GetLocation(_bracketsMatch.OpeningOffset);
                 TextLocation closingLine = _textEditor.Document.GetLocation(_bracketsMatch.ClosingOffset);
 
-                _bracketsColorizingTransformer.Locations.Clear();
                 _bracketsColorizingTransformer.Locations.Add(openingLine);
                 _bracketsColorizingTransformer.Locations.Add(closingLine);
 
@@ -238,8 +238,6 @@ namespace TypeSqf.Edit.Highlighting
                             //markerBrush.Opacity = 0.8;
                             element.TextRunProperties.SetBackgroundBrush(markerBrush);
                         });
-
-                    Locations.Remove(textLocation);
                 }
             }
         }
