@@ -1926,6 +1926,8 @@ namespace TypeSqf.Edit
 
         private void TabItem_TabLosingFocus(object sender, TabLosingFocusEventArgs e)
         {
+            MyContext.AnalyzerResultItems.Clear();
+
             if (MyContext.ActiveTabIndex >= 0)
             {
                 var textEditor = FindVisualChildByName<TextEditor>(TabControl, "TheTextEditor");
