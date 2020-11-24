@@ -57,8 +57,8 @@ namespace TypeSqf.Edit
             FileTemplates = new ObservableCollection<FileTemplate>();
             TemplateVariables = new ObservableCollection<TemplateFileVariable>();
 
-            FileTemplates.Add(new FileTemplate("Empty File (SQF)", "sqf", ""));
-            FileTemplates.Add(new FileTemplate("Empty File (SQX)", "sqx", ""));
+            FileTemplates.Add(new FileTemplate("No Template (Empty File)", "", ""));
+            // FileTemplates.Add(new FileTemplate("Empty File (SQX)", "sqx", ""));
 
             // Add the template files
             try
