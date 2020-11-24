@@ -230,10 +230,17 @@ namespace TypeSqf.Edit
             Result = true;
 
             // Set the ordinary templated variables
-            SelectedTemplate.ModifiedContent = SelectedTemplate.ModifiedContent.Replace("%FILENAME%", Path.GetFileNameWithoutExtension(FixedFileName));
-            SelectedTemplate.ModifiedContent = SelectedTemplate.ModifiedContent.Replace("%FILENAMEFULL%", Path.GetFileName(FixedFileName));
-            SelectedTemplate.ModifiedContent = SelectedTemplate.ModifiedContent.Replace("%DATE%", DateTime.Now.ToShortDateString());
-            SelectedTemplate.ModifiedContent = SelectedTemplate.ModifiedContent.Replace("%TIME%", DateTime.Now.ToShortTimeString());
+            try
+            {
+                SelectedTemplate.ModifiedContent = SelectedTemplate.ModifiedContent.Replace("%FILENAME%", Path.GetFileNameWithoutExtension(FixedFileName));
+                SelectedTemplate.ModifiedContent = SelectedTemplate.ModifiedContent.Replace("%FILENAMEFULL%", Path.GetFileName(FixedFileName));
+                SelectedTemplate.ModifiedContent = SelectedTemplate.ModifiedContent.Replace("%DATE%", DateTime.Now.ToShortDateString());
+                SelectedTemplate.ModifiedContent = SelectedTemplate.ModifiedContent.Replace("%TIME%", DateTime.Now.ToShortTimeString());
+            } catch
+            {
+                // Do nothing.
+            }
+        
 
             foreach (TemplateFileVariable templateVariable in TemplateVariables)
             {
