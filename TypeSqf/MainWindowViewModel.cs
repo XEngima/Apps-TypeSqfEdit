@@ -1410,12 +1410,13 @@ namespace TypeSqf.Edit
 
             string relativePath = node.RelativeFileName;
             string fileName = FileNameService.GetFileName();
+            fileName = fileName.TrimStart('/', '\\');
             string displayName = "";
-            string nodeRelativeFilePathName = "";
+            string nodeRelativeDirectoryPathName = "";
             string relativeFilePathName = "";
             string absoluteFilePathName = "";
-            string relativeDirecoryPath = "";
-            string absoluteDirecotryPath = "";
+            string relativeDirectoryPath = "";
+            string absoluteDirectoryPath = "";
 
             if (FileNameService.Cancelled)
             {
@@ -1436,23 +1437,16 @@ namespace TypeSqf.Edit
             try
             {
                 displayName = Path.GetFileNameWithoutExtension(fileName);
-                nodeRelativeFilePathName = Path.GetDirectoryName(fileName);
-                relativeFilePathName = Path.Combine(relativePath, nodeRelativeFilePathName, Path.GetFileName(fileName));
+                nodeRelativeDirectoryPathName = Path.GetDirectoryName(fileName);
+                relativeFilePathName = Path.Combine(relativePath, nodeRelativeDirectoryPathName, Path.GetFileName(fileName));
                 absoluteFilePathName = Path.Combine(ProjectRootDirectory, relativeFilePathName);
-                relativeDirecoryPath = Path.GetDirectoryName(relativeFilePathName);
-                absoluteDirecotryPath = Path.GetDirectoryName(absoluteFilePathName);
+                relativeDirectoryPath = Path.GetDirectoryName(relativeFilePathName);
+                absoluteDirectoryPath = Path.GetDirectoryName(absoluteFilePathName);
             } catch (ArgumentException e)
             {
                 UserMessageService.ShowMessage("You have entered characters of unknown type.", "File name error",
                     MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
-            }
-
-
-            if (Path.GetFileName(fileName).IndexOfAny(Path.GetInvalidFileNameChars()) != -1 ||
-                relativeFilePathName.IndexOfAny(Path.GetInvalidPathChars()) != -1)
-            {
-                
             }
 
             if (File.Exists(absoluteFilePathName))
@@ -1461,14 +1455,14 @@ namespace TypeSqf.Edit
                     MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            if (!Directory.Exists(absoluteDirecotryPath))
+            if (!Directory.Exists(absoluteDirectoryPath))
             {
-                var result = UserMessageService.ShowMessage("That directory didn´t exist." + Environment.NewLine + "Did you mean to create directory '" + relativeDirecoryPath + "'?", "Error",
+                var result = UserMessageService.ShowMessage("That directory didn´t exist." + Environment.NewLine + "Did you mean to create directory '" + relativeDirectoryPath + "'?", "Error",
                     MessageBoxButton.YesNo, MessageBoxImage.Information);
 
                 if (result == MessageBoxResult.Yes)
                 {
-                    Directory.CreateDirectory(absoluteDirecotryPath);
+                    Directory.CreateDirectory(absoluteDirectoryPath);
                 }
                 else
                 {
@@ -1497,7 +1491,7 @@ namespace TypeSqf.Edit
                 IsSelected = true
             };
 
-            node = AddFolderPathToNode(node, nodeRelativeFilePathName);
+            node = AddFolderPathToNode(node, nodeRelativeDirectoryPathName);
             node.InsertChildNode(fileNode);
             OpenFileInTab(absoluteFilePathName);
             SaveProjectFile();
