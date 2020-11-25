@@ -217,7 +217,7 @@ namespace TypeSqf.Edit.Highlighting
       (public)\s+(class|constructor|interface|enum)
     </Rule>
 
-    <Span color=""String"">
+    <Span color=""String"" multiline=""true"">
       <Begin>""</Begin>
       <End>""</End>
       <RuleSet>
@@ -440,7 +440,7 @@ namespace TypeSqf.Edit.Highlighting
       <End>\*/</End>
     </Span>
 
-    <Span color=""String"">
+    <Span color=""String"" multiline=""true"">
       <Begin>""</Begin>
       <End>""</End>
       <RuleSet>
@@ -662,7 +662,7 @@ namespace TypeSqf.Edit.Highlighting
       [A-Za-z0-9_]+
     </Rule>
 
-    <Span color=""String"">
+    <Span color=""String"" multiline=""true"">
       <Begin>""</Begin>
       <End>""</End>
       <RuleSet>
