@@ -447,6 +447,7 @@ namespace TypeSqf.Edit
             }
         }
 
+        private BracketsHighlighter _bracketsHighlighter = null;
         private void tabGettingFocusTimer_Tick(object sender, EventArgs e)
         {
             var timer = sender as DispatcherTimer;
@@ -469,9 +470,13 @@ namespace TypeSqf.Edit
                 textEditor.TextArea.TextEntered += TextArea_TextEntered;
                 textEditor.TextArea.TextEntering += TextArea_TextEntering;
                 textEditor.TextArea.KeyUp += TextArea_KeyUp;
-                new BracketsHighlighter(textEditor);
                 ApplySyntaxHighlighting();
                 ApplyNewSettings();
+
+                if (_bracketsHighlighter == null)
+                {
+                    _bracketsHighlighter = new BracketsHighlighter(textEditor);
+                }
             }
 
             _tabGettingFocusTimerActive = false;
@@ -1953,6 +1958,10 @@ namespace TypeSqf.Edit
                         }
                     }
                 }
+            }
+            else
+            {
+                _bracketsHighlighter = null;
             }
         }
 
