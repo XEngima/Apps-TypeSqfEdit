@@ -57,8 +57,8 @@ namespace TypeSqf.Edit
             FileTemplates = new ObservableCollection<FileTemplate>();
             TemplateVariables = new ObservableCollection<TemplateFileVariable>();
 
-            FileTemplates.Add(new FileTemplate("Empty File (SQF)", "sqf", ""));
-            FileTemplates.Add(new FileTemplate("Empty File (SQX)", "sqx", ""));
+            FileTemplates.Add(new FileTemplate("No Template (Empty File)", "", ""));
+            // FileTemplates.Add(new FileTemplate("Empty File (SQX)", "sqx", ""));
 
             // Add the template files
             try
@@ -230,10 +230,17 @@ namespace TypeSqf.Edit
             Result = true;
 
             // Set the ordinary templated variables
-            SelectedTemplate.ModifiedContent = SelectedTemplate.ModifiedContent.Replace("%FILENAME%", Path.GetFileNameWithoutExtension(FixedFileName));
-            SelectedTemplate.ModifiedContent = SelectedTemplate.ModifiedContent.Replace("%FILENAMEFULL%", Path.GetFileName(FixedFileName));
-            SelectedTemplate.ModifiedContent = SelectedTemplate.ModifiedContent.Replace("%DATE%", DateTime.Now.ToShortDateString());
-            SelectedTemplate.ModifiedContent = SelectedTemplate.ModifiedContent.Replace("%TIME%", DateTime.Now.ToShortTimeString());
+            try
+            {
+                SelectedTemplate.ModifiedContent = SelectedTemplate.ModifiedContent.Replace("%FILENAME%", Path.GetFileNameWithoutExtension(FixedFileName));
+                SelectedTemplate.ModifiedContent = SelectedTemplate.ModifiedContent.Replace("%FILENAMEFULL%", Path.GetFileName(FixedFileName));
+                SelectedTemplate.ModifiedContent = SelectedTemplate.ModifiedContent.Replace("%DATE%", DateTime.Now.ToShortDateString());
+                SelectedTemplate.ModifiedContent = SelectedTemplate.ModifiedContent.Replace("%TIME%", DateTime.Now.ToShortTimeString());
+            } catch
+            {
+                // Do nothing.
+            }
+        
 
             foreach (TemplateFileVariable templateVariable in TemplateVariables)
             {
