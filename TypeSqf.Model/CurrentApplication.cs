@@ -34,7 +34,7 @@ namespace TypeSqf.Model
         {
             get
             {
-                return new AppVersion(1, 07, 20);
+                return new AppVersion(1, 07, 22);
             }
         }
 
