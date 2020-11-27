@@ -3,6 +3,14 @@ Future
 -Added function "goto definition" for types, methods and variables.
 -SQX: Script command "spawn" can now be used without arguments.
 
+Version 1.08
+-Added bracked highlighting (thans Josef!)
+-Added context menu for undo, redo, cut, copy, paste and replace (thanks GHSid!)
+-Support for multiline strings in SQF.
+-Fixed: The CPack Manager sometimes added non existing file nodes in the project tree view.
+-General fixes and improvements.
+-SQX: Support for multiline strings.
+
 Version 1.07
 -It is now possible to rename files in the project tree view.
 -Fixed: Addressed some stability issues (thanks Josef!).
