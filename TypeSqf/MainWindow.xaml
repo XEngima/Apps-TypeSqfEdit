@@ -315,6 +315,18 @@
                                 Text2="{Binding Text, Mode=TwoWay}"
                                 VerticalOffset2="{Binding CaretOffset, Mode=TwoWay}"
                                 Background="{Binding ElementName=TheTextEditor, Path=ThemeBackgroundColor}">
+                              <avalonedit:TextEditor.ContextMenu>
+                                <ContextMenu>
+                                  <MenuItem Command="Undo" />
+                                  <MenuItem Command="Redo" />
+                                  <Separator/>
+                                  <MenuItem Command="Cut" />
+                                  <MenuItem Command="Copy" />
+                                  <MenuItem Command="Paste" />
+                                  <Separator/>
+                                  <MenuItem Command="Replace" />
+                                </ContextMenu>
+                              </avalonedit:TextEditor.ContextMenu>
                             </avalonedit:TextEditor>
                         </DataTemplate>
                     </TabControl.ContentTemplate>
