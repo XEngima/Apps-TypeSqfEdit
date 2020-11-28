@@ -4149,7 +4149,19 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="createDisplay" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing or (Since Arma 3 v1.49." Descr="Create child display of given display and load from &quot;resourceName&quot;." Syntax="parent createDisplay resourceName">
+  <Command Name="createDisplay" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Create child display of given display and load from &quot;resourceName&quot;." Syntax="parent createDisplay resourceName">
+    <PreArg DataType="Display">
+      <ParamInfos>
+        <ParamInfo Name="parent" DataType="Display"/>
+      </ParamInfos>
+    </PreArg>
+    <PostArg DataType="String">
+      <ParamInfos>
+        <ParamInfo Name="resourceName" DataType="String"/>
+      </ParamInfos>
+    </PostArg>
+  </Command>
+  <Command Name="createDisplay" ReturnType="Display" ReturnName="result" ReturnDescr="Display" Descr="Create child display of given display and load from &quot;resourceName&quot;." Syntax="parent createDisplay resourceName">
     <PreArg DataType="Display">
       <ParamInfos>
         <ParamInfo Name="parent" DataType="Display"/>
