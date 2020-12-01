@@ -3,7 +3,7 @@
 		Parser for Arma 3 commands
 			created by Josef
 		   for TypeSQF editor
-	  XML created 2020-10-23 21:02:02
+	  XML created 2020-12-02 00:11:18
 -->
 <ScriptCommands xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Command Name="#" ReturnType="Any" ReturnName="Any" ReturnDescr="" Descr="Selects an element from an array, same as select command for arrays, but has higher precedence." Syntax="array # index">
@@ -4149,7 +4149,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="createDisplay" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Create child display of given display and load from &quot;resourceName&quot;." Syntax="parent createDisplay resourceName">
+  <Command Name="createDisplay" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing or (Since Arma 3 v1.49." Descr="Create child display of given display and load from &quot;resourceName&quot;." Syntax="parent createDisplay resourceName">
     <PreArg DataType="Display">
       <ParamInfos>
         <ParamInfo Name="parent" DataType="Display"/>
@@ -4161,7 +4161,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="createDisplay" ReturnType="Display" ReturnName="result" ReturnDescr="Display" Descr="Create child display of given display and load from &quot;resourceName&quot;." Syntax="parent createDisplay resourceName">
+  <Command Name="createDisplay" ReturnType="Display" ReturnName="result" ReturnDescr="Nothing or (Since Arma 3 v1.49." Descr="Create child display of given display and load from &quot;resourceName&quot;." Syntax="parent createDisplay resourceName">
     <PreArg DataType="Display">
       <ParamInfos>
         <ParamInfo Name="parent" DataType="Display"/>
@@ -6390,7 +6390,7 @@
       </ParamInfos>
     </PostArg>
   </Command>
-  <Command Name="date" ReturnType="Any" ReturnName="result" ReturnDescr="Date - format [year, month, day, hour, minute]" Descr="Return the actual mission date and time as an array [year, month, day, hour, minute]." Syntax="date">
+  <Command Name="date" ReturnType="Array" ReturnName="result" ReturnDescr="Date - format [year, month, day, hour, minute]" Descr="Return the actual mission date and time as an array [year, month, day, hour, minute]." Syntax="date">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Nothing"/>
   </Command>
@@ -6398,7 +6398,11 @@
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Array">
       <ParamInfos>
-        <ParamInfo Name="date" DataType="Array"/>
+        <ParamInfo Name="year" DataType="Scalar"/>
+        <ParamInfo Name="month" DataType="Scalar"/>
+        <ParamInfo Name="day" DataType="Scalar"/>
+        <ParamInfo Name="hour" DataType="Scalar"/>
+        <ParamInfo Name="minute" DataType="Scalar"/>
       </ParamInfos>
     </PostArg>
   </Command>
@@ -6748,6 +6752,20 @@
     <PostArg DataType="String">
       <ParamInfos>
         <ParamInfo Name="diag_mode" DataType="String"/>
+      </ParamInfos>
+    </PostArg>
+  </Command>
+  <Command Name="diag_exportTerrainSVG" ReturnType="Nothing" ReturnName="" ReturnDescr="Nothing" Descr="🏗This article is a work in progress!Like the old TOPOGRAPHY cheat code, exports terrain, but in modern SVG Format instead of the proprietary EMF form" Syntax="diag_exportTerrainSVG [filePath, drawLocationNames, drawGrid, drawCountlines, drawTreeObjects, drawMountainHeightpoints, simpleRoads]">
+    <PreArg DataType="Nothing"/>
+    <PostArg DataType="Array">
+      <ParamInfos>
+        <ParamInfo Name="filePath" DataType="String"/>
+        <ParamInfo Name="drawLocationNames" DataType="Boolean"/>
+        <ParamInfo Name="drawGrid" DataType="Boolean"/>
+        <ParamInfo Name="drawCountlines" DataType="Boolean"/>
+        <ParamInfo Name="drawTreeObjects" DataType="Boolean"/>
+        <ParamInfo Name="drawMountainHeightpoints" DataType="Boolean"/>
+        <ParamInfo Name="simpleRoads" DataType="Boolean"/>
       </ParamInfos>
     </PostArg>
   </Command>
@@ -16062,6 +16080,75 @@
       </ParamInfos>
     </PostArg>
   </Command>
+  <Command Name="menuSetShortcut" ReturnType="Nothing" ReturnName="" ReturnDescr="Nothing" Descr="Sets shortcut of given menu strip entry." Syntax="menuSetShortcut [idc, path, shortcut]">
+    <PreArg DataType="Nothing"/>
+    <PostArg DataType="Array">
+      <ParamInfos>
+        <ParamInfo Name="idc" DataType="Scalar"/>
+        <ParamInfo Name="path" DataType="Array"/>
+        <ParamInfo Name="shortcut" DataType="Scalar"/>
+      </ParamInfos>
+    </PostArg>
+  </Command>
+  <Command Name="menuSetShortcut" ReturnType="Nothing" ReturnName="" ReturnDescr="Nothing" Descr="Sets shortcut of given menu strip entry." Syntax="control menuSetShortcut [path, shortcut]">
+    <PreArg DataType="Control">
+      <ParamInfos>
+        <ParamInfo Name="control" DataType="Control"/>
+      </ParamInfos>
+    </PreArg>
+    <PostArg DataType="Array">
+      <ParamInfos>
+        <ParamInfo Name="path" DataType="Array"/>
+        <ParamInfo Name="shortcut" DataType="Scalar"/>
+      </ParamInfos>
+    </PostArg>
+  </Command>
+  <Command Name="menuSetText" ReturnType="Nothing" ReturnName="" ReturnDescr="Nothing" Descr="Sets text of given menu strip entry." Syntax="menuSetText [idc, path, text]">
+    <PreArg DataType="Nothing"/>
+    <PostArg DataType="Array">
+      <ParamInfos>
+        <ParamInfo Name="idc" DataType="Scalar"/>
+        <ParamInfo Name="path" DataType="Array"/>
+        <ParamInfo Name="text" DataType="String"/>
+      </ParamInfos>
+    </PostArg>
+  </Command>
+  <Command Name="menuSetText" ReturnType="Nothing" ReturnName="" ReturnDescr="Nothing" Descr="Sets text of given menu strip entry." Syntax="control menuSetText [path, text]">
+    <PreArg DataType="Control">
+      <ParamInfos>
+        <ParamInfo Name="control" DataType="Control"/>
+      </ParamInfos>
+    </PreArg>
+    <PostArg DataType="Array">
+      <ParamInfos>
+        <ParamInfo Name="path" DataType="Array"/>
+        <ParamInfo Name="text" DataType="String"/>
+      </ParamInfos>
+    </PostArg>
+  </Command>
+  <Command Name="menuSetURL" ReturnType="Nothing" ReturnName="" ReturnDescr="Nothing" Descr="Sets weblink (URL) of given menu strip entry." Syntax="menuSetURL [idc, path, link]">
+    <PreArg DataType="Nothing"/>
+    <PostArg DataType="Array">
+      <ParamInfos>
+        <ParamInfo Name="idc" DataType="Scalar"/>
+        <ParamInfo Name="path" DataType="Array"/>
+        <ParamInfo Name="link" DataType="String"/>
+      </ParamInfos>
+    </PostArg>
+  </Command>
+  <Command Name="menuSetURL" ReturnType="Nothing" ReturnName="" ReturnDescr="Nothing" Descr="Sets weblink (URL) of given menu strip entry." Syntax="control menuSetURL [path, link]">
+    <PreArg DataType="Control">
+      <ParamInfos>
+        <ParamInfo Name="control" DataType="Control"/>
+      </ParamInfos>
+    </PreArg>
+    <PostArg DataType="Array">
+      <ParamInfos>
+        <ParamInfo Name="path" DataType="Array"/>
+        <ParamInfo Name="link" DataType="String"/>
+      </ParamInfos>
+    </PostArg>
+  </Command>
   <Command Name="menuSetValue" ReturnType="Nothing" ReturnName="result" ReturnDescr="Nothing" Descr="Sets new value into menu entry on given path." Syntax="menuSetValue [idc, path, value]">
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Array">
@@ -16371,7 +16458,11 @@
     <PreArg DataType="Nothing"/>
     <PostArg DataType="Array">
       <ParamInfos>
-        <ParamInfo Name="date" DataType="Array"/>
+        <ParamInfo Name="year" DataType="Scalar"/>
+        <ParamInfo Name="month" DataType="Scalar"/>
+        <ParamInfo Name="day" DataType="Scalar"/>
+        <ParamInfo Name="hour" DataType="Scalar"/>
+        <ParamInfo Name="minute" DataType="Scalar"/>
       </ParamInfos>
     </PostArg>
   </Command>
