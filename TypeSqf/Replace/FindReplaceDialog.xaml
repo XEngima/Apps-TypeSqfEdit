@@ -6,7 +6,7 @@
 
         Title="Find and Replace" WindowStartupLocation="Manual"
 
-        Width="300" SizeToContent="Height" ResizeMode="NoResize" 
+        Width="330" SizeToContent="Height" ResizeMode="NoResize" 
         
         Name="FindReplaceWindow"
 
