@@ -2038,7 +2038,7 @@ namespace TypeSqf.Edit
 
         private void CPackLibraryMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
-            System.Diagnostics.Process.Start("http://typesqf.no-ip.org/cpack");
+            System.Diagnostics.Process.Start(CurrentApplication.TypeSqfDomain + "/cpack");
         }
 
         private void SettingsMenuItem_Click(object sender, RoutedEventArgs e)
@@ -2082,7 +2082,7 @@ namespace TypeSqf.Edit
 
         private void SqxReferenceMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            System.Diagnostics.Process.Start("http://typesqf.no-ip.org/sqxreference");
+            System.Diagnostics.Process.Start(CurrentApplication.TypeSqfDomain + "/sqxreference");
         }
 
         private void TabControl_Drop(object sender, DragEventArgs e)
