@@ -1382,7 +1382,7 @@ namespace TypeSqf.Edit
 
             foreach (ProjectFolderNodeViewModel folderNode in node.Children.Where(n => n is ProjectFolderNodeViewModel))
             {
-                if (folderNode.DisplayName == nextFolderName)
+                if (folderNode.DisplayName.ToLower() == nextFolderName.ToLower())
                 {
                     folderNode.IsExpanded = true;
                     return AddFolderPathToNode(folderNode, sbRestPath.ToString());

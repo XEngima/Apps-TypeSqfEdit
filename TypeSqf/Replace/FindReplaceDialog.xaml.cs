@@ -585,7 +585,7 @@ namespace TypeSqf.Edit.Replace
                 var editorWidth = editor.ActualWidth;
                 var editorPos = editor.PointToScreen(new Point(editorWidth,0));
                 theDialog.Top = editorPos.Y-1;
-                theDialog.Left = editorPos.X-12 - theDialog.Width;
+                theDialog.Left = editorPos.X - 12 - theDialog.Width;
 
                 theDialog.tabMain.SelectedIndex = selectedTab;
                 theDialog.Show();
